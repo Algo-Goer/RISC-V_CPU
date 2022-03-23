@@ -8,7 +8,7 @@
 
 ### 1、addi （I-type）
 
-![](D:\WorkSpace\Git_Project\RISC-V_CPU\project-info\lab1-info\img\addi.png)
+![](img\addi.png)
 
 alu进行**加法运算**，结果写回寄存器rd，instruction[11 : 7]
 
@@ -16,7 +16,7 @@ alu进行**加法运算**，结果写回寄存器rd，instruction[11 : 7]
 
 ### 2、xori（I-type）
 
-![](D:\WorkSpace\Git_Project\RISC-V_CPU\project-info\lab1-info\img\xori.png)
+![](img\xori.png)
 
 alu进行**异或运算**，结果写回寄存器rd，instruction[11 : 7]
 
@@ -24,9 +24,9 @@ alu进行**异或运算**，结果写回寄存器rd，instruction[11 : 7]
 
 ### 3、ori（I-type）
 
-![](D:\WorkSpace\Git_Project\RISC-V_CPU\project-info\lab1-info\img\ori.png)
+![]( img\ori.png)
 
-![](D:\WorkSpace\Git_Project\RISC-V_CPU\project-info\lab1-info\img\ori2.png)
+![]( img\ori2.png)
 
 alu进行**或运算**，结果写回寄存器rd，instruction[11 : 7]
 
@@ -34,7 +34,7 @@ alu进行**或运算**，结果写回寄存器rd，instruction[11 : 7]
 
 ### 4、andi（I-type）
 
-![](D:\WorkSpace\Git_Project\RISC-V_CPU\project-info\lab1-info\img\andi.png)
+![]( img\andi.png)
 
 alu进行**与运算**，结果写回寄存器rd，instruction[11 : 7]
 
@@ -42,7 +42,7 @@ alu进行**与运算**，结果写回寄存器rd，instruction[11 : 7]
 
 ### 5、lui（U-type）
 
-![](D:\WorkSpace\Git_Project\RISC-V_CPU\project-info\lab1-info\img\lui.png)
+![]( img\lui.png)
 
 alu进行**UNKNOWN**运算，结果写回寄存器rd，instruction[11 : 7]
 
@@ -50,7 +50,7 @@ alu进行**UNKNOWN**运算，结果写回寄存器rd，instruction[11 : 7]
 
 ### 6、auipc （U-type）
 
-![](D:\WorkSpace\Git_Project\RISC-V_CPU\project-info\lab1-info\img\auipc.png)
+![]( img\auipc.png)
 
 alu进行**加法**运算，结果写回寄存器rd，instruction[11 : 7]
 
@@ -60,37 +60,37 @@ alu进行**加法**运算，结果写回寄存器rd，instruction[11 : 7]
 
 ### 7、add （R-type）
 
-![](D:\WorkSpace\Git_Project\RISC-V_CPU\project-info\lab1-info\img\add.png)
+![]( img\add.png)
 
 alu进行**加法**操作，结果写回寄存器；
 
 ### 8、sub （R-type）
 
-![](D:\WorkSpace\Git_Project\RISC-V_CPU\project-info\lab1-info\img\sub.png)
+![]( img\sub.png)
 
 alu进行**减法**操作，结果写回寄存器；
 
 ### 9、and （R-type）
 
-![](D:\WorkSpace\Git_Project\RISC-V_CPU\project-info\lab1-info\img\and.png)
+![]( img\and.png)
 
 alu进行**与**操作，结果写回寄存器；
 
 ### 10、or （R-type）
 
-![](D:\WorkSpace\Git_Project\RISC-V_CPU\project-info\lab1-info\img\or.png)
+![]( img\or.png)
 
 alu进行**或**操作，结果写回寄存器；
 
 ### 11、xor （R-type）
 
-![](D:\WorkSpace\Git_Project\RISC-V_CPU\project-info\lab1-info\img\xor.png)
+![]( img\xor.png)
 
 alu进行**异或**操作，结果写回寄存器；
 
 ### 12、ld （I-type）
 
-![](D:\WorkSpace\Git_Project\RISC-V_CPU\project-info\lab1-info\img\ld.png)
+![]( img\ld.png)
 
 alu进行**加法**操作，结果（不是运算结果，而是访存结果）写回寄存器；
 
@@ -98,7 +98,7 @@ alu进行**加法**操作，结果（不是运算结果，而是访存结果）�
 
 ### 13、sd （S-type）
 
-![](D:\WorkSpace\Git_Project\RISC-V_CPU\project-info\lab1-info\img\sd.png)
+![]( img\sd.png)
 
 alu进行**加法**操作，结果不写回寄存器；
 
@@ -120,7 +120,7 @@ offset扩展：offset的[11 : 0]（12位）被打散在指令中，对应关系�
 
 ### 14、jal （J-type）
 
-![](D:\WorkSpace\Git_Project\RISC-V_CPU\project-info\lab1-info\img\jal.png)
+![]( img\jal.png)
 
 指令解释：有返回，无条件跳转指令；设置pc + 4为返回地址，存到寄存器rd中，instruction[11 : 7]；将pc跳转到pc + sext(offset)
 
@@ -145,9 +145,9 @@ alu进行**加**运算，结果写回寄存器rd，instruction[11 : 7]；
 
 ### 15、jalr（J-type）
 
-![](D:\WorkSpace\Git_Project\RISC-V_CPU\project-info\lab1-info\img\jalr.png)
+![]( img\jalr.png)
 
-![](D:\WorkSpace\Git_Project\RISC-V_CPU\project-info\lab1-info\img\jalr2.png)
+![]( img\jalr2.png)
 
 指令解释：有返回，无条件跳转指令；设置pc + 4为返回地址，存到寄存器rd中，instruction[11 : 7]；
 
@@ -155,7 +155,7 @@ alu进行**加**运算，结果写回寄存器rd，instruction[11 : 7]；
 
 ### 16、beq （B-type）
 
-![](D:\WorkSpace\Git_Project\RISC-V_CPU\project-info\lab1-info\img\beq.png)
+![]( img\beq.png)
 
 alu进行**equal**运算，结果不写回寄存器；
 
