@@ -1,9 +1,9 @@
 main.o: \
- /mnt/d/WorkSpace/Vscode_WorkSpace/SystemVerilog/Arch-2022Spring-FDU/difftest/src/test/csrc/verilator/main.cpp \
- /mnt/d/WorkSpace/Vscode_WorkSpace/SystemVerilog/Arch-2022Spring-FDU/difftest/src/test/csrc/verilator/emu.h \
- /mnt/d/WorkSpace/Vscode_WorkSpace/SystemVerilog/Arch-2022Spring-FDU/difftest/src/test/csrc/common/common.h \
- /mnt/d/WorkSpace/Vscode_WorkSpace/SystemVerilog/Arch-2022Spring-FDU/difftest/src/test/csrc/common/../../../../config/config.h \
- /mnt/d/WorkSpace/Vscode_WorkSpace/SystemVerilog/Arch-2022Spring-FDU/difftest/src/test/csrc/verilator/snapshot.h \
+ /mnt/d/WorkSpace/Git_Project/RSIC-V_CPU/difftest/src/test/csrc/verilator/main.cpp \
+ /mnt/d/WorkSpace/Git_Project/RSIC-V_CPU/difftest/src/test/csrc/verilator/emu.h \
+ /mnt/d/WorkSpace/Git_Project/RSIC-V_CPU/difftest/src/test/csrc/common/common.h \
+ /mnt/d/WorkSpace/Git_Project/RSIC-V_CPU/difftest/src/test/csrc/common/../../../../config/config.h \
+ /mnt/d/WorkSpace/Git_Project/RSIC-V_CPU/difftest/src/test/csrc/verilator/snapshot.h \
  VSimTop.h /usr/local/share/verilator/include/verilated_heavy.h \
  /usr/local/share/verilator/include/verilated.h \
  /usr/local/share/verilator/include/verilatedos.h \
