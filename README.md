@@ -32,5 +32,5 @@ RISC-V_CPU
 │── Makefile：仿真测试的命令汇总  
 │── README.md: 此文件  
 
-## lab1 五级流水线
+## lab1 RISC-V基本五级流水线
 需要实现指令：addi xori ori andi lui jal beq ld sd add sub and or xor auipc jalr

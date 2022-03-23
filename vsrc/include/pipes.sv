@@ -75,11 +75,9 @@ typedef struct packed {
 } excute_data_t;
 
 typedef struct packed {
-	word_t srca, srcb;
-	control_t ctl;
-	creg_addr_t dst;
-	u64 pc;
-	logic is_jump;
+	creg_addr_t dst;	//写回regfile编号
+	u1 regwrite;		//regfile写使能
+	word_t wdata;		//写回的数据
 } memory_data_t;
 
 endpackage
