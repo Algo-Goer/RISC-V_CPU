@@ -510,7 +510,6 @@ typedef struct packed {
     u1 memwrite;			// 内存写使能
     // writeback控制信号
     u1 regwrite;			// regfile写使能
-    u1 regwrite;			// regfile写使能
     creg_addr_t dst;		// 写回regfile编号
 } excute_control_t;
 
@@ -534,4 +533,4 @@ typedef struct packed {
 
 ## 五、流水寄存器设计
 
-在各流水段间插入流水寄存器，实现流水线工作。流水寄存器需要考虑流水线中的气泡等问题。
+在各流水段间插入流水寄存器，实现流水线工作。流水寄存器需要考虑流水线中的气泡与阻塞等问题。

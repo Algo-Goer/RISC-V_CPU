@@ -4,7 +4,6 @@
 `ifdef VERILATOR
 `include "include/common.sv"
 `include "include/pipes.sv"
-`include "pipeline/decode/decoder.sv"
 `else
 
 `endif
@@ -14,12 +13,12 @@ module extend
     import pipes::*; (
     
     input u32 instruction,
-    input decode_data_t op,
-    output u64 sextimm
+    input decode_op_t op,
+    output word_t sextimm
 );
 
     u64 imm = '0;
-    always_comb begin
+    always_latch begin
         unique case(op)
             ADDI, ORI, ANDI, XORI, LD, JALR: begin
                 imm = {

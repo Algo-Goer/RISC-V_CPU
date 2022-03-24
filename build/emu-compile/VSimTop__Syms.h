@@ -32,10 +32,6 @@ class VSimTop__Syms final : public VerilatedSyms {
     VSimTop___024root              TOP;
     VSimTop___024unit              TOP____024unit;
 
-    // SCOPE NAMES
-    VerilatedScope __Vscope_SimTop__core__decode__decoder;
-    VerilatedScope __Vscope_SimTop__core__decode__extend;
-
     // CONSTRUCTORS
     VSimTop__Syms(VerilatedContext* contextp, const char* namep, VSimTop* modelp);
     ~VSimTop__Syms();

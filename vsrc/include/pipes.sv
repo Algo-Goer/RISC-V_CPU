@@ -28,11 +28,14 @@ parameter F3_XOR = 3'b100;
 
 
 /* Define pipeline structures here */
+// alu进行的操作类型
 typedef enum logic [4:0] {
 	ALU_ADD, ALU_SUB, 
-	ALU_OR, ALU_AND, ALU_XOR
+	ALU_OR, ALU_AND, ALU_XOR,
+	ALU_EQUAL
 } alufunc_t;
 
+// decode判断出的指令类型
 typedef enum logic [5 : 0] { 
 	UNKNOWN, 
 	ADDI, ORI, ANDI, XORI, 
@@ -43,41 +46,59 @@ typedef enum logic [5 : 0] {
 	BEQ
 } decode_op_t;
 
+// decode流水段产生的控制信号
 typedef struct packed {
-	alufunc_t func;
-	decode_op_t op;
-	u1 regwrite;
-	u1 memwrite;
-	u1 jump;
-} control_t;
+    // fetch控制信号
+    u1 jump;					//无条件跳转
+    // execute控制信号
+    alufunc_t func;				// alu操作
+    // memory控制信号
+    u1 memread;					// 内存读使能
+    u1 memwrite;				// 内存写使能
+    // writeback控制信号
+    u1 regwrite;				// regfile写使能
+    creg_addr_t dst;			// 写回regfile编号
+} decode_control_t;
 
+// execute阶段传递的控制信号
 typedef struct packed {
-	u32 instruction;
-	u64 pc;
+    // fetch控制信号
+    u1 b_jump;					// 条件跳转
+    // memory控制信号
+    u1 memread;					// 内存读使能
+    u1 memwrite;				// 内存写使能
+    // writeback控制信号
+    u1 regwrite;				// regfile写使能
+    creg_addr_t dst;			// 写回regfile编号
+} execute_control_t;
+
+// fetch阶段产生的信号
+typedef struct packed {
+	u32 instruction;			//指令
+	u64 pc;						//pc
 } fetch_data_t;
 
+// decode阶段产生的信号
 typedef struct packed {
-	word_t srca, srcb;
-	word_t sextimm;
-	creg_addr_t dst;
-	control_t ctl;
-	u64 pc;
+    u64 j_addr;					//跳转pc的地址（在decode进行选择将多余的地址过滤掉）
+	word_t srca, srcb;			// 操作数
+    word_t memdata;				// 待写入内存的数据，x[instruction[24 : 20]]
+    decode_control_t ctl;		// 控制信号
 } decode_data_t;
 
+// execute阶段产生的信号
 typedef struct packed {
-	word_t result;		//访存地址 或 写回的数据
-	//访存信号
-	word_t wdata;		//写入内存的数据
-	u1 memwrite;		//内存写使能
-	//写回信号
-	creg_addr_t dst;	//写回regfile编号
-	u1 regwrite;		//regfile写使能
-} excute_data_t;
+    word_t memdata;				// 待写入内存的数据
+    word_t result;				// 计算结果，可能作为访存地址，也可能作为regfile写回数据
+    execute_control_t ctl;		// 控制信号
+} execute_data_t;
 
+// memory阶段产生的信号
 typedef struct packed {
-	creg_addr_t dst;	//写回regfile编号
-	u1 regwrite;		//regfile写使能
-	word_t wdata;		//写回的数据
+	u1 regwrite;				// regfile写使能
+	creg_addr_t dst;			// 写回regfile编号
+	word_t regdata;				// 写回的数据
+	word_t memdata;				// 待写入内存的数据
 } memory_data_t;
 
 endpackage

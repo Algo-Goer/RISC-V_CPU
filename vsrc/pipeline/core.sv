@@ -7,6 +7,8 @@
 `include "pipeline/fetch/pcselect.sv"
 `include "pipeline/fetch/fetch.sv"
 `include "pipeline/decode/decode.sv"
+`include "pipeline/execute/execute.sv"
+`include "pipeline/memory/memory.sv"
 `else
 
 `endif
@@ -25,18 +27,17 @@ module core
 	u32 instruction;
 	creg_addr_t ra1, ra2;
 	word_t rd1, rd2;
-	word_t result;
+	word_t memread_data;
 
 	fetch_data_t dataF;
 	decode_data_t dataD;
+	execute_data_t dataE;
+	memory_data_t dataM;
 	
 	assign ireq.addr = pc;
 	assign instruction = iresp.data;
-
-	assign result = rd1 + {
-		{52{instruction[31]}}, 
-		instruction[31 : 20]
-	};
+	assign dreq.addr = dataE.result;
+	assign memread_data = dresp.data;
 
 	always_ff @(posedge clk ) begin
 		if (reset) begin
@@ -47,7 +48,10 @@ module core
 	end
 
 	pcselect pcselect(
+		.jump(dataD.ctl.jump),
+		.b_jump(dataE.ctl.b_jump),
 		.pcplus4(pc + 4),
+		.j_addr(dataD.j_addr),
 		.pcselected(pcnext)
 	);
 
@@ -66,15 +70,26 @@ module core
 		.dataD(dataD)
 	);
 
+	execute execute(
+		.dataD(dataD),
+		.dataE(dataE)
+	);
+
+	memory memory(
+		.dataE(dataE),
+		.memread_data(memread_data),
+		.dataM(dataM)
+	);
+
 	regfile regfile(
 		.clk, .reset,
 		.ra1(ra1),
 		.ra2(ra2),
 		.rd1(rd1),
 		.rd2(rd2),
-		.wvalid(dataD.ctl.regwrite),
-		.wa(dataD.dst),
-		.wd(result)
+		.wvalid(dataM.regwrite),
+		.wa(dataM.dst),
+		.wd(dataM.regdata)
 	);
 
 `ifdef VERILATOR
@@ -88,9 +103,9 @@ module core
 		.skip               (0),
 		.isRVC              (0),
 		.scFailed           (0),
-		.wen                (dataD.ctl.regwrite),
-		.wdest              (dataD.dst),
-		.wdata              (result)
+		.wen                (dataM.regwrite),
+		.wdest              (dataM.dst),
+		.wdata              (dataM.regdata)
 	);
 	      
 	DifftestArchIntRegState DifftestArchIntRegState (

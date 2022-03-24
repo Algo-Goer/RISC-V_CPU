@@ -35,6 +35,7 @@ VL_MODULE(VSimTop___024root) {
     VL_IN64(io_logCtrl_log_level,63,0);
 
     // LOCAL SIGNALS
+    CData/*5:0*/ SimTop__DOT__core__DOT__decode__DOT__op;
     SData/*13:0*/ SimTop__DOT__core__DOT__decode__DOT__ctl;
     VlWide<3>/*64:0*/ SimTop__DOT__ireq;
     QData/*33:0*/ SimTop__DOT__iresp;
@@ -42,10 +43,13 @@ VL_MODULE(VSimTop___024root) {
     VlWide<3>/*65:0*/ SimTop__DOT__dresp;
     QData/*63:0*/ SimTop__DOT__core__DOT__pc;
     QData/*63:0*/ SimTop__DOT__core__DOT__pcnext;
-    QData/*63:0*/ SimTop__DOT__core__DOT__result;
     VlWide<3>/*95:0*/ SimTop__DOT__core__DOT__dataF;
-    VlWide<9>/*274:0*/ SimTop__DOT__core__DOT__dataD;
+    VlWide<9>/*269:0*/ SimTop__DOT__core__DOT__dataD;
+    VlWide<5>/*136:0*/ SimTop__DOT__core__DOT__dataE;
+    VlWide<5>/*133:0*/ SimTop__DOT__core__DOT__dataM;
     QData/*63:0*/ SimTop__DOT__core__DOT__decode__DOT__extend__DOT__imm;
+    QData/*63:0*/ SimTop__DOT__core__DOT__decode__DOT__dataconfirm__DOT__data1;
+    QData/*63:0*/ SimTop__DOT__core__DOT__decode__DOT__dataconfirm__DOT__data2;
     VlWide<64>/*2047:0*/ SimTop__DOT__core__DOT__regfile__DOT__regs;
     VlWide<64>/*2047:0*/ SimTop__DOT__core__DOT__regfile__DOT__regs_nxt;
     QData/*63:0*/ SimTop__DOT__ram__DOT__wmask;
@@ -53,9 +57,12 @@ VL_MODULE(VSimTop___024root) {
 
     // LOCAL VARIABLES
     CData/*0:0*/ __Vclklast__TOP__clock;
+    QData/*63:0*/ SimTop__DOT__core__DOT____Vcellout__regfile__rd2;
     QData/*63:0*/ SimTop__DOT__core__DOT____Vcellout__regfile__rd1;
+    QData/*63:0*/ SimTop__DOT__core__DOT__execute__DOT____Vcellout__alu__c;
     QData/*63:0*/ __Vfunc_ram_read_helper__5__Vfuncout;
     QData/*63:0*/ __Vfunc_ram_read_helper__6__Vfuncout;
+    QData/*63:0*/ __Vfunc_ram_read_helper__7__Vfuncout;
     VlUnpacked<CData/*0:0*/, 2> __Vm_traceActivity;
 
     // INTERNAL VARIABLES

@@ -6,6 +6,7 @@
 `include "include/pipes.sv"
 `include "pipeline/decode/decoder.sv"
 `include "pipeline/decode/extend.sv"
+`include "pipeline/decode/dataconfirm.sv"
 `else
 
 `endif
@@ -25,25 +26,45 @@ module decode
 );
     
     word_t imm;
-    control_t ctl;
+    decode_control_t ctl;
+    decode_op_t op;
+    word_t srca, srcb;
     
     decoder decoder(
         .instruction(dataF.instruction),
-        .ctl(ctl)
+        .ctl(ctl),
+        .op(op)
     );
 
     extend extend(
         .instruction(dataF.instruction),
-        .op(ctl.op),
+        .op(op),
         .sextimm(imm)
     );
 
-    assign dataD.srca = rd1;
-    assign dataD.srcb = rd2;
+    dataconfirm dataconfirm(
+        .pc(dataF.pc),
+        .op(op),
+        .rd1(rd1),
+        .rd2(rd2),
+        .imm(imm),
+        .srca(srca),
+        .srcb(srcb)
+    );
+
+    // 确定pc跳转的地址
+    assign dataD.j_addr = (op == JALR) ? 
+                (rd1 + imm) & (~1) : dataF.pc + imm;
+    
+    // 确定excute的两个操作数
+    assign dataD.srca = srca;
+    assign dataD.srcb = srcb;
+
+    // 确定要写入内存的数据
+    assign dataD.memdata = (op == SD) ? '0 : rd2;
+
+    // 确定控制信号
     assign dataD.ctl = ctl;
-    assign dataD.dst = dataF.instruction[11 : 7];
-    assign dataD.pc = dataF.pc;
-    assign dataD.sextimm = imm;
 
     //regfile address
     assign ra1 = dataF.instruction[19 : 15];

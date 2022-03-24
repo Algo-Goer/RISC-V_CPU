@@ -12,18 +12,19 @@ module memory
     import common::*;
     import pipes::*;(
     
-    input excute_data_t dataE,
+    input execute_data_t dataE,
+    input word_t memread_data,
     output memory_data_t dataM
 );
 
-    // 产生Writeback的信号
-    assign dataM.dst = dataE.dst;
-    assign dataM.regwrite = dataE.regfile;
-    assign dataM.wdata = dataE.wdata;
+    execute_control_t ctl = dataE.ctl;
 
-    // 执行访存
-    
-    
+    assign dataM.regwrite = ctl.regwrite;
+    assign dataM.dst = ctl.dst;
+    assign dataM.regdata = (ctl.memread) ? 
+                    memread_data : dataE.result;
+    assign dataM.memdata = dataE.memdata;
+
 endmodule
 
 `endif 

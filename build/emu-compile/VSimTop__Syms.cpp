@@ -27,9 +27,6 @@ VSimTop__Syms::VSimTop__Syms(VerilatedContext* contextp, const char* namep,VSimT
     // Setup each module's pointer back to symbol table (for public functions)
     TOP.__Vconfigure(this, true);
     TOP____024unit.__Vconfigure(this, true);
-    // Setup scopes
-    __Vscope_SimTop__core__decode__decoder.configure(this, name(), "SimTop.core.decode.decoder", "decoder", -12, VerilatedScope::SCOPE_OTHER);
-    __Vscope_SimTop__core__decode__extend.configure(this, name(), "SimTop.core.decode.extend", "extend", -12, VerilatedScope::SCOPE_OTHER);
     // Setup export functions
     for (int __Vfinal=0; __Vfinal<2; __Vfinal++) {
     }
