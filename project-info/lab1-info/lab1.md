@@ -212,12 +212,11 @@ pc的可能取值：1、pc + 4 （正常执行）2、无条件跳转（jal、jal
 
 因此，fetch模块的输入端口信号如下：
 
-|             输入端口信号             |              产生信号的阶段               |
-| :----------------------------------: | :---------------------------------------: |
-|      jump（是否进行无条件跳转）      |          decode，译码后即可产生           |
-|      b_jump（是否进行条件跳转）      |        excute，得到运算结果后产生         |
-| j_add1（jal指令与beq指令跳转的地址） |       decode，进行立即数扩展后产生        |
-|      j_add2（jalr指令跳转地址）      | decode，访问regfile并进行立即数扩展后产生 |
+|          fetch输入端口信号           |                        产生信号的阶段                        |
+| :----------------------------------: | :----------------------------------------------------------: |
+|      jump（是否进行无条件跳转）      |                    decode，译码后即可产生                    |
+|      b_jump（是否进行条件跳转）      |                  excute，得到运算结果后产生                  |
+| j_addr（jal指令与beq指令跳转的地址） | decode，进pc计算后根据指令判断哪一个为跳转地址（判断是否为jalr） |
 
 ### 2、decode
 
@@ -253,10 +252,10 @@ decode的操作比较复杂，属于整个处理器的控制角色，几个操�
 
 因此，decode模块的输入端口信号如下：
 
-| 输入端口信号 |         产生信号的阶段          |
-| :----------: | :-----------------------------: |
-| instruction  |      fetch阶段，取值后产生      |
-|      pc      | fetch阶段，在时钟上升沿更新得到 |
+| decode输入端口信号 |         产生信号的阶段          |
+| :----------------: | :-----------------------------: |
+|    instruction     |      fetch阶段，取值后产生      |
+|         pc         | fetch阶段，在时钟上升沿更新得到 |
 
 ### 3、excute
 
@@ -304,7 +303,7 @@ alu的操作信号alu_func；		----		由decode阶段产生
 
 由此得到，excute模块的输入端口信号如下：
 
-|         输入端口信号          |                        产生信号的阶段                        |
+|      excute输入端口信号       |                        产生信号的阶段                        |
 | :---------------------------: | :----------------------------------------------------------: |
 | alu_func（alu的操作控制信号） |        decode阶段，在进行译码后得到应该进行的alu操作         |
 | srca、srcb（alu的两个操作数） | decode阶段，解析指令后判断需要传入下一阶段的操作数是寄存器数据还是立即数 |
@@ -327,7 +326,7 @@ memory阶段向data memory提供访存地址，并读出该地址上的数据；
 
 因此，memory模块的输入端口信号如下：
 
-|      输入端口信号       |              产生信号的阶段               |
+|   memory输入端口信号    |              产生信号的阶段               |
 | :---------------------: | :---------------------------------------: |
 |  memread（读数据使能）  | decode阶段，译码后确定是否要读取内存数据  |
 | memwrite（写数据使能）  | decode阶段，译码后确定是否要写入内存数据  |
@@ -344,11 +343,11 @@ writeback阶段只需要向regfile中写入准备好的数据，writeback阶段�
 
 因此writeback模块的输入端口如下：
 
-|        输入端口信号         |               产生信号的阶段               |
-| :-------------------------: | :----------------------------------------: |
-|  regwrite（regfile写使能）  |   decode阶段，译码后确定是否要写回寄存器   |
-|   dst（写入的寄存器编号）   |   decode阶段，译码后确定写回的寄存器编号   |
-| regdata（写回寄存器的数据） | memory阶段，由读使能确定选择写回的最终数据 |
+|    writeback输入端口信号    |                   产生信号的阶段                   |
+| :-------------------------: | :------------------------------------------------: |
+|  regwrite（regfile写使能）  |       decode阶段，译码后确定是否要写回寄存器       |
+|   dst（写入的寄存器编号）   |       decode阶段，译码后确定写回的寄存器编号       |
+| regdata（写回寄存器的数据） | excute与memory阶段，由读使能确定选择写回的最终数据 |
 
 注：以上所有模块输入端口信号的产生阶段，均为首次产生有效信号的阶段。实际流水线中，因大部分阶段为组合逻辑而非时序逻辑，为防止下一条指令的控制信号产生覆盖，每个阶段的信号输入都是由直接前驱的阶段传入。若信号首次产生的阶段与使用阶段不直接相连，则信号会在不同流水段间传输。
 
@@ -370,9 +369,8 @@ decode阶段为excute直接提供的数据：
 ```verilog
 typedef struct packed {
 	word_t srca, srcb;	//操作数
-    alu_func func;		//alu操作
+ 	alu_func func;		//alu操作
 } decode_data_t;
-
 ```
 
 excute阶段为memory直接提供的数据：
@@ -398,7 +396,142 @@ typedef struct packed {
 
 注：以上数据端口忽略了各个流水段之间的数据信号传递，只是依靠后续流水段的需求得到的必要数据，后续为了数据的传输需要更新数据端口，当前端口只是最终端口的一个子集。
 
-## 三、各流水段模块输出端口设计
+## 三、各流水段模块产生的输出信号
+
+根据上述各流水段的输入端口所需信号反推各个端口产生的输出信号：（未考虑数据在各流水段间的传递）
 
 ### 1、fetch
 
+decode阶段需要fetch阶段产生pc信号与instruction信号，其余各流水段不需要fetch阶段产生的信号；
+
+因此fetch模块的输出端口信号如下：
+
+| fetch产生的输出信号 |                信号使用流水段                |
+| :-----------------: | :------------------------------------------: |
+|         pc          | decode（产生跳转pc，将pc作为其中一个操作数） |
+|     instruction     |       decode（译码产生一系列控制信号）       |
+
+### 2、decode
+
+（1）fetch阶段需要decode阶段产生的信号：jump（判断是否为无条件跳转）、j_addr（跳转的地址，由decode阶段过滤错误信号）
+
+（2）excute阶段需要decode阶段产生的信号：srca、srcb（alu的两个操作数）、alu_func（alu操作指令）
+
+（3）memory阶段需要decode阶段产生的信号：memread与memwrite（内存读写使能）、memdata（待写入内存的数据x[rs2]）
+
+（4）writeback阶段需要decode阶段产生的信号：regwrite（regfile写使能）、dst（写入的寄存器编号）
+
+因此decode模块的输出端口信号：
+
+| decode产生的输出信号 |         信号使用流水段         |
+| :------------------: | :----------------------------: |
+|         jump         |  fetch（控制是否无条件跳转）   |
+|        j_addr        |      fetch（跳转的地址）       |
+|         srca         |       excute（操作数1）        |
+|         srcb         |       excute（操作数2）        |
+|       alu_func       |     excute（alu控制信号）      |
+|       memread        |      memory（内存读使能）      |
+|       memwrite       |      memory（内存写使能）      |
+|       memdata        | memory（写入内存的数据x[rs2]） |
+|       regwrite       |   writeback（寄存器写使能）    |
+|         dst          | writeback（写回的寄存器编号）  |
+
+### 3、excute
+
+（1）fetch阶段需要excute阶段产生的信号：b_jump（判断是否进行条件跳转）
+
+（2）memory阶段需要excute阶段产生的信号：address（访存地址，即alu运算结果）
+
+因此excute模块的输出端口信号为：
+
+| excute产生的输出信号 |                  信号使用流水段                   |
+| :------------------: | :-----------------------------------------------: |
+|        b_jump        |             fetch（控制是否条件跳转）             |
+|        result        | memory（访存地址）或writeback（写回寄存器的数据） |
+
+### 4、memory
+
+writeback阶段需要用到memory阶段产生的信号：regdata（写回寄存器的数据，即alu运算结果和memory读取数据选择的结果）
+
+因此memory模块的输出端口信号为：
+
+| memory产生的输出信号 |        信号使用流水段         |
+| :------------------: | :---------------------------: |
+|       regdata        | writeback（写回寄存器的数据） |
+
+## 四、各流水段输出端口设计
+
+汇总由各流水段产生的信号及经流水段传输的信号后，确定各流水段模块的输出端口信号如下（system verilog代码实现）：
+
+### 1、fetch
+
+```verilog
+typedef struct packed {
+	u32 instruction;	 //指令
+	u64 pc;				//pc
+} fetch_data_t;
+```
+
+### 2、decode
+
+```verilog
+// decode流水段产生的控制信号
+typedef struct packed {
+    // fetch控制信号
+    u1 jump;				//无条件跳转
+    // excute控制信号
+    alu_func func;			// alu操作
+    // memory控制信号
+    u1 memread;				// 内存读使能
+    u1 memwrite;			// 内存写使能
+    // writeback控制信号
+    u1 regwrite;			// regfile写使能
+    creg_addr_t dst;		// 写回regfile编号
+} decode_control_t;
+
+// decode阶段产生的信号
+typedef struct packed {
+    u64 j_addr;				//跳转pc的地址（在decode进行选择将多余的地址过滤掉）
+	word_t srca, srcb;		// 操作数
+    word_t memdata;			// 待写入内存的数据，x[instruction[24 : 20]]
+    decode_control_t ctl;	// 控制信号
+} decode_data_t;
+```
+
+### 3、excute
+
+```verilog
+// excute阶段传递的控制信号
+typedef struct packed {
+    // fetch控制信号
+    u1 b_jump;				// 条件跳转
+    // memory控制信号
+    u1 memread;				// 内存读使能
+    u1 memwrite;			// 内存写使能
+    // writeback控制信号
+    u1 regwrite;			// regfile写使能
+    u1 regwrite;			// regfile写使能
+    creg_addr_t dst;		// 写回regfile编号
+} excute_control_t;
+
+// excute阶段产生的信号
+typedef struct packed {
+    word_t memdata;			// 待写入内存的数据
+    word_t result;			// 计算结果，可能作为访存地址，也可能作为regfile写回数据
+    excute_control_t ctl;	// 控制信号
+} excute_data_t;
+```
+
+### 4、memory
+
+```verilog
+typedef struct packed {
+	u1 regwrite;			// regfile写使能
+	creg_addr_t dst;		// 写回regfile编号
+	word_t regdata;			// 写回的数据
+} memory_data_t;
+```
+
+## 五、流水寄存器设计
+
+在各流水段间插入流水寄存器，实现流水线工作。流水寄存器需要考虑流水线中的气泡等问题。
