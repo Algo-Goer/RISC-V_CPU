@@ -1,8 +1,6 @@
 # RISC-V_CPU
 计算机组成体系结构课程项目
 
-课程网站：https://fducslg.github.io/Arch-2022Spring-FDU/
-
 ## 项目结构
 
 RISC-V_CPU  
