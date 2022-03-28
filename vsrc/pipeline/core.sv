@@ -9,6 +9,10 @@
 `include "pipeline/decode/decode.sv"
 `include "pipeline/execute/execute.sv"
 `include "pipeline/memory/memory.sv"
+`include "pipeline/pipelinereg/fetch_decode"
+`include "pipeline/pipelinereg/decode_execute"
+`include "pipeline/pipelinereg/execute_memory"
+`include "pipeline/pipelinereg/memory_writeback"
 `else
 
 `endif
@@ -30,13 +34,21 @@ module core
 	word_t memread_data;
 
 	fetch_data_t dataF;
+	fetch_data_t dataF_out;
 	decode_data_t dataD;
+	decode_data_t dataD_out;
 	execute_data_t dataE;
+	execute_data_t dataE_out;
 	memory_data_t dataM;
+	memory_data_t dataM_out;
 	
 	assign ireq.addr = pc;
 	assign instruction = iresp.data;
-	assign dreq.addr = dataE.result;
+	assign dreq.addr = 
+		(dataE_out.ctl.memread |dataE_out.ctl.memwrite)
+		? dataE_out.result : '0;
+	assign dreq.data = dataE_out.memdata;
+	assign dreq.valid = dataE_out.ctl.memwrite;
 	assign memread_data = dresp.data;
 
 	always_ff @(posedge clk ) begin
@@ -49,7 +61,6 @@ module core
 
 	pcselect pcselect(
 		.jump(dataD.ctl.jump),
-		.b_jump(dataE.ctl.b_jump),
 		.pcplus4(pc + 4),
 		.j_addr(dataD.j_addr),
 		.pcselected(pcnext)
@@ -61,8 +72,15 @@ module core
 		.dataF(dataF)
 	);
 
-	decode decode(
+	fetch_decode fetch_decode(
+		.clk(clk),
+		.reset(dataE.ctl.jump),
 		.dataF(dataF),
+		.dataF_out(dataF_out)
+	);
+
+	decode decode(
+		.dataF(dataF_out),
 		.rd1(rd1),
 		.rd2(rd2),
 		.ra1(ra1),
@@ -70,15 +88,36 @@ module core
 		.dataD(dataD)
 	);
 
-	execute execute(
+	decode_execute decode_execute(
+		.clk(clk),
+		.reset(dataE.ctl.jump),
 		.dataD(dataD),
+		.dataD_out(dataD_out)
+	);
+
+	execute execute(
+		.dataD(dataD_out),
 		.dataE(dataE)
 	);
 
-	memory memory(
+	execute_memory execute_memory(
+		.clk(clk),
+		.reset(0),
 		.dataE(dataE),
+		.dataE_out(dataE_out)
+	);
+
+	memory memory(
+		.dataE(dataE_out),
 		.memread_data(memread_data),
 		.dataM(dataM)
+	);
+
+	memory_writeback memory_writeback(
+		.clk(clk),
+		.reset(0),
+		.dataM(dataM),
+		.dataM_out(dataM_out)
 	);
 
 	regfile regfile(
@@ -87,9 +126,9 @@ module core
 		.ra2(ra2),
 		.rd1(rd1),
 		.rd2(rd2),
-		.wvalid(dataM.regwrite),
-		.wa(dataM.dst),
-		.wd(dataM.regdata)
+		.wvalid(dataM_out.regwrite),
+		.wa(dataM_out.dst),
+		.wd(dataM_out.regdata)
 	);
 
 `ifdef VERILATOR
@@ -103,9 +142,9 @@ module core
 		.skip               (dreq.addr[31] == 0),
 		.isRVC              (0),
 		.scFailed           (0),
-		.wen                (dataM.regwrite),
-		.wdest              (dataM.dst),
-		.wdata              (dataM.regdata)
+		.wen                (dataM_out.regwrite),
+		.wdest              (dataM_out.dst),
+		.wdata              (dataM_out.regdata)
 	);
 	      
 	DifftestArchIntRegState DifftestArchIntRegState (
@@ -148,7 +187,7 @@ module core
 	DifftestTrapEvent DifftestTrapEvent(
 		.clock              (clk),
 		.coreid             (0),
-		.valid              (dataE.ctl.memread | dataE.ctl.memwrite),
+		.valid              (0),
 		.code               (0),
 		.pc                 (0),
 		.cycleCnt           (0),

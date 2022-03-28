@@ -1,5 +1,5 @@
-`ifndef __MEMORY_WRITEBACK_SV
-`define __MEMORY_WRITEBACK_SV
+`ifndef __DECODE_EXECUTE_SV
+`define __DECODE_EXECUTE_SV
 
 `ifdef VERILATOR
 `include "include/common.sv"
@@ -8,21 +8,21 @@
 
 `endif
 
-module memory_writeback 
+module decode_execute 
     import common::*;
     import pipes::*;(
     
     input u1 clk, reset,
-    input memory_data_t dataM,
-    output memory_data_t dataM_out
+    input decode_data_t dataD,
+    output decode_data_t dataD_out
 );
 
-    always_ff @( posedge clk ) begin
+    always_ff @(posedge clk) begin
         if(reset) begin
-            dataM_out <= '0;
+            dataD_out <= '0;
         end
         else begin
-            dataM_out <= dataM;
+            dataD_out <= dataD;
         end
     end
     

@@ -23,7 +23,6 @@ module memory
     assign dataM.dst = ctl.dst;
     assign dataM.regdata = (ctl.memread) ? 
                     memread_data : dataE.result;
-    assign dataM.memdata = dataE.memdata;
 
 endmodule
 

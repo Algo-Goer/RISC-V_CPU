@@ -63,7 +63,7 @@ typedef struct packed {
 // execute阶段传递的控制信号
 typedef struct packed {
     // fetch控制信号
-    u1 b_jump;					// 条件跳转
+    u1 jump;					// 条件跳转
     // memory控制信号
     u1 memread;					// 内存读使能
     u1 memwrite;				// 内存写使能
@@ -88,6 +88,7 @@ typedef struct packed {
 
 // execute阶段产生的信号
 typedef struct packed {
+    u64 j_addr;                 //跳转地址
     word_t memdata;				// 待写入内存的数据
     word_t result;				// 计算结果，可能作为访存地址，也可能作为regfile写回数据
     execute_control_t ctl;		// 控制信号
@@ -98,7 +99,7 @@ typedef struct packed {
 	u1 regwrite;				// regfile写使能
 	creg_addr_t dst;			// 写回regfile编号
 	word_t regdata;				// 写回的数据
-	word_t memdata;				// 待写入内存的数据
+	// word_t memdata;				// 待写入内存的数据
 } memory_data_t;
 
 endpackage

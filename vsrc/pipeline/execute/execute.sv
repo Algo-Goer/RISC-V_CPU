@@ -28,7 +28,7 @@ module execute
 
     assign dataE.memdata = dataD.memdata;
     assign dataE.result = result;
-    assign dataE.ctl.b_jump = 
+    assign dataE.ctl.jump = (dataD.ctl.jump) | 
         (dataD.ctl.func == ALU_EQUAL & result == 1) ? 1'b1 : 1'b0;
     assign dataE.ctl.memread = dataD.ctl.memread;
     assign dataE.ctl.memwrite = dataD.ctl.memwrite;

@@ -12,8 +12,20 @@ module fetch_decode
     import common::*;
     import pipes::*;(
 
-    
+    input u1 clk, reset,
+    input fetch_data_t dataF,
+    output fetch_data_t dataF_out
 );
+    always_ff @(posedge clk) begin
+        if (reset) begin
+            dataF_out.pc = 64'h8000_0000;
+            dataF_out.instruction = '0;
+        end
+        else begin
+            dataF_out.pc = dataF.pc;
+            dataF_out.instruction = dataF.instruction;
+        end
+    end
     
 endmodule
 

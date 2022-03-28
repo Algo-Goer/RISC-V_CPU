@@ -43,10 +43,12 @@ VL_MODULE(VSimTop___024root) {
     VlWide<3>/*65:0*/ SimTop__DOT__dresp;
     QData/*63:0*/ SimTop__DOT__core__DOT__pc;
     QData/*63:0*/ SimTop__DOT__core__DOT__pcnext;
-    VlWide<3>/*95:0*/ SimTop__DOT__core__DOT__dataF;
+    VlWide<3>/*95:0*/ SimTop__DOT__core__DOT__dataF_out;
     VlWide<9>/*269:0*/ SimTop__DOT__core__DOT__dataD;
-    VlWide<5>/*136:0*/ SimTop__DOT__core__DOT__dataE;
-    VlWide<5>/*133:0*/ SimTop__DOT__core__DOT__dataM;
+    VlWide<9>/*269:0*/ SimTop__DOT__core__DOT__dataD_out;
+    VlWide<7>/*200:0*/ SimTop__DOT__core__DOT__dataE;
+    VlWide<7>/*200:0*/ SimTop__DOT__core__DOT__dataE_out;
+    VlWide<3>/*69:0*/ SimTop__DOT__core__DOT__dataM_out;
     QData/*63:0*/ SimTop__DOT__core__DOT__decode__DOT__extend__DOT__imm;
     QData/*63:0*/ SimTop__DOT__core__DOT__decode__DOT__dataconfirm__DOT__data1;
     QData/*63:0*/ SimTop__DOT__core__DOT__decode__DOT__dataconfirm__DOT__data2;
