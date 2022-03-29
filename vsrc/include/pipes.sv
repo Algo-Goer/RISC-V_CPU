@@ -48,10 +48,14 @@ typedef enum logic [5 : 0] {
 
 // decode流水段产生的控制信号
 typedef struct packed {
+    // 指令信息
+    decode_op_t op;
     // fetch控制信号
     u1 jump;					//无条件跳转
     // execute控制信号
     alufunc_t func;				// alu操作
+    u1 srca_r; 
+    u1 srcb_r;                  //两个操作数是否可能需要更新
     // memory控制信号
     u1 memread;					// 内存读使能
     u1 memwrite;				// 内存写使能
@@ -80,8 +84,12 @@ typedef struct packed {
 
 // decode阶段产生的信号
 typedef struct packed {
-    u64 j_addr;					//跳转pc的地址（在decode进行选择将多余的地址过滤掉）
-	word_t srca, srcb;			// 操作数
+    u32 pc;
+	creg_addr_t ra1;
+    creg_addr_t ra2;
+    word_t srca, srcb;			// 操作数
+    word_t imm;                 //立即数扩展结果
+    word_t pcdata;              // 待计算pc的数据，x[instruction[19 : 15]]
     word_t memdata;				// 待写入内存的数据，x[instruction[24 : 20]]
     decode_control_t ctl;		// 控制信号
 } decode_data_t;
@@ -102,6 +110,14 @@ typedef struct packed {
 	// word_t memdata;				// 待写入内存的数据
 } memory_data_t;
 
+// writeback阶段产生的信号
+typedef struct packed {
+	u1 regwrite;				// regfile写使能
+	creg_addr_t dst;			// 写回regfile编号
+	word_t regdata;				// 写回的数据
+	// word_t memdata;				// 待写入内存的数据
+} writeback_data_t;
+
 // forward寄存器模块输入
 typedef struct packed {
     u1 valid;
@@ -113,12 +129,9 @@ typedef struct packed {
 typedef struct packed {
     creg_addr_t rs, rt;
     creg_addr_t dst;
-    u1 memread;
     u1 regwrite;
+    u1 memread;
     u1 jump;
-    forward_data_out forward_execute;
-    forward_data_out forward_memory;
-    forward_data_out forward_writeback;
 } hazard_data_in;
 
 typedef struct packed {

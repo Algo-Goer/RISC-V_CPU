@@ -12,109 +12,102 @@ module hazard
     import common::*;
     import pipes::*;(
 
-    input hazard_data_in hazardIn,
+    input u1 jump,
+    input u1 regwrite,
+    input u1 memread,
+    input creg_addr_t rs, rt,
+    input creg_addr_t dst,
+    input forward_data_out forward_execute,
+    input forward_data_out forward_memory,
+    input forward_data_out forward_writeback,
     output hazard_data_out hazardOut
 );
-
-    hazard_data_out out = '0;
-    // hazard为一组合逻辑
+    // hazard为一个大的组合逻辑
 
     // 产生阻塞信号
-    always_comb begin
-        // 如果当前阶段要访存并且要写回，并且下条指令要用数据
-        if( 
-            hazardIn.regwrite && hazardIn.memread
+    // 如果当前阶段要访存并且要写回，并且下条指令要用数据
+    assign hazardOut.stall = ( 
+            regwrite && memread
             && (
-                hazardIn.rs == hazardIn.dst 
+                rs == dst 
                 ||
-                hazardIn.rt == hazardIn.dst
+                rt == dst
             )
-        ) begin
-            out.stall = 1'b1;
-        end
-    end
+        ) ? 1'b1 : 1'b0;
 
-    // 产生清除信号
-    always_comb begin
-        // 与阻塞条件一致
-        if( 
-            hazardIn.regwrite && hazardIn.memread
+    // 产生清除信号1，与阻塞条件一致
+    assign hazardOut.clear1 = ( 
+            regwrite && memread
             && (
-                hazardIn.rs == hazardIn.dst 
+                rs == dst 
                 ||
-                hazardIn.rt == hazardIn.dst
+                rt == dst
             )
-        ) begin
-            out.clear1 = 1'b1;
-        end
-        // 跳转信号
-        if(hazardIn.jump) begin
-            out.clear2 = 1'b1;
-        end
-    end
+        ) ? 1'b1 : 1'b0;
 
-    // 产生转发srca的信号
-    always_comb begin
+    // 产生清除信号2，跳转条件
+    assign hazardOut.clear2 = (jump) ? 1'b1 : 1'b0;
+
+    always_latch begin
+        // 产生转发srca的信号
         // execute数据转发
         if(
-            hazardIn.forward_execute.valid 
+            forward_execute.valid 
             && 
-            hazardIn.forward_execute.dst == hazardIn.rs
+            forward_execute.dst == rs
         ) begin
-            out.srca_mux = 1'b1;
-            out.srca_forward = hazardIn.forward_execute.data;
+            hazardOut.srca_mux = 1'b1;
+            hazardOut.srca_forward = forward_execute.data;
         end
         // memory数据转发
         else if(
-            hazardIn.forward_memory.valid 
+            forward_memory.valid 
             && 
-            hazardIn.forward_memory.dst == hazardIn.rs
+            forward_memory.dst == rs
         ) begin
-            out.srca_mux = 1'b1;
-            out.srca_forward = hazardIn.forward_memory.data;
+            hazardOut.srca_mux = 1'b1;
+            hazardOut.srca_forward = forward_memory.data;
         end
         // writeback数据转发
         else if(
-            hazardIn.forward_writeback.valid 
+            forward_writeback.valid 
             && 
-            hazardIn.forward_writeback.dst == hazardIn.rs
+            forward_writeback.dst == rs
         ) begin
-            out.srca_mux = 1'b1;
-            out.srca_forward = hazardIn.forward_writeback.data;
+            hazardOut.srca_mux = 1'b1;
+            hazardOut.srca_forward = forward_writeback.data;
         end
-    end
 
-    // 产生转发srcb的信号
-    always_comb begin
+        // 产生转发srcb的信号
         // execute数据转发
         if(
-            hazardIn.forward_execute.valid 
+            forward_execute.valid 
             && 
-            hazardIn.forward_execute.dst == hazardIn.rt
+            forward_execute.dst == rt
         ) begin
-            out.srcb_mux = 1'b1;
-            out.srcb_forward = hazardIn.forward_execute.data;
+            hazardOut.srcb_mux = 1'b1;
+            hazardOut.srcb_forward = forward_execute.data;
         end
         // memory数据转发
         else if(
-            hazardIn.forward_memory.valid 
+            forward_memory.valid 
             && 
-            hazardIn.forward_memory.dst == hazardIn.rt
+            forward_memory.dst == rt
         ) begin
-            out.srcb_mux = 1'b1;
-            out.srcb_forward = hazardIn.forward_memory.data;
+            hazardOut.srcb_mux = 1'b1;
+            hazardOut.srcb_forward = forward_memory.data;
         end
         // writeback数据转发
         else if(
-            hazardIn.forward_writeback.valid 
+            forward_writeback.valid 
             && 
-            hazardIn.forward_writeback.dst == hazardIn.rt
+            forward_writeback.dst == rt
         ) begin
-            out.srcb_mux = 1'b1;
-            out.srcb_forward = hazardIn.forward_writeback.data;
+            hazardOut.srcb_mux = 1'b1;
+            hazardOut.srcb_forward = forward_writeback.data;
         end
     end
-    
+
 endmodule
 
 `endif

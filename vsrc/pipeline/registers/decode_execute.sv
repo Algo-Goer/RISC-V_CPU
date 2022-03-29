@@ -13,16 +13,19 @@ module decode_execute
     import pipes::*;(
     
     input u1 clk, reset,
+    input u1 stall,
     input decode_data_t dataD,
     output decode_data_t dataD_out
 );
 
     always_ff @(posedge clk) begin
-        if(reset) begin
-            dataD_out <= '0;
-        end
-        else begin
-            dataD_out <= dataD;
+        if( ~stall ) begin
+            if(reset) begin
+                dataD_out <= '0;
+            end
+            else begin
+                dataD_out <= dataD;
+            end
         end
     end
     

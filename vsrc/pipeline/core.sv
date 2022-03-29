@@ -9,11 +9,12 @@
 `include "pipeline/decode/decode.sv"
 `include "pipeline/execute/execute.sv"
 `include "pipeline/memory/memory.sv"
+`include "pipeline/writeback/writeback.sv"
 `include "pipeline/registers/fetch_decode.sv"
 `include "pipeline/registers/decode_execute.sv"
 `include "pipeline/registers/execute_memory.sv"
 `include "pipeline/registers/memory_writeback.sv"
-`include "pipeline/registers/forward.sv"
+`include "pipeline/hazard/forward.sv"
 `include "pipeline/hazard/hazard.sv"
 `else
 
@@ -31,6 +32,8 @@ module core
 	/* TODO: Add your pipeline here. */
 	u64 pc, pcnext;
 	u32 instruction;
+	u1 stall;					//流水线阻塞信号
+	u1 jump;					//流水线跳转信号
 	creg_addr_t ra1, ra2;
 	word_t rd1, rd2;
 	word_t memread_data;
@@ -43,28 +46,87 @@ module core
 	execute_data_t dataE_out;
 	memory_data_t dataM;
 	memory_data_t dataM_out;
+	writeback_data_t dataW;
+	forward_data_out forward_execute;
+	forward_data_out forward_memory;
+	forward_data_out forward_writeback;
+	hazard_data_in hazardIn;
+	hazard_data_out hazardOut;
 	
+	// 存储器数据配置
 	assign ireq.addr = pc;
 	assign instruction = iresp.data;
+	assign dreq.valid = dataE_out.ctl.memwrite;
+	assign dreq.strobe = dataE_out.ctl.memwrite;
 	assign dreq.addr = 
-		(dataE_out.ctl.memread |dataE_out.ctl.memwrite)
+		(dataE_out.ctl.memread | dataE_out.ctl.memwrite)
 		? dataE_out.result : '0;
 	assign dreq.data = dataE_out.memdata;
-	assign dreq.valid = dataE_out.ctl.memwrite;
 	assign memread_data = dresp.data;
+	// TODO:assign dreq.stroke
 
-	always_ff @(posedge clk ) begin
-		if (reset) begin
+
+	always_ff @( posedge clk ) begin
+		// 在不阻塞时更新pc
+		if( ~stall ) begin
+			if (reset) begin
 			pc <= 64'h8000_0000;
-		end else begin
+			end 
+			else begin
 			pc <= pcnext;
+			end
 		end
 	end
 
+	always_ff @(posedge clk) begin 
+		// $display("fetch:");
+		// $display("pc = %x", pc);
+		// $display("instruction = %x", instruction);
+		// $display("decode:");
+		// $display("dataF_out.pc = %x", dataF_out.pc); 
+		// $display("dataF_out.instruction = %x", dataF_out.instruction);
+		// $display("dataD.ctl.op = %x", dataD.ctl.op);
+		// $display("execute:");
+		// $display("dataD_out.pc = %x", dataD_out.pc); 
+		// $display("dataD_out.op = %x", dataD_out.ctl.op); 
+		// $display("dataD_out.rs = %x", dataD_out.ra1); 
+		// $display("dataD_out.rt = %x", dataD_out.ra2); 
+		// $display("dataD_out.rd = %x", dataD_out.ctl.dst);
+		// $display("forward_execute.valid = %x", forward_execute.valid); 
+		// $display("forward_execute.dst = %x", forward_execute.dst); 
+		// $display("forward_execute.data = %x", forward_execute.data); 
+		// $display("forward_memory.valid = %x", forward_memory.valid); 
+		// $display("forward_memory.dst = %x", forward_memory.dst); 
+		// $display("forward_memory.data = %x", forward_memory.data); 
+		// $display("forward_writeback.valid = %x", forward_writeback.valid); 
+		// $display("forward_writeback.dst = %x", forward_writeback.dst); 
+		// $display("forward_writeback.data = %x", forward_writeback.data); 
+		// $display("srca_mux = %x", hazardOut.srca_mux);
+		// $display("srca_forward = %x", hazardOut.srca_forward);
+		// $display("srca_R = %x", dataD_out.ctl.srca_r);
+		// $display("srcb_mux = %x", hazardOut.srcb_mux);
+		// $display("srcb_forward = %x", hazardOut.srcb_forward);
+		// $display("dataD_out.imm = %x", dataD_out.imm);
+		// $display("dataD_out.srca = %x", dataD_out.srca);
+		// $display("dataD_out.srcb = %x", dataD_out.srcb);
+		// $display("dataE.result = %x", dataE.result);
+		// $display("memory:");
+		// $display("memread = %x", dataE_out.ctl.memread);
+		// $display("memwrite = %x", dataE_out.ctl.memwrite);
+		// $display("address = %x", dataE_out.result);
+		// $display("memdata = %x", dataE_out.memdata);
+		$display("dataE.pc = %x", dataD_out.pc);
+		$display("dataE.result = %x", dataE.result);
+		$display("dataM.writedata = %x", dataM.regdata);
+		$display("dataW.writedata = %x", dataW.regdata);
+		$display("dataW.regwrite = %x", dataW.regwrite);
+		$display("=========================");
+	end
+
 	pcselect pcselect(
-		.jump(dataD.ctl.jump),
+		.jump(dataE.ctl.jump),
 		.pcplus4(pc + 4),
-		.j_addr(dataD.j_addr),
+		.j_addr(dataE.j_addr),
 		.pcselected(pcnext)
 	);
 
@@ -76,7 +138,8 @@ module core
 
 	fetch_decode fetch_decode(
 		.clk(clk),
-		.reset(dataE.ctl.jump),
+		.reset(hazardOut.clear2),
+		.stall(stall),
 		.dataF(dataF),
 		.dataF_out(dataF_out)
 	);
@@ -92,19 +155,24 @@ module core
 
 	decode_execute decode_execute(
 		.clk(clk),
-		.reset(dataE.ctl.jump),
+		.reset(hazardOut.clear2),
+		.stall(stall),
 		.dataD(dataD),
 		.dataD_out(dataD_out)
 	);
 
 	execute execute(
 		.dataD(dataD_out),
+		.rs1_mux(hazardOut.srca_mux),
+		.rs1_forward(hazardOut.srca_forward),
+		.rs2_mux(hazardOut.srcb_mux),
+		.rs2_forward(hazardOut.srcb_forward),
 		.dataE(dataE)
 	);
 
 	execute_memory execute_memory(
 		.clk(clk),
-		.reset(0),
+		.reset(hazardOut.clear1),
 		.dataE(dataE),
 		.dataE_out(dataE_out)
 	);
@@ -122,15 +190,57 @@ module core
 		.dataM_out(dataM_out)
 	);
 
+	writeback writeback(
+		.dataM(dataM_out),
+		.dataW(dataW)
+	);
+
 	regfile regfile(
 		.clk, .reset,
 		.ra1(ra1),
 		.ra2(ra2),
 		.rd1(rd1),
 		.rd2(rd2),
-		.wvalid(dataM_out.regwrite),
-		.wa(dataM_out.dst),
-		.wd(dataM_out.regdata)
+		.wvalid(dataW.regwrite),
+		.wa(dataW.dst),
+		.wd(dataW.regdata)
+	);
+
+	// execute转发器
+	forward forward1(
+		.regwrite(dataE_out.ctl.regwrite && ~(dataE_out.ctl.memread)),
+		.dst(dataE_out.ctl.dst),
+		.data(dataE_out.result),
+		.dataForward(forward_execute)
+	);
+
+	// memory转发器
+	forward forward2(
+		.regwrite(dataM_out.regwrite),
+		.dst(dataM_out.dst),
+		.data(dataM_out.regdata),
+		.dataForward(forward_memory)
+	);
+
+	// writeback转发器
+	forward forward3(
+		.regwrite(dataW.regwrite),
+		.dst(dataW.dst),
+		.data(dataW.regdata),
+		.dataForward(forward_writeback)
+	);
+
+	hazard hazard(
+		.jump(jump),
+		.regwrite(dataM.regwrite),
+		.memread(dataE_out.ctl.memread),
+		.rs(dataD_out.ra1), 
+		.rt(dataD_out.ra2),
+		.dst(dataM.dst),
+		.forward_execute(forward_execute),
+		.forward_memory(forward_memory),
+		.forward_writeback(forward_writeback),
+		.hazardOut(hazardOut)
 	);
 
 `ifdef VERILATOR
@@ -144,9 +254,9 @@ module core
 		.skip               (dreq.addr[31] == 0),
 		.isRVC              (0),
 		.scFailed           (0),
-		.wen                (dataM_out.regwrite),
-		.wdest              (dataM_out.dst),
-		.wdata              (dataM_out.regdata)
+		.wen                (dataW.regwrite),
+		.wdest              (dataW.dst),
+		.wdata              (dataW.regdata)
 	);
 	      
 	DifftestArchIntRegState DifftestArchIntRegState (

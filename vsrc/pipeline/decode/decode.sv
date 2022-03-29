@@ -27,24 +27,22 @@ module decode
     
     word_t imm;
     decode_control_t ctl;
-    decode_op_t op;
     word_t srca, srcb;
     
     decoder decoder(
         .instruction(dataF.instruction),
-        .ctl(ctl),
-        .op(op)
+        .ctl(ctl)
     );
 
     extend extend(
         .instruction(dataF.instruction),
-        .op(op),
+        .op(ctl.op),
         .sextimm(imm)
     );
 
     dataconfirm dataconfirm(
         .pc(dataF.pc),
-        .op(op),
+        .op(ctl.op),
         .rd1(rd1),
         .rd2(rd2),
         .imm(imm),
@@ -52,23 +50,31 @@ module decode
         .srcb(srcb)
     );
 
-    // 确定pc跳转的地址
-    assign dataD.j_addr = (op == JALR) ? 
-                (rd1 + imm) & (~1) : dataF.pc + imm;
-    
+    assign ra1 = dataF.instruction[19 : 15];
+    assign ra2 = dataF.instruction[24 : 20];
+
+    // pc
+    assign dataD.pc = dataF.pc;
+
+    //regfile address
+    assign dataD.ra1 = dataF.instruction[19 : 15];
+    assign dataD.ra2 = dataF.instruction[24 : 20];
+
     // 确定excute的两个操作数
     assign dataD.srca = srca;
     assign dataD.srcb = srcb;
 
+    // 立即数
+    assign dataD.imm = imm;
+
+    // 确定用来计算pc的值
+    assign dataD.pcdata = (ctl.op == JALR) ? '0 : rd1;
+
     // 确定要写入内存的数据
-    assign dataD.memdata = (op == SD) ? '0 : rd2;
+    assign dataD.memdata = (ctl.op == SD) ? '0 : rd2;
 
     // 确定控制信号
     assign dataD.ctl = ctl;
-
-    //regfile address
-    assign ra1 = dataF.instruction[19 : 15];
-    assign ra2 = dataF.instruction[24 : 20];
 
 endmodule
 
