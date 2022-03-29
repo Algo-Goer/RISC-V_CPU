@@ -9,10 +9,12 @@
 `include "pipeline/decode/decode.sv"
 `include "pipeline/execute/execute.sv"
 `include "pipeline/memory/memory.sv"
-`include "pipeline/pipelinereg/fetch_decode"
-`include "pipeline/pipelinereg/decode_execute"
-`include "pipeline/pipelinereg/execute_memory"
-`include "pipeline/pipelinereg/memory_writeback"
+`include "pipeline/registers/fetch_decode.sv"
+`include "pipeline/registers/decode_execute.sv"
+`include "pipeline/registers/execute_memory.sv"
+`include "pipeline/registers/memory_writeback.sv"
+`include "pipeline/registers/forward.sv"
+`include "pipeline/hazard/hazard.sv"
 `else
 
 `endif

@@ -102,6 +102,35 @@ typedef struct packed {
 	// word_t memdata;				// 待写入内存的数据
 } memory_data_t;
 
+// forward寄存器模块输入
+typedef struct packed {
+    u1 valid;
+    creg_addr_t dst;
+    word_t data;
+} forward_data_out;
+
+// hazard寄存器模块输入输出
+typedef struct packed {
+    creg_addr_t rs, rt;
+    creg_addr_t dst;
+    u1 memread;
+    u1 regwrite;
+    u1 jump;
+    forward_data_out forward_execute;
+    forward_data_out forward_memory;
+    forward_data_out forward_writeback;
+} hazard_data_in;
+
+typedef struct packed {
+    u1 stall;
+    u1 clear1;
+    u1 clear2;
+    u1 srca_mux;
+    word_t srca_forward;
+    u1 srcb_mux;
+    word_t srcb_forward;
+} hazard_data_out;
+
 endpackage
 
 `endif
