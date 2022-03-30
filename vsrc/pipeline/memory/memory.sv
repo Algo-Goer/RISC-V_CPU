@@ -27,6 +27,8 @@ module memory
     assign dataM.dst = ctl.dst;
     assign dataM.regdata = (ctl.memread) ? 
                     memread_data : dataE.result;
+    assign dataM.skip = dataE.ctl.memread | dataE.ctl.memwrite;
+    assign dataM.address = dataE.result;
 
 endmodule
 

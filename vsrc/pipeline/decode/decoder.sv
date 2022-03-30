@@ -22,7 +22,7 @@ module decoder
         ctl = '0;
         unique case(f7)
             F7_I_TYPE: begin
-                ctl.regwrite = 1'b1;
+                ctl.regwrite = (instruction[11 : 7] == '0) ? 1'b0 : 1'b1;
                 ctl.dst = instruction[11 : 7];
                 ctl.srca_r = 1'b1;
                 unique case(f3) 
@@ -47,7 +47,7 @@ module decoder
                 endcase
             end
             F7_R_TYPE: begin
-                ctl.regwrite = 1'b1;
+                ctl.regwrite = (instruction[11 : 7] == '0) ? 1'b0 : 1'b1;
                 ctl.dst = instruction[11 : 7];
                 ctl.srca_r = 1'b1;
                 ctl.srcb_r = 1'b1;
@@ -79,20 +79,20 @@ module decoder
             end
             F7_LUI : begin
                 ctl.op = LUI;
-                ctl.regwrite = 1'b1;
+                ctl.regwrite = (instruction[11 : 7] == '0) ? 1'b0 : 1'b1;
                 ctl.dst = instruction[11 : 7];
             end
             F7_AUIPC : begin
                 ctl.op = AUIPC;
                 ctl.func = ALU_ADD;
-                ctl.regwrite = 1'b1;
+                ctl.regwrite = (instruction[11 : 7] == '0) ? 1'b0 : 1'b1;
                 ctl.dst = instruction[11 : 7];
             end
             F7_LD : begin
                 ctl.op = LD;
                 ctl.func = ALU_ADD;
                 ctl.memread = 1'b1;
-                ctl.regwrite = 1'b1;
+                ctl.regwrite = (instruction[11 : 7] == '0) ? 1'b0 : 1'b1;
                 ctl.dst = instruction[11 : 7];
                 ctl.srca_r = 1'b1;
             end
@@ -105,13 +105,13 @@ module decoder
             F7_JAL : begin
                 ctl.op = JAL;
                 ctl.jump = 1'b1;
-                ctl.regwrite = 1'b1;
+                ctl.regwrite = (instruction[11 : 7] == '0) ? 1'b0 : 1'b1;
                 ctl.dst = instruction[11 : 7];
             end
             F7_JALR : begin
                 ctl.op = JALR;
                 ctl.jump = 1'b1;
-                ctl.regwrite = 1'b1;
+                ctl.regwrite = (instruction[11 : 7] == '0) ? 1'b0 : 1'b1;
                 ctl.dst = instruction[11 : 7];
             end
             F7_BEQ : begin

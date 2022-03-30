@@ -1,0 +1,39 @@
+# compile verilog/system verilog design source files
+verilog xil_defaultlib  --include "../../../../../../src" --include "../../../../../src/ip/clk_wiz_0" \
+"../../../../../src/ip/clk_wiz_0/clk_wiz_0_clk_wiz.v" \
+"../../../../../src/ip/clk_wiz_0/clk_wiz_0.v" \
+
+sv xil_defaultlib  --include "../../../../../../src" --include "../../../../../src/ip/clk_wiz_0" \
+"../../../../../../../vsrc/include/config.sv" \
+"../../../../../../../vsrc/include/common.sv" \
+"../../../../../../../vsrc/include/pipes.sv" \
+"../../../../../../../vsrc/pipeline/execute/alu.sv" \
+"../../../../../../../vsrc/pipeline/hazard/controller.sv" \
+"../../../../../../../vsrc/pipeline/core.sv" \
+"../../../../../../../vsrc/pipeline/decode/dataconfirm.sv" \
+"../../../../../../../vsrc/pipeline/decode/decode.sv" \
+"../../../../../../../vsrc/pipeline/registers/decode_execute.sv" \
+"../../../../../../../vsrc/pipeline/decode/decoder.sv" \
+"../../../../../../src/device.sv" \
+"../../../../../../src/without_delay/dist_ram_wrapper.sv" \
+"../../../../../../../vsrc/pipeline/execute/execute.sv" \
+"../../../../../../../vsrc/pipeline/registers/execute_memory.sv" \
+"../../../../../../../vsrc/pipeline/decode/extend.sv" \
+"../../../../../../../vsrc/pipeline/fetch/fetch.sv" \
+"../../../../../../../vsrc/pipeline/registers/fetch_decode.sv" \
+"../../../../../../../vsrc/pipeline/hazard/forward.sv" \
+"../../../../../../../vsrc/pipeline/hazard/hazard.sv" \
+"../../../../../../../vsrc/pipeline/memory/memory.sv" \
+"../../../../../../../vsrc/pipeline/registers/memory_writeback.sv" \
+"../../../../../../../vsrc/mycpu_top_nodelay.sv" \
+"../../../../../../../vsrc/pipeline/fetch/pcselect.sv" \
+"../../../../../../../vsrc/pipeline/regfile/regfile.sv" \
+"../../../../../../src/without_delay/soc_top_nodelay.sv" \
+"../../../../../../../vsrc/pipeline/writeback/writeback.sv" \
+"../../../../../../src/without_delay/simtop_nodelay.sv" \
+
+# compile glbl module
+verilog xil_defaultlib "glbl.v"
+
+# Do not sort compile order
+nosort

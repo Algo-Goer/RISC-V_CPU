@@ -48,10 +48,11 @@ module core
 	memory_data_t dataM;
 	memory_data_t dataM_out;
 	writeback_data_t dataW;
+	writeback_data_t dataW_out;		//多一层转发
 	forward_data_out forward_execute;
 	forward_data_out forward_memory;
 	forward_data_out forward_writeback;
-	hazard_data_in hazardIn;
+	// hazard_data_in hazardIn;
 	hazard_data_out hazardOut;
 	
 	// 存储器数据配置
@@ -126,7 +127,7 @@ module core
 		// $display("dataW.regwrite = %x", dataW.regwrite);
 		// $display("dataW.pc = %x", dataW.pc);
 		// $display("dataW.op = %x", dataW.op);
-		$display("ireq.addr = %x", ireq.addr);
+		// $display("ireq.addr = %x", ireq.addr);
 		// $display("=========================");
 	end
 
@@ -202,6 +203,11 @@ module core
 		.dataW(dataW)
 	);
 
+	// 为转发器生成writeback阶段数据
+	always_ff @( posedge clk ) begin
+		dataW_out <= dataW;		
+	end
+
 	regfile regfile(
 		.clk, .reset,
 		.ra1(ra1),
@@ -230,10 +236,11 @@ module core
 	);
 
 	// writeback转发器
+	// TODO：writeback转发器数据周期有问题
 	forward forward3(
-		.regwrite(dataW.regwrite),
-		.dst(dataW.dst),
-		.data(dataW.regdata),
+		.regwrite(dataW_out.regwrite),
+		.dst(dataW_out.dst),
+		.data(dataW_out.regdata),
 		.dataForward(forward_writeback)
 	);
 
@@ -260,15 +267,15 @@ module core
 		.clock              (clk),
 		.coreid             (0),
 		.index              (0),
-		.valid              (~reset && ~clear),
-		.pc                 (pc),
-		.instr              (instruction),
-		.skip               (/*~dataE.ctl.jump && */dreq.addr[31] == 0),
+		.valid              (dataW.op != UNKNOWN),
+		.pc                 (dataW.pc),
+		.instr              (dataW.instruction),
+		.skip               (dataW.skip & (dreq.addr[31] == 0)),
 		.isRVC              (0),
 		.scFailed           (0),
-		.wen                (dataM.regwrite),
-		.wdest              ({3'b0, dataM.dst}),
-		.wdata              (dataM.regdata)
+		.wen                (dataW.regwrite),
+		.wdest              ({3'b0, dataW.dst}),
+		.wdata              (dataW.regdata)
 	);
 	      
 	DifftestArchIntRegState DifftestArchIntRegState (

@@ -116,6 +116,8 @@ typedef struct packed {
 	u1 regwrite;				// regfile写使能
 	creg_addr_t dst;			// 写回regfile编号
 	word_t regdata;				// 写回的数据
+    u1 skip;
+    word_t address;
 	// word_t memdata;				// 待写入内存的数据
 } memory_data_t;
 
@@ -125,6 +127,8 @@ typedef struct packed {
     decode_op_t op;
     u64 instruction;
     u1 jump;
+    u1 skip;
+    word_t address;
 	u1 regwrite;				// regfile写使能
 	creg_addr_t dst;			// 写回regfile编号
 	word_t regdata;				// 写回的数据
@@ -138,13 +142,13 @@ typedef struct packed {
 } forward_data_out;
 
 // hazard寄存器模块输入输出
-typedef struct packed {
-    creg_addr_t rs, rt;
-    creg_addr_t dst;
-    u1 regwrite;
-    u1 memread;
-    u1 jump;
-} hazard_data_in;
+// typedef struct packed {
+//     creg_addr_t rs, rt;
+//     creg_addr_t dst;
+//     u1 regwrite;
+//     u1 memread;
+//     u1 jump;
+// } hazard_data_in;
 
 typedef struct packed {
     u1 stall;

@@ -35,7 +35,6 @@ VL_MODULE(VSimTop___024root) {
     VL_IN64(io_logCtrl_log_level,63,0);
 
     // LOCAL SIGNALS
-    IData/*17:0*/ SimTop__DOT__core__DOT__hazardIn;
     IData/*21:0*/ SimTop__DOT__core__DOT__decode__DOT__ctl;
     VlWide<3>/*64:0*/ SimTop__DOT__ireq;
     QData/*33:0*/ SimTop__DOT__iresp;
@@ -48,8 +47,10 @@ VL_MODULE(VSimTop___024root) {
     VlWide<14>/*447:0*/ SimTop__DOT__core__DOT__dataD_out;
     VlWide<10>/*302:0*/ SimTop__DOT__core__DOT__dataE;
     VlWide<10>/*302:0*/ SimTop__DOT__core__DOT__dataE_out;
-    VlWide<6>/*172:0*/ SimTop__DOT__core__DOT__dataM;
-    VlWide<6>/*172:0*/ SimTop__DOT__core__DOT__dataM_out;
+    VlWide<8>/*237:0*/ SimTop__DOT__core__DOT__dataM;
+    VlWide<8>/*237:0*/ SimTop__DOT__core__DOT__dataM_out;
+    VlWide<8>/*237:0*/ SimTop__DOT__core__DOT__dataW;
+    VlWide<8>/*237:0*/ SimTop__DOT__core__DOT__dataW_out;
     VlWide<3>/*69:0*/ SimTop__DOT__core__DOT__forward_execute;
     VlWide<3>/*69:0*/ SimTop__DOT__core__DOT__forward_memory;
     VlWide<3>/*69:0*/ SimTop__DOT__core__DOT__forward_writeback;

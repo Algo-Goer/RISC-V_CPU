@@ -23,6 +23,8 @@ module writeback
     assign dataW.regwrite = dataM.regwrite;
     assign dataW.dst = dataM.dst;
     assign dataW.regdata = dataM.regdata;
+    assign dataW.skip = dataM.skip;
+    assign dataW.address = dataM.address;
 
 endmodule
 
