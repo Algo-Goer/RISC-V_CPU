@@ -46,10 +46,13 @@ module execute
         (pcdata + dataD.imm) & (~1) : dataD.pc + dataD.imm;
 
     // 得到输出端口信号
+    assign dataE.pc = dataD.pc;
+    assign dataE.instruction = dataD.instruction;
     assign dataE.memdata = memdata;
     assign dataE.result = result;
     assign dataE.ctl.jump = (dataD.ctl.jump) | 
         (dataD.ctl.op == BEQ && result == 1) ? 1'b1 : 1'b0;
+    assign dataE.ctl.op = dataD.ctl.op;
     assign dataE.ctl.memread = dataD.ctl.memread;
     assign dataE.ctl.memwrite = dataD.ctl.memwrite;
     assign dataE.ctl.regwrite = dataD.ctl.regwrite;

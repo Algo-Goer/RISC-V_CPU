@@ -12,7 +12,7 @@ module hazard
     import common::*;
     import pipes::*;(
 
-    input u1 jump,
+    // input u1 jump,
     input u1 regwrite,
     input u1 memread,
     input creg_addr_t rs, rt,
@@ -45,10 +45,10 @@ module hazard
             )
         ) ? 1'b1 : 1'b0;
 
-    // 产生清除信号2，跳转条件
-    assign hazardOut.clear2 = (jump) ? 1'b1 : 1'b0;
+    // // 产生清除信号2，跳转条件
+    // assign hazardOut.clear2 = (jump) ? 1'b1 : 1'b0;
 
-    always_latch begin
+    always_comb begin
         // 产生转发srca的信号
         // execute数据转发
         if(
@@ -76,8 +76,12 @@ module hazard
         ) begin
             hazardOut.srca_mux = 1'b1;
             hazardOut.srca_forward = forward_writeback.data;
+        end 
+        else begin
+            hazardOut.srca_mux = 1'b0;
         end
-
+    end
+    always_comb begin
         // 产生转发srcb的信号
         // execute数据转发
         if(
@@ -105,6 +109,9 @@ module hazard
         ) begin
             hazardOut.srcb_mux = 1'b1;
             hazardOut.srcb_forward = forward_writeback.data;
+        end
+        else begin
+            hazardOut.srcb_mux = 1'b0;
         end
     end
 

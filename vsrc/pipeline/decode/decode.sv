@@ -55,6 +55,7 @@ module decode
 
     // pc
     assign dataD.pc = dataF.pc;
+    assign dataD.instruction = dataF.instruction;
 
     //regfile address
     assign dataD.ra1 = dataF.instruction[19 : 15];

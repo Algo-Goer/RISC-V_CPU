@@ -16,6 +16,7 @@
 `include "pipeline/registers/memory_writeback.sv"
 `include "pipeline/hazard/forward.sv"
 `include "pipeline/hazard/hazard.sv"
+`include "pipeline/hazard/controller.sv"
 `else
 
 `endif
@@ -32,8 +33,8 @@ module core
 	/* TODO: Add your pipeline here. */
 	u64 pc, pcnext;
 	u32 instruction;
-	u1 stall;					//流水线阻塞信号
 	u1 jump;					//流水线跳转信号
+	u1 clear;
 	creg_addr_t ra1, ra2;
 	word_t rd1, rd2;
 	word_t memread_data;
@@ -63,12 +64,13 @@ module core
 		? dataE_out.result : '0;
 	assign dreq.data = dataE_out.memdata;
 	assign memread_data = dresp.data;
-	// TODO:assign dreq.stroke
+
+	assign jump = dataE.ctl.jump;	//这里在jal下一个周期得到jump跳转指令
 
 
 	always_ff @( posedge clk ) begin
 		// 在不阻塞时更新pc
-		if( ~stall ) begin
+		if( ~hazardOut.stall ) begin
 			if (reset) begin
 			pc <= 64'h8000_0000;
 			end 
@@ -88,6 +90,8 @@ module core
 		// $display("dataD.ctl.op = %x", dataD.ctl.op);
 		// $display("execute:");
 		// $display("dataD_out.pc = %x", dataD_out.pc); 
+		// $display("dataD_out.ra1 = %x", dataD_out.ra1); 
+		// $display("dataD_out.ra2 = %x", dataD_out.ra2); 
 		// $display("dataD_out.op = %x", dataD_out.ctl.op); 
 		// $display("dataD_out.rs = %x", dataD_out.ra1); 
 		// $display("dataD_out.rt = %x", dataD_out.ra2); 
@@ -115,12 +119,15 @@ module core
 		// $display("memwrite = %x", dataE_out.ctl.memwrite);
 		// $display("address = %x", dataE_out.result);
 		// $display("memdata = %x", dataE_out.memdata);
-		$display("dataE.pc = %x", dataD_out.pc);
-		$display("dataE.result = %x", dataE.result);
-		$display("dataM.writedata = %x", dataM.regdata);
-		$display("dataW.writedata = %x", dataW.regdata);
-		$display("dataW.regwrite = %x", dataW.regwrite);
-		$display("=========================");
+		// $display("dataE.pc = %x", dataD_out.pc);
+		// $display("dataE.result = %x", dataE.result);
+		// $display("dataM.writedata = %x", dataM.regdata);
+		// $display("dataW.writedata = %x", dataW.regdata);
+		// $display("dataW.regwrite = %x", dataW.regwrite);
+		// $display("dataW.pc = %x", dataW.pc);
+		// $display("dataW.op = %x", dataW.op);
+		$display("ireq.addr = %x", ireq.addr);
+		// $display("=========================");
 	end
 
 	pcselect pcselect(
@@ -138,8 +145,8 @@ module core
 
 	fetch_decode fetch_decode(
 		.clk(clk),
-		.reset(hazardOut.clear2),
-		.stall(stall),
+		.reset(clear || reset),
+		.stall(hazardOut.stall),
 		.dataF(dataF),
 		.dataF_out(dataF_out)
 	);
@@ -155,8 +162,8 @@ module core
 
 	decode_execute decode_execute(
 		.clk(clk),
-		.reset(hazardOut.clear2),
-		.stall(stall),
+		.reset(clear || reset),
+		.stall(hazardOut.stall),
 		.dataD(dataD),
 		.dataD_out(dataD_out)
 	);
@@ -172,7 +179,7 @@ module core
 
 	execute_memory execute_memory(
 		.clk(clk),
-		.reset(hazardOut.clear1),
+		.reset(hazardOut.clear1 || reset),
 		.dataE(dataE),
 		.dataE_out(dataE_out)
 	);
@@ -185,7 +192,7 @@ module core
 
 	memory_writeback memory_writeback(
 		.clk(clk),
-		.reset(0),
+		.reset(reset),
 		.dataM(dataM),
 		.dataM_out(dataM_out)
 	);
@@ -231,7 +238,7 @@ module core
 	);
 
 	hazard hazard(
-		.jump(jump),
+		// .jump(dataE.ctl.jump),
 		.regwrite(dataM.regwrite),
 		.memread(dataE_out.ctl.memread),
 		.rs(dataD_out.ra1), 
@@ -243,20 +250,25 @@ module core
 		.hazardOut(hazardOut)
 	);
 
+	controller controller(
+		.jump(jump),
+		.clear(clear)
+	);
+
 `ifdef VERILATOR
 	DifftestInstrCommit DifftestInstrCommit(
 		.clock              (clk),
 		.coreid             (0),
 		.index              (0),
-		.valid              (~reset),
+		.valid              (~reset && ~clear),
 		.pc                 (pc),
 		.instr              (instruction),
-		.skip               (dreq.addr[31] == 0),
+		.skip               (/*~dataE.ctl.jump && */dreq.addr[31] == 0),
 		.isRVC              (0),
 		.scFailed           (0),
-		.wen                (dataW.regwrite),
-		.wdest              (dataW.dst),
-		.wdata              (dataW.regdata)
+		.wen                (dataM.regwrite),
+		.wdest              ({3'b0, dataM.dst}),
+		.wdata              (dataM.regdata)
 	);
 	      
 	DifftestArchIntRegState DifftestArchIntRegState (

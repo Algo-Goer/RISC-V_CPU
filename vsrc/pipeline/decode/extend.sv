@@ -52,7 +52,7 @@ module extend
             end
             BEQ : begin
                 imm = {
-                    {51{instruction[12]}},	//offset[63 : 13]
+                    {51{instruction[31]}},	//offset[63 : 13]
                     instruction[31],		//offset[12]
                     instruction[7],			//offset[11]
                     instruction[30 : 25],   //offset[10 : 5]

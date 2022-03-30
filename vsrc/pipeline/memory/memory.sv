@@ -18,7 +18,11 @@ module memory
 );
 
     execute_control_t ctl = dataE.ctl;
-
+    
+    assign dataM.pc = dataE.pc;
+    assign dataM.op = dataE.ctl.op;
+    assign dataM.jump = dataE.ctl.jump;
+    assign dataM.instruction = dataE.instruction;
     assign dataM.regwrite = ctl.regwrite;
     assign dataM.dst = ctl.dst;
     assign dataM.regdata = (ctl.memread) ? 

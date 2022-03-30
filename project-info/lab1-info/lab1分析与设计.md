@@ -870,3 +870,5 @@ forward数据信号，为了协调forward的工作，hazard需要拿到三个转
 需要重构decode组合逻辑流水段，需要传出`rs`编号，`rt`编号，`srca`，`srcb`，`rd1`
 
 需要重构execute组合逻辑流水段，需要传出转发器需要的数据，传入转发器前推的数据与控制信号
+
+hazard拿到jump指令的周期延迟，即在jump指令的访存阶段；

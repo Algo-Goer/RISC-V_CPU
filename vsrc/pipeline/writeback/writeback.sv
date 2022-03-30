@@ -16,6 +16,10 @@ module writeback
     output writeback_data_t dataW
 );
     
+    assign dataW.pc = dataM.pc;
+    assign dataW.instruction  = dataM.instruction;
+    assign dataW.op = dataM.op;
+    assign dataW.jump = dataM.jump;
     assign dataW.regwrite = dataM.regwrite;
     assign dataW.dst = dataM.dst;
     assign dataW.regdata = dataM.regdata;
