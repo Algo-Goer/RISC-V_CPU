@@ -81,56 +81,6 @@ module core
 		end
 	end
 
-	always_ff @(posedge clk) begin 
-		// $display("fetch:");
-		// $display("pc = %x", pc);
-		// $display("instruction = %x", instruction);
-		// $display("decode:");
-		// $display("dataF_out.pc = %x", dataF_out.pc); 
-		// $display("dataF_out.instruction = %x", dataF_out.instruction);
-		// $display("dataD.ctl.op = %x", dataD.ctl.op);
-		// $display("execute:");
-		// $display("dataD_out.pc = %x", dataD_out.pc); 
-		// $display("dataD_out.ra1 = %x", dataD_out.ra1); 
-		// $display("dataD_out.ra2 = %x", dataD_out.ra2); 
-		// $display("dataD_out.op = %x", dataD_out.ctl.op); 
-		// $display("dataD_out.rs = %x", dataD_out.ra1); 
-		// $display("dataD_out.rt = %x", dataD_out.ra2); 
-		// $display("dataD_out.rd = %x", dataD_out.ctl.dst);
-		// $display("forward_execute.valid = %x", forward_execute.valid); 
-		// $display("forward_execute.dst = %x", forward_execute.dst); 
-		// $display("forward_execute.data = %x", forward_execute.data); 
-		// $display("forward_memory.valid = %x", forward_memory.valid); 
-		// $display("forward_memory.dst = %x", forward_memory.dst); 
-		// $display("forward_memory.data = %x", forward_memory.data); 
-		// $display("forward_writeback.valid = %x", forward_writeback.valid); 
-		// $display("forward_writeback.dst = %x", forward_writeback.dst); 
-		// $display("forward_writeback.data = %x", forward_writeback.data); 
-		// $display("srca_mux = %x", hazardOut.srca_mux);
-		// $display("srca_forward = %x", hazardOut.srca_forward);
-		// $display("srca_R = %x", dataD_out.ctl.srca_r);
-		// $display("srcb_mux = %x", hazardOut.srcb_mux);
-		// $display("srcb_forward = %x", hazardOut.srcb_forward);
-		// $display("dataD_out.imm = %x", dataD_out.imm);
-		// $display("dataD_out.srca = %x", dataD_out.srca);
-		// $display("dataD_out.srcb = %x", dataD_out.srcb);
-		// $display("dataE.result = %x", dataE.result);
-		// $display("memory:");
-		// $display("memread = %x", dataE_out.ctl.memread);
-		// $display("memwrite = %x", dataE_out.ctl.memwrite);
-		// $display("address = %x", dataE_out.result);
-		// $display("memdata = %x", dataE_out.memdata);
-		// $display("dataE.pc = %x", dataD_out.pc);
-		// $display("dataE.result = %x", dataE.result);
-		// $display("dataM.writedata = %x", dataM.regdata);
-		// $display("dataW.writedata = %x", dataW.regdata);
-		// $display("dataW.regwrite = %x", dataW.regwrite);
-		// $display("dataW.pc = %x", dataW.pc);
-		// $display("dataW.op = %x", dataW.op);
-		// $display("ireq.addr = %x", ireq.addr);
-		// $display("=========================");
-	end
-
 	pcselect pcselect(
 		.jump(dataE.ctl.jump),
 		.pcplus4(pc + 4),
@@ -236,7 +186,6 @@ module core
 	);
 
 	// writeback转发器
-	// TODO：writeback转发器数据周期有问题
 	forward forward3(
 		.regwrite(dataW_out.regwrite),
 		.dst(dataW_out.dst),
@@ -245,7 +194,6 @@ module core
 	);
 
 	hazard hazard(
-		// .jump(dataE.ctl.jump),
 		.regwrite(dataM.regwrite),
 		.memread(dataE_out.ctl.memread),
 		.rs(dataD_out.ra1), 

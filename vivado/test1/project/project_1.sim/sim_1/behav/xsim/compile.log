@@ -1,0 +1,51 @@
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/include/config.sv" into library xil_defaultlib
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/include/common.sv" into library xil_defaultlib
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/include/pipes.sv" into library xil_defaultlib
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/pipeline/execute/alu.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module alu
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/pipeline/hazard/controller.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module controller
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/pipeline/core.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module core
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/pipeline/decode/dataconfirm.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dataconfirm
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/pipeline/decode/decode.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module decode
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/pipeline/registers/decode_execute.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module decode_execute
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/pipeline/decode/decoder.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module decoder
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vivado/src/device.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module device
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vivado/src/without_delay/dist_ram_wrapper.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module dist_ram_wrapper
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/pipeline/execute/execute.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module execute
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/pipeline/registers/execute_memory.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module execute_memory
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/pipeline/decode/extend.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module extend
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/pipeline/fetch/fetch.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module fetch
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/pipeline/registers/fetch_decode.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module fetch_decode
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/pipeline/hazard/forward.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module forward
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/pipeline/hazard/hazard.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module hazard
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/pipeline/memory/memory.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module memory
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/pipeline/registers/memory_writeback.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module memory_writeback
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/mycpu_top_nodelay.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module mycpu_top_nodelay
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/pipeline/fetch/pcselect.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module pcselect
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/pipeline/regfile/regfile.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module regfile
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vivado/src/without_delay/soc_top_nodelay.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module soc_top_nodelay
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vsrc/pipeline/writeback/writeback.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module writeback
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "D:/WorkSpace/Git_Project/RISC-V_CPU/vivado/src/without_delay/simtop_nodelay.sv" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module simtop_nodelay

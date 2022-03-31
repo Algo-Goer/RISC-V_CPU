@@ -2,7 +2,7 @@
 
 lab 1最终需要实现一个基于RISC-V指令集的五级流水线cpu。
 
-本次实验中我的思路为（此部分为实现完成后回述）：
+本次实验中我的思路为（此部分为最终实现完成后回述）：
 
 ​	首先分析待实现的指令，按照五级流水段划分的逻辑思路考虑指令在各阶段如何执行；
 
@@ -26,9 +26,17 @@ lab 1最终需要实现一个基于RISC-V指令集的五级流水线cpu。
 
 ​		取指 ---- fetch，译码与访问regfile ---- decode，执行 ---- execute，访存 ---- memory，写回 ---- writeback
 
-​	流水寄存器（时序逻辑，时钟上升沿触发），实现流水线数据传递与冒险处理：
+​	流水寄存器（时序逻辑，时钟上升沿触发），实现流水段间数据传递：
 
-​		
+​		控制fetch流水段 ---- `pc`，控制decode流水段 ---- fetch_decode，控制execute流水段 ---- decode_execute，
+
+​		控制memory流水段 ---- execute_memory，控制writeback流水段 ---- memory_writeback
+
+​	冒险处理部件，处理流水线导致的数据冒险与控制冒险：
+
+​		forward：实现数据的前推转发，hazard：产生阻塞控制信号，controller：产生清除信号，即气泡；
+
+​		同时为了实现处理writeback阶段数据的前推转发，增加一个寄存器保存writeback阶段数据（一周期时延）；
 
 ## 一、需要实现的指令与具体功能
 
@@ -199,7 +207,7 @@ offset[12] = instruction[31]	offset[10 : 5] = instruction[30 : 25]	offset[4 : 1]
 
 ```verilog
 {
-    {51{instruction[12]}},		//offset[63 : 13]
+    {51{instruction[31]}},		//offset[63 : 13]
     instruction[31],		   //offset[12]
     instruction[7],			   //offset[11]
     instruction[30 : 25],       //offset[10 : 5]
@@ -738,19 +746,21 @@ ADD R1, R4, R5; 	(R4) + (R5) -> (R1)
 
 在writeback阶段，cpu准备要写入的数据，然后在下个周期上升沿写入regfile。这就会导致此时还未写入的数据被丢失而取到错误的数据。解决方式：一、可以采取阻塞的方式，遇事不决就阻塞，等数据就位后再执行；二、**增加一层转发，把将要写入regfile的数据与寄存器编号存入转发寄存器，使用数据时从转发单元中取数据。**
 
+#### （4）decode中跳转pc的计算
+
+decode阶段直接读取regfile并进行操作计算地址，错误的数据没有经过转发的数据选择器。
+
 ### 3、结构冒险（structure hazard）
 
 主要在于寄存器堆regfile既读又写，端口冲突导致。
 
 ## 六、流水线冒险部件设计
 
-在各流水段间插入流水寄存器，实现流水线工作。流水寄存器需要考虑流水线中的气泡与阻塞等问题。
-
-（跳转与数据冲突的结合：decode阶段直接读取regfile并进行操作计算地址，错误的数据没有经过转发的数据选择器）
+在各流水段间插入流水寄存器，实现流水线工作；各个流水段间的流水寄存器均为带有同步时钟和异步复位信号的普通寄存器，在此不再赘述；流水寄存器的工作需要考虑流水线中的气泡与阻塞等问题，插入气泡与进行阻塞的信号由冒险部件产生，考虑冒险部件的设计，此次实现中共用到两种功能的冒险部件：`hazard`与`forward`。
 
 ### 1、forward
 
-forward寄存器需要完成流水段数据的前推与暂存。一共有3个转发路径：
+forward为寄存器逻辑，需要完成流水段数据的前推与暂存。一共有3个转发路径：
 
 ```verilog
 execute	->	execute;		// 将execute计算出的数据转发到execute数据选择器
@@ -758,7 +768,7 @@ memory	->	execute;		// 将memory从内存中读出的数据转发到execute数�
 writeback	->	execute;	// 将准备写入regfile的数据转发到execute的数据选择器
 ```
 
-三个寄存器类似，以第一种为例：
+三个部件功能一致，以第一种为例：
 
 forward寄存器中应存储的数据：要写回regfile的数据（即转发的数据），要写回的寄存器编号；forward应该为组合逻辑；
 
@@ -770,6 +780,7 @@ forward的输入模块接到的是对应数据所在流水段的组合逻辑输�
 
 | forward输入端口 |               信号作用               |
 | :-------------: | :----------------------------------: |
+|      `clk`      |           cpu同步时钟信号            |
 |   `regwrite`    |      判断数据是否会写入regfile       |
 |      `dst`      | 转发器存储的数据将会更新的寄存器编号 |
 |     `data`      |         转发器前推的关键数据         |
@@ -865,10 +876,107 @@ forward数据信号，为了协调forward的工作，hazard需要拿到三个转
 |     `srcb_mux`     |                       操作数b更新选择                       |
 |   `srcb_forward`   |                   操作数b更新的转发器数据                   |
 
-## 七、整体实现
+注：当前hazard的设计中，为明确`srca_mux`、`srca_forward`与`srcb_mux`、`srcb_forward`信号，需要写两段思路一致的组合逻辑，为减少代码重复可以把这一段组合逻辑封装为一个部件进行逻辑复用，也可以把forward中的`valid`信号逻辑加深，通过前推是否有效来确定`valid`信号。
 
-需要重构decode组合逻辑流水段，需要传出`rs`编号，`rt`编号，`srca`，`srcb`，`rd1`
+## 七、实现中的问题与解决记录
 
-需要重构execute组合逻辑流水段，需要传出转发器需要的数据，传入转发器前推的数据与控制信号
+### 1、forward与hazard导致的execute组合逻辑循环
 
-hazard拿到jump指令的周期延迟，即在jump指令的访存阶段；
+在最初的设计中，forward部件为寄存器部件，具有保持execute数据的功能；待转发的execute阶段数据在下一个周期上升沿存入forward寄存器进行前推。但因为forward中产生的信号在hazard中协调工作，并回过头作为execute的输入传入，导致了execute阶段组合逻辑闭合，execute的输出数据`dataE`无法稳定更新（虽然forward有同步时钟控制数据更新，但就是无法通过verilator编译）。
+
+解决方案为：**将forward的输入端口从`dataE`调整为`dataE_out`**，即从组合逻辑直接获取输入改为从流水寄存器中获取数据；这样可以通过一个周期的数据延迟解决组合逻辑闭环的问题，但是如果还维持原来对forward的设计，就会导致execute阶段拿到的转发数据错误，因为execute在中计算得到的数据本该在一个周期的延迟后转发到execute阶段供下一个条指令更新，但在当前的forward设计下，forward的输入要在一个周期的延迟后才能就位，forward的数据要在两个周期的延迟后才能更新，导致数据转发失效。因此还要**把forward部件由寄存器逻辑调整为纯组合逻辑**，以减少延迟，由此解决逻辑循环的问题并保持转发数据可用。
+
+### 2、writeback转发数据丢失
+
+当forward修改为组合逻辑，读取寄存器输出的数据后，writeback写回的数据转发失效（writeback阶段转发器），因为延迟了一周期而writeback没有对应的延迟寄存器，导致forward无法正确拿到writeback阶段的转发数据；而写后读的问题仍然存在，writeback中的数据写回了但是用到指令的数据已经到了execute阶段（即此数据已经写回regfile，但写回晚了一周期）。
+
+解决方案为：增加一周期延迟，拿到数据`dataW_out`作为第三层转发器的输入数据。`dataW_out`并不做为流水线的任何阶段，只是起到一个单纯的暂存writeback写回的数据的功能，不增加整个流水线的延迟。
+
+### 3、execute数据的错误更新
+
+在测试中发现，execute阶段存在把转发数据错误更新的情况，如把`imm`数据更新为转发的数据造成计算出错。
+
+解决方案为：在decode阶段为操作数`srca`与`srcb`添加一个控制信号`srca_r`与`srcb_r`，分别表示该数据是否可能通过转发器更新，即是否是从regfile中读到的数据；在execute阶段更新数据时的选择信号为`srca_r && srca_mux`（`srcb`同理），这样避免了execute操作数的错误更新。
+
+### 4、hazard的clear信号导致的execute组合逻辑循环
+
+在hazard部件中，需要产生跳转与阻塞时的清除信号，跳转的清除信号作用于`decode_execute`，导致execute组合逻辑循环。（不清楚哪循环了，但它就是循环了）
+
+解决方案为：增加controller模块专门产生jump导致的clear信号，将clear信号的产生与hazard分开。
+
+### 5、一些与结构设计无关的离谱错误
+
+（1）传错stall信号
+
+hazard产生的`stall`信号没有连线给给外部的`stall`，例化的时候接的时外部`stall`而不是`hazardOut.stall`；
+
+（2）beq的立即数扩展出错
+
+```verilog
+// 错误设计
+{
+    {51{instruction[12]}},		//offset[63 : 13]				把[31]写成了[12]
+    instruction[31],		   //offset[12]
+    instruction[7],			   //offset[11]
+    instruction[30 : 25],       //offset[10 : 5]
+    instruction[11 : 8],	    //offset[4 : 1]
+    0						  //offset[0]
+}
+```
+
+（3）hazard生成转发信号出错
+
+错误1：没有处理不满足条件的情况，也就是hazard模块中的逻辑判断，只将满足条件的更新数据信号赋为1，而没有把不满足条件的信号赋为0，导致数据更新信号为1后一直为1，判断条件失效。
+
+```verilog
+always_comb begin
+    if(/* srca的转发逻辑... */) begin
+        srca_mux = 1'b1;
+    end 
+    else if (/* srca的转发逻辑... */) begin
+        srca_mux = 1'b1;
+    end
+    // 没有不满足条件的情况，导致会受到上次残留的影响
+end
+```
+
+错误2：在修改`srcb_mux`时把`srca_mux`修改。
+
+```verilog
+always_comb begin
+	// srca的转发逻辑
+    // ...
+end
+always_comb begin
+	// srcb的转发逻辑
+    // ...
+    else begin
+    	srca_mux = 1'b0;		// 这里把srcb_mux写成了srca_mux
+    end
+end
+```
+
+（4）0号寄存器的写入信号错误
+
+0号寄存器只读，因此当`dst`为0的时候对应的`regwrite`应该始终为0，在decode中缺少了这一逻辑。
+
+## 八、最终实现
+
+最终实现的cpu部件目录：
+
+<img src = "img/pipeline.png" style = "zoom : 67%">
+
+verilator仿真结果：
+
+<img src = "img/verilator.png" style = "zoom : 67%">
+
+vivado仿真结果：
+
+<img src = "img/vivado.png" style = "zoom : 67%">
+
+上板串口验证结果：
+
+<img src = "img/secureCRT.png" style = "zoom : 67%">
+
+简易电路图：
+
