@@ -7,7 +7,9 @@
 `else
 
 `endif
-
+/*
+* 这个模块只是为了处理原来连线导致的逻辑循环
+*/
 module controller 
     import common::*;
     import pipes::*;(

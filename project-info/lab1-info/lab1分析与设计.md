@@ -1,3 +1,5 @@
+
+
 # lab 1分析与设计
 
 lab 1最终需要实现一个基于RISC-V指令集的五级流水线cpu。
@@ -62,9 +64,9 @@ alu进行**异或运算**，结果写回寄存器rd，instruction[11 : 7]
 
 ### 3、ori（I-type）
 
-![]( img/ori.png)
+![](img/ori.png)
 
-![]( img/ori2.png)
+![](img/ori2.png)
 
 alu进行**或运算**，结果写回寄存器rd，instruction[11 : 7]
 
@@ -72,7 +74,7 @@ alu进行**或运算**，结果写回寄存器rd，instruction[11 : 7]
 
 ### 4、andi（I-type）
 
-![]( img/andi.png)
+![](img/andi.png)
 
 alu进行**与运算**，结果写回寄存器rd，instruction[11 : 7]
 
@@ -80,7 +82,7 @@ alu进行**与运算**，结果写回寄存器rd，instruction[11 : 7]
 
 ### 5、lui（U-type）
 
-![]( img/lui.png)
+![](img/lui.png)
 
 alu进行**UNKNOWN**运算，结果写回寄存器rd，instruction[11 : 7]
 
@@ -88,7 +90,7 @@ alu进行**UNKNOWN**运算，结果写回寄存器rd，instruction[11 : 7]
 
 ### 6、auipc （U-type）
 
-![]( img/auipc.png)
+![](img/auipc.png)
 
 alu进行**加法**运算，结果写回寄存器rd，instruction[11 : 7]
 
@@ -98,37 +100,37 @@ alu进行**加法**运算，结果写回寄存器rd，instruction[11 : 7]
 
 ### 7、add （R-type）
 
-![]( img/add.png)
+![](img/add.png)
 
 alu进行**加**操作，结果写回寄存器；
 
 ### 8、sub （R-type）
 
-![]( img/sub.png)
+![](img/sub.png)
 
 alu进行**减法**操作，结果写回寄存器；
 
 ### 9、and （R-type）
 
-![]( img/and.png)
+![](img/and.png)
 
 alu进行**与**操作，结果写回寄存器；
 
 ### 10、or （R-type）
 
-![]( img/or.png)
+![](img/or.png)
 
 alu进行**或**操作，结果写回寄存器；
 
 ### 11、xor （R-type）
 
-![]( img/xor.png)
+![](img/xor.png)
 
 alu进行**异或**操作，结果写回寄存器；
 
 ### 12、ld （I-type）
 
-![]( img/ld.png)
+![](img/ld.png)
 
 alu进行**加法**操作，结果（不是运算结果，而是访存结果）写回寄存器；
 
@@ -136,7 +138,7 @@ alu进行**加法**操作，结果（不是运算结果，而是访存结果）�
 
 ### 13、sd （S-type）
 
-![]( img/sd.png)
+![](img/sd.png)
 
 alu进行**加法**操作，结果不写回寄存器；
 
@@ -158,9 +160,9 @@ offset扩展：offset的[11 : 0]（12位）被打散在指令中，对应关系�
 
 ### 14、jal （J-type）
 
-![]( img/jal.png)
+![](img/jal.png)
 
-指令解释：有返回，无条件跳转指令；设置pc + 4为返回地址，存到寄存器rd中，instruction[11 : 7]；将pc跳转到pc + sext(offset)
+指令解释有返回，无条件跳转指令；设置pc + 4为返回地址，存到寄存器rd中，instruction[11 : 7]；将pc跳转到pc + sext(offset)
 
 offset值的20位 被打散存在instruction[31 : 12]位中，具体关系如下：
 
@@ -183,9 +185,9 @@ alu进行**加**运算，结果写回寄存器rd，instruction[11 : 7]；
 
 ### 15、jalr（J-type）
 
-![]( img/jalr.png)
+![](img/jalr.png)
 
-![]( img/jalr2.png)
+![](img/jalr2.png)
 
 指令解释：有返回，无条件跳转指令；设置pc + 4为返回地址，存到寄存器rd中，instruction[11 : 7]；
 
@@ -193,7 +195,7 @@ alu进行**加**运算，结果写回寄存器rd，instruction[11 : 7]；
 
 ### 16、beq （B-type）
 
-![]( img/beq.png)
+![](img/beq.png)
 
 alu进行**equal**运算，结果不写回寄存器；
 
@@ -748,7 +750,7 @@ ADD R1, R4, R5; 	(R4) + (R5) -> (R1)
 
 #### （4）decode中跳转pc的计算
 
-decode阶段直接读取regfile并进行操作计算地址，错误的数据没有经过转发的数据选择器。
+decode阶段直接读取regfile并进行操作计算地址，错误的数据没有经过转发的数据选择器。解决方案：把计算跳转地址的任务放到execute流水段，由decode流水段读取并传递数据给execute流水段；在execute流水段中通过转发数据更新用来计算pc的数据，从而保证得到正确的跳转地址。
 
 ### 3、结构冒险（structure hazard）
 
@@ -978,5 +980,22 @@ vivado仿真结果：
 
 <img src = "img/secureCRT.png" style = "zoom : 67%">
 
-简易电路图：
+手绘电路图：
 
+整体流水线：
+
+<img src = "img/pipeline.jpg" style = "zoom : 67%">
+
+基本部件：
+
+<img src = "img/components.jpg" style = "zoom : 67%">
+
+drawio电路：
+
+单周期：
+
+<img src = "img/SingleCycle.drawio.png">
+
+流水线：
+
+<img src = "img/Pipeline.drawio.png">
