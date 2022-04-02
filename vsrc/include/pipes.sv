@@ -118,7 +118,6 @@ typedef struct packed {
 	word_t regdata;				// 写回的数据
     u1 skip;
     word_t address;
-	// word_t memdata;				// 待写入内存的数据
 } memory_data_t;
 
 // writeback阶段产生的信号
@@ -141,19 +140,10 @@ typedef struct packed {
     word_t data;
 } forward_data_out;
 
-// hazard寄存器模块输入输出
-// typedef struct packed {
-//     creg_addr_t rs, rt;
-//     creg_addr_t dst;
-//     u1 regwrite;
-//     u1 memread;
-//     u1 jump;
-// } hazard_data_in;
-
+// hazard寄存器模块输出
 typedef struct packed {
     u1 stall;
-    u1 clear1;
-    u1 clear2;
+    u1 clear;
     u1 srca_mux;
     word_t srca_forward;
     u1 srcb_mux;

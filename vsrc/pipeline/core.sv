@@ -33,7 +33,6 @@ module core
 	/* TODO: Add your pipeline here. */
 	u64 pc, pcnext;
 	u32 instruction;
-	u1 jump;					//流水线跳转信号
 	u1 clear;
 	creg_addr_t ra1, ra2;
 	word_t rd1, rd2;
@@ -52,7 +51,6 @@ module core
 	forward_data_out forward_execute;
 	forward_data_out forward_memory;
 	forward_data_out forward_writeback;
-	// hazard_data_in hazardIn;
 	hazard_data_out hazardOut;
 	
 	// 存储器数据配置
@@ -65,9 +63,6 @@ module core
 		? dataE_out.result : '0;
 	assign dreq.data = dataE_out.memdata;
 	assign memread_data = dresp.data;
-
-	assign jump = dataE.ctl.jump;	//这里在jal下一个周期得到jump跳转指令
-
 
 	always_ff @( posedge clk ) begin
 		// 在不阻塞时更新pc
@@ -130,7 +125,7 @@ module core
 
 	execute_memory execute_memory(
 		.clk(clk),
-		.reset(hazardOut.clear1 || reset),
+		.reset(hazardOut.clear || reset),
 		.dataE(dataE),
 		.dataE_out(dataE_out)
 	);
@@ -206,7 +201,7 @@ module core
 	);
 
 	controller controller(
-		.jump(jump),
+		.jump(dataE.ctl.jump),
 		.clear(clear)
 	);
 

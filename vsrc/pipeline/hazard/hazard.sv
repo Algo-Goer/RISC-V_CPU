@@ -12,7 +12,6 @@ module hazard
     import common::*;
     import pipes::*;(
 
-    // input u1 jump,
     input u1 regwrite,
     input u1 memread,
     input creg_addr_t rs, rt,
@@ -35,8 +34,8 @@ module hazard
             )
         ) ? 1'b1 : 1'b0;
 
-    // 产生清除信号1，与阻塞条件一致
-    assign hazardOut.clear1 = ( 
+    // 产生清除信号，与阻塞条件
+    assign hazardOut.clear = ( 
             regwrite && memread
             && (
                 rs == dst 
@@ -44,9 +43,6 @@ module hazard
                 rt == dst
             )
         ) ? 1'b1 : 1'b0;
-
-    // // 产生清除信号2，跳转条件
-    // assign hazardOut.clear2 = (jump) ? 1'b1 : 1'b0;
 
     always_comb begin
         // 产生转发srca的信号
