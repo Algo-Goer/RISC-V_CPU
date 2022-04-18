@@ -7,17 +7,31 @@ RISC-V_CPU
 │── build：仿真测试时才会生成的目录  
 │── difftest：仿真测试框架  
 │── project-info：每次lab更新信息与实验文档  
+│　　├── lab1-info：lab1相关文档  
+│　　├── lab2-info：lab2相关文档  
+│　　└── ...  
 │── ready-to-run：仿真测试文件目录  
 │　　├── lab1：包含lab1相关的测试文件，需要关注其中的 .S 汇编文件  
+│　　├── lab2：包含lab2相关的测试文件，需要关注其中的 .S 汇编文件  
 │　　└── ...  
 │── vivado  
-│　　└── test1  
+│　　└── src：vivado项目源文件  
+│　　├── test1  
 │　　　　　└── project：vivado项目工程目录  
+│　　├── test2  
+│　　　　　└── project：vivado项目工程目录  
+│　　└── ...  
 │── vsrc：需要写的CPU代码所在目录  
 │　　├── include：头文件目录  
 │　　├── pipeline  
-│　　　　　├── regfile：寄存器文件目录，寄存器组模块已给出  
-│　　　　　├── execute：流水线执行阶段目录，alu模块已给出  
+│　　　　　├── fetch：取指流水段目录  
+│　　　　　├── decode：译码流水段目录  
+│　　　　　├── execute：执行流水段目录  
+│　　　　　├── memory：访存流水段目录  
+│　　　　　├── writeback：写回流水段目录  
+│　　　　　├── regfile：寄存器文件目录  
+│　　　　　├── registers：流水段寄存器目录  
+│　　　　　├── hazard：流水段冲突处理目录  
 │　　　　　└── core.sv：五级流水线主体代码  
 │　　├── ram：内存控制相关目录  
 │　　├── util：访存接口相关目录  
