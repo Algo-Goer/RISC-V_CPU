@@ -317,3 +317,50 @@ srcb = {
 
 ## 三、握手总线
 
+握手总线主要用来处理访存（包括指令访存和数据访存）的问题，在访存的时候，由于访存周期的不确定性，不能简单地按周期进行流水，需要引入握手总线协议从而处理访存。
+
+**把每次访存看作一次请求和响应的过程，请求标志着一次访存任务的开始，即访存地址和访存使能就位，响应标志着一次访存任务的结束，即访存得到的数据就位。**请求和响应模块的端口分别如下，以data为例：
+
+**访存请求端口**：
+
+```verilog
+typedef struct packed {
+    logic valid; // in request?
+    addr_t addr; // target address
+    // ...
+} dbus_req_t;
+```
+
+在请求端口中，`valid`信号表示访存任务是否开始（即是否进行访存请求），后续流水线的状态会根据访存的情况进行调整；`addr`信号表示访存地址。
+
+**访存响应端口**：
+
+```verilog
+typedef struct packed {
+    logic addr_ok;	// 此次lab（总线上）的总线协议中用不到
+    logic data_ok; // is the field "data" valid? 
+    word_t data; // the data read from cache
+} dbus_resp_t;
+```
+
+`data_ok`信号表示访存请求的响应已就位（在此次的总线协议下），此时的`data`信号就是从memory中读取到的指令或数据。当`data_ok`信号为有效低电平时（有效是指`req.valid`信号为1，即访存请求发出），说明访存还未结束，此时`data`信号就是无效数据。
+
+综上：请求端口的`valid`信号标志着访存请求的发出（即开始访存指令）；响应端口的`data_ok`信号标志着访存请求的结束（即读到正确的内存数据）。
+
+总线协议如下：
+
+> - `req.valid`为0时， `resp.data_ok` 为不定值。
+> - `req.valid`为1期间，代表一次访存请求。在此期间， `req.valid` 与 `req.addr` 不允许改变。
+> - `req.valid` 为1时，检查`resp.data_ok` 。如果为1，则下个时钟的上升沿表示一次握手，本次访存结束。如果握手后 `req.valid` 仍为1，则视为新的一次请求。
+
+## 四、流水线改动
+
+握手总线主要改动在于涉及访存的流水段：`fetch`与`memory`；考虑如何通过信号和连线引入握手总线。
+
+### 1、fetch流水段
+
+当前fetch阶段取指的代码如下：
+
+```verilog
+```
+

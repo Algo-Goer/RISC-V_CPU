@@ -57,7 +57,7 @@ module core
 	assign ireq.addr = pc;
 	assign instruction = iresp.data;
 	assign dreq.valid = dataE_out.ctl.memwrite;
-	assign dreq.strobe = dataE_out.ctl.memwrite;
+	assign dreq.strobe = (dataE_out.ctl.memwrite) ? '1 : '0;
 	assign dreq.addr = 
 		(dataE_out.ctl.memread | dataE_out.ctl.memwrite)
 		? dataE_out.result : '0;

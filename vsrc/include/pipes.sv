@@ -86,8 +86,8 @@ typedef struct packed {
 
 // decode阶段产生的信号
 typedef struct packed {
-    u32 pc;
-    u64 instruction;
+    u64 pc;
+    u32 instruction;
 	creg_addr_t ra1;
     creg_addr_t ra2;
     word_t srca, srcb;			// 操作数
@@ -99,8 +99,8 @@ typedef struct packed {
 
 // execute阶段产生的信号
 typedef struct packed {
-    u32 pc;
-    u64 instruction;
+    u64 pc;
+    u32 instruction;
     u64 j_addr;                 //跳转地址
     word_t memdata;				// 待写入内存的数据
     word_t result;				// 计算结果，可能作为访存地址，也可能作为regfile写回数据
@@ -109,9 +109,9 @@ typedef struct packed {
 
 // memory阶段产生的信号
 typedef struct packed {
-    u32 pc;
+    u64 pc;
     decode_op_t op;
-    u64 instruction;
+    u32 instruction;
     u1 jump;
 	u1 regwrite;				// regfile写使能
 	creg_addr_t dst;			// 写回regfile编号
@@ -122,9 +122,9 @@ typedef struct packed {
 
 // writeback阶段产生的信号
 typedef struct packed {
-    u32 pc;
+    u64 pc;
     decode_op_t op;
-    u64 instruction;
+    u32 instruction;
     u1 jump;
     u1 skip;
     word_t address;

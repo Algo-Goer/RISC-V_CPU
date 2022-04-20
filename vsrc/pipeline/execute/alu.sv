@@ -23,7 +23,7 @@ module alu
 			ALU_OR  : c = a | b;
 			ALU_AND : c = a & b;
 			ALU_XOR : c = a ^ b;
-			ALU_EQUAL : c = a == b;
+			ALU_EQUAL : c = (a == b) ? 64'h0000_0001 : '0;
 			default: begin
 				c = a;
 			end
