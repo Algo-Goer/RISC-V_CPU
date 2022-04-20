@@ -317,7 +317,7 @@ srcb = {
 
 ## 三、握手总线
 
-握手总线主要用来处理访存（包括指令访存和数据访存）的问题，在访存的时候，由于访存周期的不确定性，不能简单地按周期进行流水，需要引入握手总线协议从而处理访存。
+握手总线主要用来处理访存（包括指令访存和数据访存，且**仅是读内存，而不参与写内存**）的问题，在访存的时候，由于访存周期的不确定性，不能简单地按周期进行流水，需要引入握手总线协议从而处理访存。
 
 **把每次访存看作一次请求和响应的过程，请求标志着一次访存任务的开始，即访存地址和访存使能就位，响应标志着一次访存任务的结束，即访存得到的数据就位。**请求和响应模块的端口分别如下，以data为例：
 
@@ -362,5 +362,86 @@ typedef struct packed {
 当前fetch阶段取指的代码如下：
 
 ```verilog
+assign ireq.addr = pc;				// 设置指令pc
+assign instruction = iresp.data;	// 得到读取的指令
 ```
 
+取指的过程不像数据访存一样需要设置读使能，写使能等等，只需要发请求将pc传给`req`，得到`resp`的响应数据即可。
+
+引入握手总线后，取指指令改为以下过程：
+
+- 将pc传给`ireq`，**发起取指请求**，等待`iresp`的响应；
+
+- 判断`iresp.data_ok`，为低电平时说明**响应数据未就位**，继续等待（保持流水线状态）；
+
+- 当`iresp.data_ok`为高电平时，说明**响应数据已就位**，此时由于是组合电路，instruction会直接得到取指的指令（在`data_ok`设置为高电平的同一周期），同时准备进行一次握手；
+
+- 在`iresp.data_ok`为高电平的下一个周期上升沿，进行一次握手；握手标志着一次访存指令结束，因此需要**将请求与响应的对应状态参数复位**：请求端口的状态参数有`valid`，响应状态参数有`data_ok`，需要将两条信号置为低电平（若有下一条指令再修改）。
+
+因此，引入握手总线后fetch流水段的取指代码如下：
+
+```verilog
+// 发请求
+assign ireq.valid = 1;			// 发出取指请求
+assign ireq.addr = pc;			// 设置请求参数
+// 得到响应
+assign instruction = iresp.data;// 得到指令
+// 处理握手
+always@(posedge clk) begin
+    // 若完成一次访存请求
+    if (ireq.valid == 1 && iresp.data_ok == 1) begin
+        ireq.valid = 0;
+        iresp.data_ok = 0;
+    end
+end
+```
+
+同时需要保证在访存期间`req.data`与`req.valid`不能改变，所以不能有其他地方修改`ireq`。
+
+为保证每个周期都在取指，**`ireq.valid`信号应该始终为1，不需要握手处理。**
+
+### 2、memory流水段
+
+当前memory流水段访存代码如下：
+
+```verilog
+assign dreq.valid = dataE_out.ctl.memwrite;					// 由execute阶段的信号控制发访存请求
+assign dreq.strobe = (dataE_out.ctl.memwrite) ? '1 : '0;	// 设置读写位数
+assign dreq.addr = (dataE_out.ctl.memread | dataE_out.ctl.memwrite) ? dataE_out.result : '0;	//地址
+assign memread_data = dresp.data;							// 得到响应数据
+```
+
+同样在引入握手总线后的访存（**读内存**）增加为以下过程：
+
+- 设置请求参数`dreq.valid`将`addr`传给`dreq`，**发起取指请求**，等待`dresp`的响应；
+- 判断`dresp.data_ok`，为低电平时说明**响应数据未就位**，继续等待（保持流水线状态）；
+- 当`dresp.data_ok`为高电平时，说明**响应数据已就位**，此时由于是组合电路，instruction会直接得到取指的指令（在`data_ok`设置为高电平的同一周期），同时准备进行一次握手；
+- 在`dresp.data_ok`为高电平的下一个周期上升沿，进行一次握手；握手标志着一次访存指令结束，因此需要**将请求与响应的对应状态参数复位**：请求端口的状态参数有`valid`，响应状态参数有`data_ok`，需要将两条信号置为低电平（若有下一条指令再修改）。
+
+因此引入握手总线后访存（读内存）的代码如下：
+
+```verilog
+// 发访存请求
+assign dreq.valid = dataE_out.ctl.memwrite;					// 由execute阶段的信号控制发访存请求
+// 设置请求参数
+assign dreq.strobe = (dataE_out.ctl.memwrite) ? '1 : '0;	// 设置读写位数
+assign dreq.addr = (dataE_out.ctl.memread | dataE_out.ctl.memwrite) ? dataE_out.result : '0;	//地址
+// 接收响应数据
+assign memread_data = dresp.data;							// 得到响应数据
+// 处理握手
+always@(posedge clk) begin
+    // 若完成一次访存请求
+    if (dreq.valid == 1 && dresp.data_ok == 1) begin
+        dreq.valid = 0;
+        dresp.data_ok = 0;
+    end
+end
+```
+
+同时别漏掉**写内存的访存情况！**
+
+可以考虑把处理握手的寄存器写为一个单独的模块。
+
+### 3、流水线的改动
+
+由于访存延迟的存在，流水线不能总是正常地流动，需要在访存延迟时进行阻塞（前端插入气泡，后端保持原状态）。
