@@ -13,23 +13,40 @@ module alu
 	import pipes::*;(
 	input u64 a, b,
 	input alufunc_t alufunc,
+	input u1 word,
 	output u64 c
 );
+	u64 srca, srcb;
+	u64 result;
+	
 	always_comb begin
-		c = '0;
+		result = '0;
 		unique case(alufunc)
-			ALU_ADD : c = a + b;
-			ALU_SUB : c = a - b;
-			ALU_OR  : c = a | b;
-			ALU_AND : c = a & b;
-			ALU_XOR : c = a ^ b;
-			ALU_EQUAL : c = (a == b) ? 64'h0000_0001 : '0;
+			ALU_ADD : result = srca + srcb;
+			ALU_SUB : result = srca - srcb;
+			ALU_OR  : result = srca | srcb;
+			ALU_AND : result = srca & srcb;
+			ALU_XOR : result = srca ^ srcb;
+			ALU_EQUAL : result = (srca == srcb) ? 64'h0000_0001 : '0;
+			ALU_NOT_EQUAL : result = (srca != srcb) ? 64'h0000_0001 : '0;
+			ALU_LESS : result = ($signed(srca) < $signed(srcb)) ? 64'h0000_0001 : '0;
+			ALU_GREATER : result = ($signed(srca) > $signed(srcb)) ? 64'h0000_0001 : '0;
+			ALU_LESS_U : result = (srca < srcb) ? 64'h0000_0001 : '0;
+			ALU_GREATER_U  : result = (srca > srcb) ? 64'h0000_0001 : '0;
+			ALU_SHIFTL : result = srca << srcb;
+			ALU_SHIFTR : result = srca >> srcb;
+			ALU_SHIFTRS : result = $signed(srca) >>> srcb;
 			default: begin
-				c = a;
+				result = srca;
 			end
 		endcase
 	end
-	
+
+	// 截断操作数
+	assign srca = word ? {32'b0, a[31 : 0]} : a;
+	assign srcb = word ? {32'b0, b[31 : 0]} : b;
+	// 扩展结果
+	assign c = word ? {{32{result[31]}}, result[31 : 0]} : result;
 endmodule
 
 `endif

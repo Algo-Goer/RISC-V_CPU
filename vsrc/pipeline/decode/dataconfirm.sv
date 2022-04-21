@@ -25,11 +25,30 @@ module dataconfirm
 
     always_latch begin 
         unique case(op)
-            ADD, SUB, OR, AND, XOR, BEQ: begin
+            ADD, SUB, OR, AND, XOR, 
+            SLT, SLTU, ADDW, SUBW,
+            BEQ, BNE, BLT, BGE, BLTU, BGEU: begin
                 data1 = rd1;
                 data2 = rd2;
             end
-            ADDI, ORI, ANDI, XORI, LD, SD: begin
+            SLL, SRL, SRA : begin
+                data1 = rd1;
+                data2 = {
+                    58'b0,			// 高位补0
+                    rd2[5 : 0]		// rd2的低六位作为移位数据
+                };
+            end
+            SLLW, SRLW, SRAW : begin
+                data1 = rd1;
+                data2 = {
+                    59'b0,			// 高位补0
+                    rd2[4 : 0]		// rd2的低六位作为移位数据
+                };
+            end
+            ADDI, ORI, ANDI, XORI, 
+            SLTI, SLTIU, SLLI, SRLI, SRAI,
+            ADDIW, SLLIW, SRLIW, SRAIW,
+            LD, SD: begin
                 data1 = rd1;
                 data2 = imm;
             end

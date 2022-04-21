@@ -53,9 +53,11 @@ module core
 	forward_data_out forward_writeback;
 	hazard_data_out hazardOut;
 	
-	// 存储器数据配置
+	// 指令访存设置
+	assign ireq.valid = 1;
 	assign ireq.addr = pc;
 	assign instruction = iresp.data;
+	// 数据访存设置
 	assign dreq.valid = dataE_out.ctl.memwrite;
 	assign dreq.strobe = (dataE_out.ctl.memwrite) ? '1 : '0;
 	assign dreq.addr = 

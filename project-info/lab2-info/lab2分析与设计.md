@@ -296,12 +296,12 @@ srcb = {
 
 ```verilog
 srcb = {
-    58'b0,			// 高位补0
+    59'b0,			// 高位补0
     rd2[4 : 0]		// rd2的低五位作为移位数据
 }
 ```
 
-### 3、alu的操作过程
+### 4、alu的操作过程
 
 由于存在32位运算的几条指令：`addiw`、`slliw`……
 
@@ -398,7 +398,7 @@ end
 
 同时需要保证在访存期间`req.data`与`req.valid`不能改变，所以不能有其他地方修改`ireq`。
 
-为保证每个周期都在取指，**`ireq.valid`信号应该始终为1，不需要握手处理。**
+为保证每个周期都在取指，**`ireq.valid`信号应该默认为1，不需要握手处理。**
 
 ### 2、memory流水段
 
@@ -422,7 +422,7 @@ assign memread_data = dresp.data;							// 得到响应数据
 
 ```verilog
 // 发访存请求
-assign dreq.valid = dataE_out.ctl.memwrite;					// 由execute阶段的信号控制发访存请求
+assign dreq.valid = dataE_out.ctl.memwrite|| dataE_out.ctl.memread;	// 由memory阶段的信号控制发访存请求
 // 设置请求参数
 assign dreq.strobe = (dataE_out.ctl.memwrite) ? '1 : '0;	// 设置读写位数
 assign dreq.addr = (dataE_out.ctl.memread | dataE_out.ctl.memwrite) ? dataE_out.result : '0;	//地址
@@ -445,3 +445,78 @@ end
 ### 3、流水线的改动
 
 由于访存延迟的存在，流水线不能总是正常地流动，需要在访存延迟时进行阻塞（前端插入气泡，后端保持原状态）。
+
+#### （1）fetch取指导致的流水段改动
+
+在还没有取出指令时对流水线进行阻塞，只阻塞fetch流水段，后续流水段让其继续流动，同时插入气泡。即需要保持`pc`寄存器的数据，同时对`fetch_decode`寄存器进行复位清除逻辑，也就是插入气泡，使得到指令前的错误数据不会进入流水线。
+
+即给`pc`添加阻塞信号，阻塞条件为`ireq.valid == 1 && iresp.data_ok == 0`；给`fetch_decode`寄存器添加复位信号，复位条件为与`pc`的阻塞信号相同。
+
+```verilog
+assign stall = ireq.valid == 1 && iresp.data_ok == 0;
+assign flush = ireq.valid == 1 && iresp.data_ok == 0;
+```
+
+对**`pc`的阻塞信号与`fetch_decode`的清除信号**的逻辑如下：
+
+当`ireq.valid == 1 && iresp.data_ok == 0`时，说明发起了一次访存请求并且响应数据未就位，此时需要阻塞`fetch`流水段，并在`decode`阶段插入气泡；
+
+```verilog
+assign stall = ireq.valid == 1 && iresp.data_ok == 0;
+assign flush = ireq.valid == 1 && iresp.data_ok == 0;
+// 注：此信号并非包含所有情况
+```
+
+对响应数据的获得无需进行判断，只需要连线即可，若数据还未就位，由于阻塞和清除信号的存在不会有错误指令流入流水线。
+
+#### （2）memory访存导致的流水线改动
+
+memory访存时需要阻塞的流水段：`fetch`、`decode`、`execute`与`memory`，即产生`pc`、`fetch_decode`、`decode_execute`与`execute_memory`寄存器的阻塞信号；
+
+需要清除的流水段：`writeback`，由于`memory`的数据未就位，`writeback`执行完后应该插入一个气泡，即`memory_writeback`寄存器的清除信号；
+
+```verilog
+assign stall = dreq.valid == 1 && dresp.data_ok == 0;
+assign flush = dreq.valid == 1 && dresp.data_ok == 0;
+```
+
+`dreq.valid`信号的逻辑：
+
+```verilog
+assign dreq.valid = dataE_out.ctl.memwrite || dataE_out.ctl.memread;
+```
+
+握手逻辑：
+
+```verilog
+// 访存完成时进行一次握手
+always@(posedge clk) begin
+    if(dreq.valid == 1 && dresp.data_ok == 1) begin
+        dreq.valid = 0;
+        dresp.data_ok = 0;
+    end
+end
+```
+
+#### （3）仲裁分析
+
+#### （4）流水线冲突分析
+
+考虑一个特殊情况：跳转指令导致在取指时`ireq`中`addr`改变
+
+当在`execute`流水段判断到需要跳转时，此时`fetch`流水段在进行取指（一条错误指令），`decode`流水段在进行译码（气泡或一条错误指令）；而`pc_next`已经更新为正确的跳转地址，而由于当前`fetch`阶段还没有取出指令，导致`pc`在阻塞，`pc_next`无法进入流水段；那么在下一个周期（假设取指令完成），`fetch`进行`pc_next`的取指，`decode`因为跳转信号的出现插入气泡，`execute`也插入气泡，可行；但若取指令未完成，`execute`阶段的数据向后移动，导致跳转信号丢失，就**必须在`execute`发现需要跳转时终止当前取指请求（`ireq.valid`变为0），而在下一个时钟上升沿（`pc`更新为跳转地址），重新发起取指请求（`ireq.valid`变为1）**
+
+因此**`ireq`的`valid`信号**的逻辑如下（此部分暂不考虑）：
+
+- 在每个时钟上升沿需要为高电平1，标志着该周期发起访存请求；
+- 在握手时（`data_ok`就位的下一个周期上升沿），不需要设置为低电平0，继续下一条指令取指；
+- 在某一周期中发现当前指令为预测错误的指令时（即`execute`跳转信号为1），在当前周期直接将`valid`信号设置为低电平0，标志着此次错误的取指请求结束；并在下一个时钟上升沿重新设置为1进行正确的取指；
+
+综上，`ireq.valid`为`execute`流水段的`jump`信号的相反信号，当`jump`为0表示不跳转时，`valid`为1表示正常取指；而当`jump`为1表示跳转时，`valid`应该设置为0，保证终止此次对错误`pc`的取指，而在下一个时钟上升沿，`jump`重新设置为0，`valid`重新设置为1表示对此次指令进行取指（跳转地址的instruction），从而流水段正确执行。
+
+即
+
+```verilog
+assign ireq.valid = ~(dataE.ctl.jump);
+```
+

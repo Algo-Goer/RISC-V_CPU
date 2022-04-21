@@ -20,7 +20,9 @@ module extend
     u64 imm = '0;
     always_latch begin
         unique case(op)
-            ADDI, ORI, ANDI, XORI, LD, JALR: begin
+            ADDI, ORI, ANDI, XORI, SLTI, SLTIU,
+            ADDIW,
+            LD, JALR: begin
                 imm = {
                     {52{instruction[31]}}, 
                     instruction[31 : 20]
@@ -50,7 +52,7 @@ module extend
                     1'b0 
                 };
             end
-            BEQ : begin
+            BEQ, BNE, BLT, BGE, BLTU, BGEU : begin
                 imm = {
                     {51{instruction[31]}},	//offset[63 : 13]
                     instruction[31],		//offset[12]
@@ -58,6 +60,13 @@ module extend
                     instruction[30 : 25],   //offset[10 : 5]
                     instruction[11 : 8],	//offset[4 : 1]
                     1'b0	
+                };
+            end
+            SLLI, SRLI, SRAI,
+            SLLIW, SRLIW, SRAIW : begin
+                imm = {
+                    58'b0,
+                    instruction[25 : 20]
                 };
             end
             default: begin

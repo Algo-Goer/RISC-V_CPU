@@ -10,48 +10,72 @@ package pipes;
 
 // parameter F7_RI = 7'bxxxxxxx;
 parameter F7_I_TYPE = 7'b0010011;
+parameter F7_IW_TYPE = 7'b0011011;
 parameter F7_R_TYPE = 7'b0110011;
+parameter F7_RW_TYPE = 7'b0111011;
 parameter F7_LUI = 7'b0110111;
 parameter F7_AUIPC = 7'b0010111;
 parameter F7_LD = 7'b0000011;
 parameter F7_SD = 7'b0100011;
 parameter F7_JAL = 7'b1101111;
 parameter F7_JALR = 7'b1100111;
-parameter F7_BEQ = 7'b1100011;
+parameter F7_B_TYPE = 7'b1100011;
 
 parameter F7_ADD = 7'b0000000;
 parameter F7_SUB = 7'b0100000;
-parameter F3_ADD = 3'b000;
+parameter F7_SRL = 7'b0000000;
+parameter F7_SRA = 7'b0100000;
+parameter F3_ADD_SUB = 3'b000;
 parameter F3_AND = 3'b111;
 parameter F3_OR = 3'b110;
 parameter F3_XOR = 3'b100;
+parameter F3_SLL = 3'b001;
+parameter F3_SLT = 3'b010;
+parameter F3_SLTU = 3'b011;
+parameter F3_SRL_SRA = 3'b101;
+parameter F3_BEQ = 3'b000;
+parameter F3_BNE = 3'b001;
+parameter F3_BLT = 3'b100;
+parameter F3_BGE = 3'b101;
+parameter F3_BLTU = 3'b110;
+parameter F3_BGEU = 3'b111;
+
 
 
 /* Define pipeline structures here */
 // alu进行的操作类型
-typedef enum logic [4:0] {
+typedef enum logic [4 : 0] {
 	ALU_ADD, ALU_SUB, 
 	ALU_OR, ALU_AND, ALU_XOR,
-	ALU_EQUAL
+	ALU_EQUAL, ALU_NOT_EQUAL,
+    ALU_LESS, ALU_GREATER,
+    ALU_LESS_U, ALU_GREATER_U,
+    ALU_SHIFTL, ALU_SHIFTR,
+    ALU_SHIFTRS
 } alufunc_t;
 
 // decode判断出的指令类型
 typedef enum logic [5 : 0] { 
 	UNKNOWN, 
-	ADDI, ORI, ANDI, XORI, 
-	LUI, AUIPC,
+	ADDI, ORI, ANDI, XORI, LUI, AUIPC,
+    SLTI, SLTIU, SLLI, SRLI, SRAI, 
+    ADDIW, SLLIW, SRLIW, SRAIW,
 	ADD, SUB, OR, AND, XOR,
+    SLL, SLT, SLTU, SRL, SRA,
+    ADDW, SUBW, SLLW, SRLW, SRAW,
 	LD, SD,
 	JAL, JALR, 
-	BEQ
+	BEQ, BNE, BLT, BGE, BLTU, BGEU
 } decode_op_t;
 
 // decode流水段产生的控制信号
 typedef struct packed {
     // 指令信息
     decode_op_t op;
+    u1 word;                    // 是否为32位计算
     // fetch控制信号
-    u1 jump;					//无条件跳转
+    u1 jump;					// 无条件跳转
+    u1 btype;                   // 条件跳转
     // execute控制信号
     alufunc_t func;				// alu操作
     u1 srca_r; 

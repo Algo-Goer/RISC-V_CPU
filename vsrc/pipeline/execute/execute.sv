@@ -30,6 +30,7 @@ module execute
         .a(srca),
         .b(srcb),
         .alufunc(dataD.ctl.func),
+        .word(dataD.ctl.word),
         .c(result)
     );
     
@@ -51,7 +52,7 @@ module execute
     assign dataE.memdata = memdata;
     assign dataE.result = result;
     assign dataE.ctl.jump = (dataD.ctl.jump) | 
-        (dataD.ctl.op == BEQ && result == 1) ? 1'b1 : 1'b0;
+        (dataD.ctl.btype == 1 && result == '1) ? 1'b1 : 1'b0;
     assign dataE.ctl.op = dataD.ctl.op;
     assign dataE.ctl.memread = dataD.ctl.memread;
     assign dataE.ctl.memwrite = dataD.ctl.memwrite;
