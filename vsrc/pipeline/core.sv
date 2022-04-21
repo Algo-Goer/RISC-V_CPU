@@ -37,6 +37,8 @@ module core
 	creg_addr_t ra1, ra2;
 	word_t rd1, rd2;
 	word_t memread_data;
+	u1 fetch_delay;
+	u1 memory_delay;
 
 	fetch_data_t dataF;
 	fetch_data_t dataF_out;
@@ -53,12 +55,17 @@ module core
 	forward_data_out forward_writeback;
 	hazard_data_out hazardOut;
 	
+	// 访存状态信号
+	assign fetch_delay = ireq.valid == 1 && iresp.data_ok == 0;
+	assign memory_delay = dreq.valid == 1 && dresp.data_ok == 0;
+
 	// 指令访存设置
 	assign ireq.valid = 1;
 	assign ireq.addr = pc;
 	assign instruction = iresp.data;
+
 	// 数据访存设置
-	assign dreq.valid = dataE_out.ctl.memwrite;
+	assign dreq.valid = dataE_out.ctl.memread | dataE_out.ctl.memwrite;
 	assign dreq.strobe = (dataE_out.ctl.memwrite) ? '1 : '0;
 	assign dreq.addr = 
 		(dataE_out.ctl.memread | dataE_out.ctl.memwrite)
@@ -66,14 +73,21 @@ module core
 	assign dreq.data = dataE_out.memdata;
 	assign memread_data = dresp.data;
 
+	// 访存握手
+	always_ff @( posedge clk ) begin
+		if(dreq.valid == 1 && dresp.data_ok == 1) begin
+			dreq.valid = 0;
+		end
+	end
+
 	always_ff @( posedge clk ) begin
 		// 在不阻塞时更新pc
 		if( ~hazardOut.stall ) begin
 			if (reset) begin
-			pc <= 64'h8000_0000;
+				pc <= 64'h8000_0000;
 			end 
-			else begin
-			pc <= pcnext;
+			else if (~fetch_delay && ~memory_delay) begin
+				pc <= pcnext;
 			end
 		end
 	end
@@ -93,8 +107,8 @@ module core
 
 	fetch_decode fetch_decode(
 		.clk(clk),
-		.reset(clear || reset),
-		.stall(hazardOut.stall),
+		.reset(clear || reset || fetch_delay),
+		.stall(hazardOut.stall || memory_delay),
 		.dataF(dataF),
 		.dataF_out(dataF_out)
 	);
@@ -111,7 +125,7 @@ module core
 	decode_execute decode_execute(
 		.clk(clk),
 		.reset(clear || reset),
-		.stall(hazardOut.stall),
+		.stall(hazardOut.stall || memory_delay),
 		.dataD(dataD),
 		.dataD_out(dataD_out)
 	);
@@ -128,6 +142,7 @@ module core
 	execute_memory execute_memory(
 		.clk(clk),
 		.reset(hazardOut.clear || reset),
+		.stall(memory_delay),
 		.dataE(dataE),
 		.dataE_out(dataE_out)
 	);
@@ -140,7 +155,7 @@ module core
 
 	memory_writeback memory_writeback(
 		.clk(clk),
-		.reset(reset),
+		.reset(reset || memory_delay),
 		.dataM(dataM),
 		.dataM_out(dataM_out)
 	);

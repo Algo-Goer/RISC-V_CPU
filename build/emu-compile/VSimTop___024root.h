@@ -35,26 +35,28 @@ VL_MODULE(VSimTop___024root) {
     VL_IN64(io_logCtrl_log_level,63,0);
 
     // LOCAL SIGNALS
+    CData/*0:0*/ SimTop__DOT__top__DOT__core__DOT__memory_delay;
     CData/*0:0*/ SimTop__DOT__top__DOT__mux__DOT__busy;
     CData/*1:0*/ SimTop__DOT__ram__DOT__state;
     CData/*7:0*/ SimTop__DOT__ram__DOT__count_down;
     CData/*3:0*/ SimTop__DOT__ram__DOT__size;
-    IData/*21:0*/ SimTop__DOT__top__DOT__core__DOT__decode__DOT__ctl;
+    IData/*23:0*/ SimTop__DOT__top__DOT__core__DOT__decode__DOT__ctl;
     IData/*31:0*/ SimTop__DOT__top__DOT__mux__DOT__index;
     IData/*31:0*/ SimTop__DOT__top__DOT__mux__DOT__select;
     IData/*31:0*/ SimTop__DOT__top__DOT__mux__DOT__unnamedblk1__DOT__i;
     IData/*31:0*/ SimTop__DOT__top__DOT__mux__DOT__unnamedblk2__DOT__i;
     VlWide<5>/*150:0*/ SimTop__DOT__oreq;
     VlWide<3>/*65:0*/ SimTop__DOT__oresp;
-    VlWide<3>/*64:0*/ SimTop__DOT__top__DOT__ireq;
+    QData/*33:0*/ SimTop__DOT__top__DOT__iresp;
     VlWide<5>/*139:0*/ SimTop__DOT__top__DOT__dreq;
+    VlWide<3>/*65:0*/ SimTop__DOT__top__DOT__dresp;
     VlWide<5>/*150:0*/ SimTop__DOT__top__DOT__icreq;
     VlWide<5>/*150:0*/ SimTop__DOT__top__DOT__dcreq;
     QData/*63:0*/ SimTop__DOT__top__DOT__core__DOT__pc;
     QData/*63:0*/ SimTop__DOT__top__DOT__core__DOT__pcnext;
     VlWide<3>/*95:0*/ SimTop__DOT__top__DOT__core__DOT__dataF_out;
-    VlWide<14>/*447:0*/ SimTop__DOT__top__DOT__core__DOT__dataD;
-    VlWide<14>/*447:0*/ SimTop__DOT__top__DOT__core__DOT__dataD_out;
+    VlWide<15>/*449:0*/ SimTop__DOT__top__DOT__core__DOT__dataD;
+    VlWide<15>/*449:0*/ SimTop__DOT__top__DOT__core__DOT__dataD_out;
     VlWide<10>/*302:0*/ SimTop__DOT__top__DOT__core__DOT__dataE;
     VlWide<10>/*302:0*/ SimTop__DOT__top__DOT__core__DOT__dataE_out;
     VlWide<8>/*237:0*/ SimTop__DOT__top__DOT__core__DOT__dataM;
@@ -68,6 +70,9 @@ VL_MODULE(VSimTop___024root) {
     QData/*63:0*/ SimTop__DOT__top__DOT__core__DOT__decode__DOT__extend__DOT__imm;
     QData/*63:0*/ SimTop__DOT__top__DOT__core__DOT__decode__DOT__dataconfirm__DOT__data1;
     QData/*63:0*/ SimTop__DOT__top__DOT__core__DOT__decode__DOT__dataconfirm__DOT__data2;
+    QData/*63:0*/ SimTop__DOT__top__DOT__core__DOT__execute__DOT__alu__DOT__srca;
+    QData/*63:0*/ SimTop__DOT__top__DOT__core__DOT__execute__DOT__alu__DOT__srcb;
+    QData/*63:0*/ SimTop__DOT__top__DOT__core__DOT__execute__DOT__alu__DOT__result;
     VlWide<64>/*2047:0*/ SimTop__DOT__top__DOT__core__DOT__regfile__DOT__regs;
     VlWide<64>/*2047:0*/ SimTop__DOT__top__DOT__core__DOT__regfile__DOT__regs_nxt;
     VlWide<3>/*65:0*/ SimTop__DOT__top__DOT__icvt__DOT__dresp;

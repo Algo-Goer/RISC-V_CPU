@@ -34,6 +34,7 @@ class VSimTop__Syms final : public VerilatedSyms {
 
     // SCOPE NAMES
     VerilatedScope __Vscope_SimTop__ram;
+    VerilatedScope __Vscope_SimTop__top__core__decode__decoder;
 
     // CONSTRUCTORS
     VSimTop__Syms(VerilatedContext* contextp, const char* namep, VSimTop* modelp);

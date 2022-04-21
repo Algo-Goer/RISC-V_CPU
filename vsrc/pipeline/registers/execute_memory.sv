@@ -13,16 +13,19 @@ module execute_memory
     import pipes::*;(
     
     input u1 clk, reset,
+    input u1 stall,
     input execute_data_t dataE,
     output execute_data_t dataE_out
 );
 
     always_ff @(posedge clk) begin
-        if(reset) begin
-            dataE_out <= '0;
-        end
-        else begin
-            dataE_out <= dataE;
+        if(~stall) begin
+            if(reset) begin
+                dataE_out <= '0;
+            end
+            else begin
+                dataE_out <= dataE;
+            end
         end
     end
     

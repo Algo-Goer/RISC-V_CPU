@@ -231,6 +231,8 @@ module decoder
                             end
                         end
                     end
+                    default : begin
+                    end
                 endcase
             end
             F7_RW_TYPE : begin
@@ -258,6 +260,8 @@ module decoder
                             ctl.op = SRAW;
                             ctl.func = ALU_SHIFTRS;
                         end
+                    end
+                    default : begin
                     end
                 endcase
             end
