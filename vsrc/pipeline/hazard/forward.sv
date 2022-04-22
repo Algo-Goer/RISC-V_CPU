@@ -12,6 +12,8 @@ module forward
     import common::*;
     import pipes::*;(
     
+    input u1 clk, stall,
+    input decode_op_t op,
     input u1 regwrite,
     input creg_addr_t dst,
     input word_t data,
@@ -19,14 +21,16 @@ module forward
 );
     
     // 组合逻辑
-    always_comb begin
-        if( regwrite ) begin
-            dataForward.valid = 1'b1;
-            dataForward.dst = dst;
-            dataForward.data = data;
-        end 
-        else begin
-            dataForward.valid = 1'b0;
+    always_ff @( posedge clk ) begin
+        if (op != UNKNOWN && ~stall) begin
+            if( regwrite ) begin
+                dataForward.valid = 1'b1;
+                dataForward.dst = dst;
+                dataForward.data = data;
+            end 
+            else begin
+                dataForward.valid = 1'b0;
+            end
         end
     end
 endmodule

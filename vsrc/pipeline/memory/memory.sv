@@ -24,7 +24,7 @@ module memory
     assign dataM.jump = dataE.ctl.jump;
     assign dataM.instruction = dataE.instruction;
     assign dataM.regwrite = ctl.regwrite;
-    assign dataM.dst = ctl.dst;
+    assign dataM.dst = dataE.dst;
     assign dataM.regdata = (ctl.memread) ? 
                     memread_data : dataE.result;
     assign dataM.skip = dataE.ctl.memread | dataE.ctl.memwrite;

@@ -52,13 +52,12 @@ module execute
     assign dataE.memdata = memdata;
     assign dataE.result = result;
     assign dataE.ctl.jump = (dataD.ctl.jump) | 
-        (dataD.ctl.btype == 1 && result == '1) ? 1'b1 : 1'b0;
+        (dataD.ctl.btype == 1 && result == 1) ? 1'b1 : 1'b0;
     assign dataE.ctl.op = dataD.ctl.op;
     assign dataE.ctl.memread = dataD.ctl.memread;
     assign dataE.ctl.memwrite = dataD.ctl.memwrite;
     assign dataE.ctl.regwrite = dataD.ctl.regwrite;
-    assign dataE.ctl.dst = dataD.ctl.dst;
-
+    assign dataE.dst = dataD.ctl.dst;
 endmodule
 
 `endif

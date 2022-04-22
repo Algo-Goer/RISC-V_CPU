@@ -52,10 +52,10 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
     VSimTop__Syms* const __restrict vlSymsp VL_ATTR_UNUSED = vlSelf->vlSymsp;
     VL_DEBUG_IF(VL_DBG_MSGF("+    VSimTop___024root___settle__TOP__3\n"); );
     // Variables
-    VlWide<5>/*159:0*/ __Vtemp110;
-    VlWide<4>/*127:0*/ __Vtemp143;
-    VlWide<6>/*191:0*/ __Vtemp145;
-    VlWide<8>/*255:0*/ __Vtemp147;
+    VlWide<5>/*159:0*/ __Vtemp106;
+    VlWide<4>/*127:0*/ __Vtemp133;
+    VlWide<6>/*191:0*/ __Vtemp135;
+    VlWide<8>/*255:0*/ __Vtemp137;
     // Body
     vlSelf->SimTop__DOT__top__DOT__core__DOT__decode__DOT__ctl = 0U;
     if ((0x40U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataF_out[2U])) {
@@ -663,12 +663,17 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                        << 0xdU)) | (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xdU] 
                                     >> 0x13U));
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[0U] 
-        = ((0xffff81ffU & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[0U]) 
-           | (0x7e00U & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0U] 
-                         >> 9U)));
+        = ((0xfffffc0fU & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[0U]) 
+           | (0x3f0U & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0U] 
+                        >> 0xeU)));
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[0U] 
-        = ((0xffffff00U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[0U]) 
-           | (0xffU & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0U]));
+        = ((0xfffffff8U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[0U]) 
+           | (7U & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0U] 
+                    >> 5U)));
+    vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[6U] 
+        = ((0xffff83ffU & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[6U]) 
+           | (0x7c00U & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0U] 
+                         << 0xaU)));
     vlSelf->SimTop__DOT__top__DOT__core__DOT____Vcellout__regfile__rd2 
         = (((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__regfile__DOT__regs[
                             (((IData)(0x3fU) + (0x7c0U 
@@ -693,12 +698,12 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                                 & vlSelf->SimTop__DOT__top__DOT__dreq[4U]) 
                                                | (0x800U 
                                                   & ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                      << 4U) 
+                                                      << 9U) 
                                                      | (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                        << 5U))));
+                                                        << 0xaU))));
     vlSelf->SimTop__DOT__top__DOT__dreq[2U] = ((0xffffff00U 
                                                 & vlSelf->SimTop__DOT__top__DOT__dreq[2U]) 
-                                               | ((0x40U 
+                                               | ((2U 
                                                    & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])
                                                    ? 0xffU
                                                    : 0U));
@@ -707,55 +712,55 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                                | ((IData)(
                                                           ((1U 
                                                             & ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                                >> 7U) 
+                                                                >> 2U) 
                                                                | (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                                  >> 6U)))
+                                                                  >> 1U)))
                                                             ? 
                                                            (((QData)((IData)(
                                                                              vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[2U])) 
-                                                             << 0x31U) 
+                                                             << 0x36U) 
                                                             | (((QData)((IData)(
                                                                                 vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[1U])) 
-                                                                << 0x11U) 
+                                                                << 0x16U) 
                                                                | ((QData)((IData)(
                                                                                 vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])) 
-                                                                  >> 0xfU)))
+                                                                  >> 0xaU)))
                                                             : 0ULL)) 
                                                   << 0xbU));
     vlSelf->SimTop__DOT__top__DOT__dreq[3U] = (((IData)(
                                                         ((1U 
                                                           & ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                              >> 7U) 
+                                                              >> 2U) 
                                                              | (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                                >> 6U)))
+                                                                >> 1U)))
                                                           ? 
                                                          (((QData)((IData)(
                                                                            vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[2U])) 
-                                                           << 0x31U) 
+                                                           << 0x36U) 
                                                           | (((QData)((IData)(
                                                                               vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[1U])) 
-                                                              << 0x11U) 
+                                                              << 0x16U) 
                                                              | ((QData)((IData)(
                                                                                 vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])) 
-                                                                >> 0xfU)))
+                                                                >> 0xaU)))
                                                           : 0ULL)) 
                                                 >> 0x15U) 
                                                | ((IData)(
                                                           (((1U 
                                                              & ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                                 >> 7U) 
+                                                                 >> 2U) 
                                                                 | (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                                   >> 6U)))
+                                                                   >> 1U)))
                                                              ? 
                                                             (((QData)((IData)(
                                                                               vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[2U])) 
-                                                              << 0x31U) 
+                                                              << 0x36U) 
                                                              | (((QData)((IData)(
                                                                                 vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[1U])) 
-                                                                 << 0x11U) 
+                                                                 << 0x16U) 
                                                                 | ((QData)((IData)(
                                                                                 vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])) 
-                                                                   >> 0xfU)))
+                                                                   >> 0xaU)))
                                                              : 0ULL) 
                                                            >> 0x20U)) 
                                                   << 0xbU));
@@ -765,43 +770,185 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                                   & ((IData)(
                                                              (((1U 
                                                                 & ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                                    >> 7U) 
+                                                                    >> 2U) 
                                                                    | (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                                      >> 6U)))
+                                                                      >> 1U)))
                                                                 ? 
                                                                (((QData)((IData)(
                                                                                 vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[2U])) 
-                                                                 << 0x31U) 
+                                                                 << 0x36U) 
                                                                 | (((QData)((IData)(
                                                                                 vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[1U])) 
-                                                                    << 0x11U) 
+                                                                    << 0x16U) 
                                                                    | ((QData)((IData)(
                                                                                 vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])) 
-                                                                      >> 0xfU)))
+                                                                      >> 0xaU)))
                                                                 : 0ULL) 
                                                               >> 0x20U)) 
                                                      >> 0x15U)));
     vlSelf->SimTop__DOT__top__DOT__dreq[0U] = (IData)(
                                                       (((QData)((IData)(
                                                                         vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[4U])) 
-                                                        << 0x31U) 
+                                                        << 0x36U) 
                                                        | (((QData)((IData)(
                                                                            vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[3U])) 
-                                                           << 0x11U) 
+                                                           << 0x16U) 
                                                           | ((QData)((IData)(
                                                                              vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[2U])) 
-                                                             >> 0xfU))));
+                                                             >> 0xaU))));
     vlSelf->SimTop__DOT__top__DOT__dreq[1U] = (IData)(
                                                       ((((QData)((IData)(
                                                                          vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[4U])) 
-                                                         << 0x31U) 
+                                                         << 0x36U) 
                                                         | (((QData)((IData)(
                                                                             vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[3U])) 
-                                                            << 0x11U) 
+                                                            << 0x16U) 
                                                            | ((QData)((IData)(
                                                                               vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[2U])) 
-                                                              >> 0xfU))) 
+                                                              >> 0xaU))) 
                                                        >> 0x20U));
+    if (((vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[2U] 
+          >> 5U) & ((0x1fU & vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[2U]) 
+                    == (0x1fU & ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xbU] 
+                                  << 3U) | (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xaU] 
+                                            >> 0x1dU)))))) {
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U] 
+            = ((1U & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U]) 
+               | ((IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[1U])) 
+                            << 0x20U) | (QData)((IData)(
+                                                        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[0U])))) 
+                  << 1U));
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[3U] 
+            = (((IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[1U])) 
+                          << 0x20U) | (QData)((IData)(
+                                                      vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[0U])))) 
+                >> 0x1fU) | ((IData)(((((QData)((IData)(
+                                                        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[1U])) 
+                                        << 0x20U) | (QData)((IData)(
+                                                                    vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[0U]))) 
+                                      >> 0x20U)) << 1U));
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[4U] 
+            = ((0xcU & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[4U]) 
+               | (0xfU & (2U | ((IData)(((((QData)((IData)(
+                                                           vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[1U])) 
+                                           << 0x20U) 
+                                          | (QData)((IData)(
+                                                            vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[0U]))) 
+                                         >> 0x20U)) 
+                                >> 0x1fU))));
+    } else if (((vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[2U] 
+                 >> 5U) & ((0x1fU & vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[2U]) 
+                           == (0x1fU & ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xbU] 
+                                         << 3U) | (
+                                                   vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xaU] 
+                                                   >> 0x1dU)))))) {
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U] 
+            = ((1U & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U]) 
+               | ((IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[1U])) 
+                            << 0x20U) | (QData)((IData)(
+                                                        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[0U])))) 
+                  << 1U));
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[3U] 
+            = (((IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[1U])) 
+                          << 0x20U) | (QData)((IData)(
+                                                      vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[0U])))) 
+                >> 0x1fU) | ((IData)(((((QData)((IData)(
+                                                        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[1U])) 
+                                        << 0x20U) | (QData)((IData)(
+                                                                    vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[0U]))) 
+                                      >> 0x20U)) << 1U));
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[4U] 
+            = ((0xcU & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[4U]) 
+               | (0xfU & (2U | ((IData)(((((QData)((IData)(
+                                                           vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[1U])) 
+                                           << 0x20U) 
+                                          | (QData)((IData)(
+                                                            vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[0U]))) 
+                                         >> 0x20U)) 
+                                >> 0x1fU))));
+    } else if (((vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[2U] 
+                 >> 5U) & ((0x1fU & vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[2U]) 
+                           == (0x1fU & ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xbU] 
+                                         << 3U) | (
+                                                   vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xaU] 
+                                                   >> 0x1dU)))))) {
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U] 
+            = ((1U & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U]) 
+               | ((IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[1U])) 
+                            << 0x20U) | (QData)((IData)(
+                                                        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[0U])))) 
+                  << 1U));
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[3U] 
+            = (((IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[1U])) 
+                          << 0x20U) | (QData)((IData)(
+                                                      vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[0U])))) 
+                >> 0x1fU) | ((IData)(((((QData)((IData)(
+                                                        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[1U])) 
+                                        << 0x20U) | (QData)((IData)(
+                                                                    vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[0U]))) 
+                                      >> 0x20U)) << 1U));
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[4U] 
+            = ((0xcU & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[4U]) 
+               | (0xfU & (2U | ((IData)(((((QData)((IData)(
+                                                           vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[1U])) 
+                                           << 0x20U) 
+                                          | (QData)((IData)(
+                                                            vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[0U]))) 
+                                         >> 0x20U)) 
+                                >> 0x1fU))));
+    } else {
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[4U] 
+            = (0xdU & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[4U]);
+    }
+    if (((vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[2U] 
+          >> 5U) & ((0x1fU & vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[2U]) 
+                    == (0x1fU & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xaU] 
+                                 >> 0x18U))))) {
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[0U] 
+            = (IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[1U])) 
+                        << 0x20U) | (QData)((IData)(
+                                                    vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[0U]))));
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[1U] 
+            = (IData)(((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[1U])) 
+                         << 0x20U) | (QData)((IData)(
+                                                     vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[0U]))) 
+                       >> 0x20U));
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U] 
+            = (1U | (0xfffffffeU & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U]));
+    } else if (((vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[2U] 
+                 >> 5U) & ((0x1fU & vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[2U]) 
+                           == (0x1fU & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xaU] 
+                                        >> 0x18U))))) {
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[0U] 
+            = (IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[1U])) 
+                        << 0x20U) | (QData)((IData)(
+                                                    vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[0U]))));
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[1U] 
+            = (IData)(((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[1U])) 
+                         << 0x20U) | (QData)((IData)(
+                                                     vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[0U]))) 
+                       >> 0x20U));
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U] 
+            = (1U | (0xfffffffeU & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U]));
+    } else if (((vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[2U] 
+                 >> 5U) & ((0x1fU & vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[2U]) 
+                           == (0x1fU & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xaU] 
+                                        >> 0x18U))))) {
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[0U] 
+            = (IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[1U])) 
+                        << 0x20U) | (QData)((IData)(
+                                                    vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[0U]))));
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[1U] 
+            = (IData)(((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[1U])) 
+                         << 0x20U) | (QData)((IData)(
+                                                     vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[0U]))) 
+                       >> 0x20U));
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U] 
+            = (1U | (0xfffffffeU & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U]));
+    } else {
+        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U] 
+            = (0xfffffffeU & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U]);
+    }
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataW[0U] 
         = ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM_out[3U] 
             << 0x1fU) | (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM_out[2U] 
@@ -832,57 +979,6 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataW[7U] 
         = ((0x7fU & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM_out[7U]) 
            | (0x3f80U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM_out[7U]));
-    if ((1U & ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                >> 5U) & (~ (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                             >> 7U))))) {
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[0U] 
-            = (IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[2U])) 
-                        << 0x31U) | (((QData)((IData)(
-                                                      vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[1U])) 
-                                      << 0x11U) | ((QData)((IData)(
-                                                                   vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])) 
-                                                   >> 0xfU))));
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[1U] 
-            = (IData)(((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[2U])) 
-                         << 0x31U) | (((QData)((IData)(
-                                                       vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[1U])) 
-                                       << 0x11U) | 
-                                      ((QData)((IData)(
-                                                       vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])) 
-                                       >> 0xfU))) >> 0x20U));
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[2U] 
-            = (0x20U | (0x1fU & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U]));
-    } else {
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[2U] 
-            = (0x1fU & vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[2U]);
-    }
-    if ((0x40U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM_out[4U])) {
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[0U] 
-            = ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM_out[3U] 
-                << 0x1fU) | (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM_out[2U] 
-                             >> 1U));
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[1U] 
-            = ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM_out[4U] 
-                << 0x1fU) | (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM_out[3U] 
-                             >> 1U));
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[2U] 
-            = (0x20U | (0x1fU & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM_out[4U] 
-                                 >> 1U)));
-    } else {
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[2U] 
-            = (0x1fU & vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[2U]);
-    }
-    if ((0x20U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataW_out[2U])) {
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[0U] 
-            = vlSelf->SimTop__DOT__top__DOT__core__DOT__dataW_out[0U];
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[1U] 
-            = vlSelf->SimTop__DOT__top__DOT__core__DOT__dataW_out[1U];
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[2U] 
-            = (0x20U | (0x1fU & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataW_out[2U]));
-    } else {
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[2U] 
-            = (0x1fU & vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[2U]);
-    }
     vlSelf->SimTop__DOT__ram__DOT__idx = ((0x80000000ULL 
                                            < vlSelf->SimTop__DOT__ram__DOT__addr)
                                            ? ((vlSelf->SimTop__DOT__ram__DOT__addr 
@@ -1073,7 +1169,7 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                | (QData)((IData)((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataF_out[2U] 
                                   >> 0x14U))));
     }
-    __Vtemp110[3U] = ((0x3ffU & ((IData)((((QData)((IData)(
+    __Vtemp106[3U] = ((0x3ffU & ((IData)((((QData)((IData)(
                                                            vlSelf->SimTop__DOT__top__DOT__dreq[4U])) 
                                            << 0x35U) 
                                           | (((QData)((IData)(
@@ -1106,7 +1202,7 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                                                  >> 0xbU))) 
                                                           >> 0x20U)) 
                                                  << 0x12U)));
-    __Vtemp110[4U] = ((0x3ffU & ((IData)(((((QData)((IData)(
+    __Vtemp106[4U] = ((0x3ffU & ((IData)(((((QData)((IData)(
                                                             vlSelf->SimTop__DOT__top__DOT__dreq[4U])) 
                                             << 0x35U) 
                                            | (((QData)((IData)(
@@ -1184,8 +1280,8 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                                                                vlSelf->SimTop__DOT__top__DOT__dreq[0U]))) 
                                                             >> 0x20U)) 
                                                    >> 0x16U));
-    vlSelf->SimTop__DOT__top__DOT__dcreq[3U] = __Vtemp110[3U];
-    vlSelf->SimTop__DOT__top__DOT__dcreq[4U] = __Vtemp110[4U];
+    vlSelf->SimTop__DOT__top__DOT__dcreq[3U] = __Vtemp106[3U];
+    vlSelf->SimTop__DOT__top__DOT__dcreq[4U] = __Vtemp106[4U];
     vlSelf->SimTop__DOT__top__DOT__core__DOT__regfile__DOT__regs_nxt[2U] 
         = (IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__regfile__DOT__regs[3U])) 
                     << 0x20U) | (QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__regfile__DOT__regs[2U]))));
@@ -1805,148 +1901,6 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                          << 0x20U) | (QData)((IData)(
                                                      vlSelf->SimTop__DOT__top__DOT__core__DOT__dataW[0U]))) 
                        >> 0x20U));
-    }
-    if (((vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[2U] 
-          >> 5U) & ((0x1fU & vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[2U]) 
-                    == (0x1fU & ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xbU] 
-                                  << 3U) | (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xaU] 
-                                            >> 0x1dU)))))) {
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U] 
-            = ((1U & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U]) 
-               | ((IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[1U])) 
-                            << 0x20U) | (QData)((IData)(
-                                                        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[0U])))) 
-                  << 1U));
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[3U] 
-            = (((IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[1U])) 
-                          << 0x20U) | (QData)((IData)(
-                                                      vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[0U])))) 
-                >> 0x1fU) | ((IData)(((((QData)((IData)(
-                                                        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[1U])) 
-                                        << 0x20U) | (QData)((IData)(
-                                                                    vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[0U]))) 
-                                      >> 0x20U)) << 1U));
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[4U] 
-            = ((0xcU & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[4U]) 
-               | (0xfU & (2U | ((IData)(((((QData)((IData)(
-                                                           vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[1U])) 
-                                           << 0x20U) 
-                                          | (QData)((IData)(
-                                                            vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[0U]))) 
-                                         >> 0x20U)) 
-                                >> 0x1fU))));
-    } else if (((vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[2U] 
-                 >> 5U) & ((0x1fU & vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[2U]) 
-                           == (0x1fU & ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xbU] 
-                                         << 3U) | (
-                                                   vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xaU] 
-                                                   >> 0x1dU)))))) {
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U] 
-            = ((1U & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U]) 
-               | ((IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[1U])) 
-                            << 0x20U) | (QData)((IData)(
-                                                        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[0U])))) 
-                  << 1U));
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[3U] 
-            = (((IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[1U])) 
-                          << 0x20U) | (QData)((IData)(
-                                                      vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[0U])))) 
-                >> 0x1fU) | ((IData)(((((QData)((IData)(
-                                                        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[1U])) 
-                                        << 0x20U) | (QData)((IData)(
-                                                                    vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[0U]))) 
-                                      >> 0x20U)) << 1U));
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[4U] 
-            = ((0xcU & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[4U]) 
-               | (0xfU & (2U | ((IData)(((((QData)((IData)(
-                                                           vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[1U])) 
-                                           << 0x20U) 
-                                          | (QData)((IData)(
-                                                            vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[0U]))) 
-                                         >> 0x20U)) 
-                                >> 0x1fU))));
-    } else if (((vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[2U] 
-                 >> 5U) & ((0x1fU & vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[2U]) 
-                           == (0x1fU & ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xbU] 
-                                         << 3U) | (
-                                                   vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xaU] 
-                                                   >> 0x1dU)))))) {
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U] 
-            = ((1U & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U]) 
-               | ((IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[1U])) 
-                            << 0x20U) | (QData)((IData)(
-                                                        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[0U])))) 
-                  << 1U));
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[3U] 
-            = (((IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[1U])) 
-                          << 0x20U) | (QData)((IData)(
-                                                      vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[0U])))) 
-                >> 0x1fU) | ((IData)(((((QData)((IData)(
-                                                        vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[1U])) 
-                                        << 0x20U) | (QData)((IData)(
-                                                                    vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[0U]))) 
-                                      >> 0x20U)) << 1U));
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[4U] 
-            = ((0xcU & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[4U]) 
-               | (0xfU & (2U | ((IData)(((((QData)((IData)(
-                                                           vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[1U])) 
-                                           << 0x20U) 
-                                          | (QData)((IData)(
-                                                            vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[0U]))) 
-                                         >> 0x20U)) 
-                                >> 0x1fU))));
-    } else {
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[4U] 
-            = (0xdU & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[4U]);
-    }
-    if (((vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[2U] 
-          >> 5U) & ((0x1fU & vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[2U]) 
-                    == (0x1fU & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xaU] 
-                                 >> 0x18U))))) {
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[0U] 
-            = (IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[1U])) 
-                        << 0x20U) | (QData)((IData)(
-                                                    vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[0U]))));
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[1U] 
-            = (IData)(((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[1U])) 
-                         << 0x20U) | (QData)((IData)(
-                                                     vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_execute[0U]))) 
-                       >> 0x20U));
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U] 
-            = (1U | (0xfffffffeU & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U]));
-    } else if (((vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[2U] 
-                 >> 5U) & ((0x1fU & vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[2U]) 
-                           == (0x1fU & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xaU] 
-                                        >> 0x18U))))) {
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[0U] 
-            = (IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[1U])) 
-                        << 0x20U) | (QData)((IData)(
-                                                    vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[0U]))));
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[1U] 
-            = (IData)(((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[1U])) 
-                         << 0x20U) | (QData)((IData)(
-                                                     vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_memory[0U]))) 
-                       >> 0x20U));
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U] 
-            = (1U | (0xfffffffeU & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U]));
-    } else if (((vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[2U] 
-                 >> 5U) & ((0x1fU & vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[2U]) 
-                           == (0x1fU & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xaU] 
-                                        >> 0x18U))))) {
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[0U] 
-            = (IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[1U])) 
-                        << 0x20U) | (QData)((IData)(
-                                                    vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[0U]))));
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[1U] 
-            = (IData)(((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[1U])) 
-                         << 0x20U) | (QData)((IData)(
-                                                     vlSelf->SimTop__DOT__top__DOT__core__DOT__forward_writeback[0U]))) 
-                       >> 0x20U));
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U] 
-            = (1U | (0xfffffffeU & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U]));
-    } else {
-        vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U] 
-            = (0xfffffffeU & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U]);
     }
     vlSelf->SimTop__DOT__oresp[0U] = 0U;
     vlSelf->SimTop__DOT__oresp[1U] = 0U;
@@ -2726,7 +2680,7 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
     vlSelf->SimTop__DOT__top__DOT__core__DOT__memory_delay 
         = (1U & ((vlSelf->SimTop__DOT__top__DOT__dreq[4U] 
                   >> 0xbU) & (~ vlSelf->SimTop__DOT__top__DOT__dresp[2U])));
-    __Vtemp143[2U] = ((3U & ((IData)((((QData)((IData)(
+    __Vtemp133[2U] = ((3U & ((IData)((((QData)((IData)(
                                                        vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[9U])) 
                                        << 0x31U) | 
                                       (((QData)((IData)(
@@ -2759,7 +2713,7 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                                               >> 0xfU))) 
                                                        >> 0x20U)) 
                                               << 8U)));
-    __Vtemp143[3U] = ((3U & ((IData)(((((QData)((IData)(
+    __Vtemp133[3U] = ((3U & ((IData)(((((QData)((IData)(
                                                         vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[9U])) 
                                         << 0x31U) | 
                                        (((QData)((IData)(
@@ -2780,7 +2734,7 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                                   >> 0xfU))) 
                                            >> 0x20U)) 
                                   >> 0x18U)));
-    __Vtemp145[3U] = (((IData)((((QData)((IData)(((
+    __Vtemp135[3U] = (((IData)((((QData)((IData)(((
                                                    vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[7U] 
                                                    << 0x11U) 
                                                   | (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[6U] 
@@ -2788,10 +2742,9 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                  << 2U) | (QData)((IData)(
                                                           ((2U 
                                                             & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                               >> 7U)) 
+                                                               >> 2U)) 
                                                            | (1U 
-                                                              & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                                 >> 5U))))))) 
+                                                              & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])))))) 
                        >> 0x1bU) | ((((IData)((((QData)((IData)(
                                                                 vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[9U])) 
                                                 << 0x31U) 
@@ -2803,7 +2756,7 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                                      >> 0xfU)))) 
                                       << 0xdU) | (0x1f80U 
                                                   & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                     >> 2U))) 
+                                                     << 3U))) 
                                     | ((IData)(((((QData)((IData)(
                                                                   ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[7U] 
                                                                     << 0x11U) 
@@ -2813,13 +2766,12 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                                  | (QData)((IData)(
                                                                    ((2U 
                                                                      & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                                        >> 7U)) 
+                                                                        >> 2U)) 
                                                                     | (1U 
-                                                                       & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                                          >> 5U)))))) 
+                                                                       & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U]))))) 
                                                 >> 0x20U)) 
                                        << 5U)));
-    __Vtemp145[4U] = (((0x1fU & ((IData)((((QData)((IData)(
+    __Vtemp135[4U] = (((0x1fU & ((IData)((((QData)((IData)(
                                                            vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[9U])) 
                                            << 0x31U) 
                                           | (((QData)((IData)(
@@ -2838,28 +2790,27 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                                          | (QData)((IData)(
                                                                            ((2U 
                                                                              & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                                                >> 7U)) 
+                                                                                >> 2U)) 
                                                                             | (1U 
-                                                                               & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                                                >> 5U)))))) 
+                                                                               & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U]))))) 
                                                         >> 0x20U)) 
                                                >> 0x1bU)) 
-                      | (__Vtemp143[2U] << 5U));
-    __Vtemp147[3U] = (((IData)(((0x80U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])
+                      | (__Vtemp133[2U] << 5U));
+    __Vtemp137[3U] = (((IData)(((4U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])
                                  ? (((QData)((IData)(
                                                      vlSelf->SimTop__DOT__top__DOT__dresp[1U])) 
                                      << 0x20U) | (QData)((IData)(
                                                                  vlSelf->SimTop__DOT__top__DOT__dresp[0U])))
                                  : (((QData)((IData)(
                                                      vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[2U])) 
-                                     << 0x31U) | (((QData)((IData)(
+                                     << 0x36U) | (((QData)((IData)(
                                                                    vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[1U])) 
-                                                   << 0x11U) 
+                                                   << 0x16U) 
                                                   | ((QData)((IData)(
                                                                      vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])) 
-                                                     >> 0xfU))))) 
-                       >> 0x1fU) | ((IData)((((0x80U 
-                                               & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])
+                                                     >> 0xaU))))) 
+                       >> 0x1fU) | ((IData)((((4U & 
+                                               vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])
                                                ? (((QData)((IData)(
                                                                    vlSelf->SimTop__DOT__top__DOT__dresp[1U])) 
                                                    << 0x20U) 
@@ -2867,29 +2818,29 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                                                     vlSelf->SimTop__DOT__top__DOT__dresp[0U])))
                                                : (((QData)((IData)(
                                                                    vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[2U])) 
-                                                   << 0x31U) 
+                                                   << 0x36U) 
                                                   | (((QData)((IData)(
                                                                       vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[1U])) 
-                                                      << 0x11U) 
+                                                      << 0x16U) 
                                                      | ((QData)((IData)(
                                                                         vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])) 
-                                                        >> 0xfU)))) 
+                                                        >> 0xaU)))) 
                                              >> 0x20U)) 
                                     << 1U));
-    __Vtemp147[4U] = (((IData)((((0x80U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])
+    __Vtemp137[4U] = (((IData)((((4U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])
                                   ? (((QData)((IData)(
                                                       vlSelf->SimTop__DOT__top__DOT__dresp[1U])) 
                                       << 0x20U) | (QData)((IData)(
                                                                   vlSelf->SimTop__DOT__top__DOT__dresp[0U])))
                                   : (((QData)((IData)(
                                                       vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[2U])) 
-                                      << 0x31U) | (
+                                      << 0x36U) | (
                                                    ((QData)((IData)(
                                                                     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[1U])) 
-                                                    << 0x11U) 
+                                                    << 0x16U) 
                                                    | ((QData)((IData)(
                                                                       vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])) 
-                                                      >> 0xfU)))) 
+                                                      >> 0xaU)))) 
                                 >> 0x20U)) >> 0x1fU) 
                       | (((IData)((((QData)((IData)(
                                                     ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[7U] 
@@ -2899,45 +2850,44 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                     << 2U) | (QData)((IData)(
                                                              ((2U 
                                                                & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                                  >> 7U)) 
+                                                                  >> 2U)) 
                                                               | (1U 
-                                                                 & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                                    >> 5U))))))) 
-                          << 6U) | (0x3eU & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                             << 1U))));
+                                                                 & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])))))) 
+                          << 6U) | (0x3eU & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[6U] 
+                                             >> 9U))));
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM[0U] 
         = (IData)((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[2U])) 
-                    << 0x31U) | (((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[1U])) 
-                                  << 0x11U) | ((QData)((IData)(
+                    << 0x36U) | (((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[1U])) 
+                                  << 0x16U) | ((QData)((IData)(
                                                                vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])) 
-                                               >> 0xfU))));
+                                               >> 0xaU))));
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM[1U] 
         = (IData)(((((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[2U])) 
-                     << 0x31U) | (((QData)((IData)(
+                     << 0x36U) | (((QData)((IData)(
                                                    vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[1U])) 
-                                   << 0x11U) | ((QData)((IData)(
+                                   << 0x16U) | ((QData)((IData)(
                                                                 vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])) 
-                                                >> 0xfU))) 
+                                                >> 0xaU))) 
                    >> 0x20U));
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM[2U] 
-        = (((IData)(((0x80U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])
+        = (((IData)(((4U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])
                       ? (((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__dresp[1U])) 
                           << 0x20U) | (QData)((IData)(
                                                       vlSelf->SimTop__DOT__top__DOT__dresp[0U])))
                       : (((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[2U])) 
-                          << 0x31U) | (((QData)((IData)(
+                          << 0x36U) | (((QData)((IData)(
                                                         vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[1U])) 
-                                        << 0x11U) | 
+                                        << 0x16U) | 
                                        ((QData)((IData)(
                                                         vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])) 
-                                        >> 0xfU))))) 
+                                        >> 0xaU))))) 
             << 1U) | (1U & ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                             >> 7U) | (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                       >> 6U))));
+                             >> 2U) | (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
+                                       >> 1U))));
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM[3U] 
-        = __Vtemp147[3U];
+        = __Vtemp137[3U];
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM[4U] 
-        = __Vtemp147[4U];
+        = __Vtemp137[4U];
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM[5U] 
         = ((1U & ((IData)((((QData)((IData)(((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[7U] 
                                               << 0x11U) 
@@ -2946,42 +2896,40 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                             << 2U) | (QData)((IData)(
                                                      ((2U 
                                                        & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                          >> 7U)) 
+                                                          >> 2U)) 
                                                       | (1U 
-                                                         & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                            >> 5U))))))) 
-                  >> 0x1aU)) | (__Vtemp145[3U] << 1U));
+                                                         & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U])))))) 
+                  >> 0x1aU)) | (__Vtemp135[3U] << 1U));
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM[6U] 
-        = ((__Vtemp145[3U] >> 0x1fU) | (__Vtemp145[4U] 
+        = ((__Vtemp135[3U] >> 0x1fU) | (__Vtemp135[4U] 
                                         << 1U));
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM[7U] 
-        = ((__Vtemp145[4U] >> 0x1fU) | ((0x3eU & (__Vtemp143[2U] 
+        = ((__Vtemp135[4U] >> 0x1fU) | ((0x3eU & (__Vtemp133[2U] 
                                                   >> 0x1aU)) 
-                                        | (__Vtemp143[3U] 
+                                        | (__Vtemp133[3U] 
                                            << 6U)));
     vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[4U] 
         = ((3U & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[4U]) 
-           | (0xcU & ((0xffffff8U & (((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM[4U] 
-                                       >> 3U) & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                 >> 4U)) 
-                                     & ((((0x1fU & 
-                                           ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xbU] 
-                                             << 3U) 
-                                            | (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xaU] 
-                                               >> 0x1dU))) 
-                                          == (0x1fU 
-                                              & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM[4U] 
-                                                 >> 1U))) 
-                                         | ((0x1fU 
-                                             & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xaU] 
-                                                >> 0x18U)) 
-                                            == (0x1fU 
-                                                & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM[4U] 
-                                                   >> 1U)))) 
-                                        << 3U))) | 
-                      (0x7fffffcU & (((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM[4U] 
-                                       >> 4U) & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
-                                                 >> 5U)) 
+           | (0xcU & ((0x1ffffff8U & (((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM[4U] 
+                                        >> 3U) & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U] 
+                                                  << 1U)) 
+                                      & ((((0x1fU & 
+                                            ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xbU] 
+                                              << 3U) 
+                                             | (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xaU] 
+                                                >> 0x1dU))) 
+                                           == (0x1fU 
+                                               & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM[4U] 
+                                                  >> 1U))) 
+                                          | ((0x1fU 
+                                              & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xaU] 
+                                                 >> 0x18U)) 
+                                             == (0x1fU 
+                                                 & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM[4U] 
+                                                    >> 1U)))) 
+                                         << 3U))) | 
+                      (0xffffffcU & (((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataM[4U] 
+                                       >> 4U) & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE_out[0U]) 
                                      & ((((0x1fU & 
                                            ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0xbU] 
                                              << 3U) 
@@ -2998,7 +2946,7 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                                    >> 1U)))) 
                                         << 2U))))));
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[4U] 
-        = ((0x7fffU & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[4U]) 
+        = ((0x3ffU & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[4U]) 
            | ((IData)(((0x22U == (0x3fU & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0U] 
                                            >> 0x12U)))
                         ? (0xfffffffffffffffeULL & 
@@ -3038,7 +2986,7 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                             | ((QData)((IData)(
                                                                vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[4U])) 
                                                >> 0x18U)))))) 
-              << 0xfU));
+              << 0xaU));
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[5U] 
         = (((IData)(((0x22U == (0x3fU & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0U] 
                                          >> 0x12U)))
@@ -3089,7 +3037,7 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                           ((QData)((IData)(
                                                            vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[4U])) 
                                            >> 0x18U)))))) 
-            >> 0x11U) | ((IData)((((0x22U == (0x3fU 
+            >> 0x16U) | ((IData)((((0x22U == (0x3fU 
                                               & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0U] 
                                                  >> 0x12U)))
                                     ? (0xfffffffffffffffeULL 
@@ -3139,9 +3087,9 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                              | ((QData)((IData)(
                                                                 vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[4U])) 
                                                 >> 0x18U))))) 
-                                  >> 0x20U)) << 0xfU));
+                                  >> 0x20U)) << 0xaU));
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[6U] 
-        = ((0xffff8000U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[6U]) 
+        = ((0xfffffc00U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[6U]) 
            | ((IData)((((0x22U == (0x3fU & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0U] 
                                             >> 0x12U)))
                          ? (0xfffffffffffffffeULL & 
@@ -3183,7 +3131,7 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                              | ((QData)((IData)(
                                                                 vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[4U])) 
                                                 >> 0x18U))))) 
-                       >> 0x20U)) >> 0x11U));
+                       >> 0x20U)) >> 0x16U));
     if ((0x20000U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0U])) {
         vlSelf->SimTop__DOT__top__DOT__core__DOT__execute__DOT__alu__DOT__srca 
             = (QData)((IData)(((1U & ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0U] 
@@ -3308,25 +3256,25 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                 << 0x20U) | (QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__execute__DOT__alu__DOT__result)))
             : vlSelf->SimTop__DOT__top__DOT__core__DOT__execute__DOT__alu__DOT__result);
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[0U] 
-        = ((0xfffffeffU & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[0U]) 
-           | (0x100U & ((0xffff00U & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0U] 
-                                      >> 8U)) | (0x1ffff00U 
-                                                 & ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0U] 
-                                                     >> 7U) 
-                                                    & ((0xffffffffffffffffULL 
-                                                        == vlSelf->SimTop__DOT__top__DOT__core__DOT__execute__DOT____Vcellout__alu__c) 
-                                                       << 8U))))));
+        = ((0xfffffff7U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[0U]) 
+           | (8U & ((0x7fff8U & (vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0U] 
+                                 >> 0xdU)) | (0xffff8U 
+                                              & ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0U] 
+                                                  >> 0xcU) 
+                                                 & ((1ULL 
+                                                     == vlSelf->SimTop__DOT__top__DOT__core__DOT__execute__DOT____Vcellout__alu__c) 
+                                                    << 3U))))));
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[0U] 
-        = ((0x7fffU & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[0U]) 
+        = ((0x3ffU & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[0U]) 
            | ((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__execute__DOT____Vcellout__alu__c) 
-              << 0xfU));
+              << 0xaU));
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[1U] 
         = (((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__execute__DOT____Vcellout__alu__c) 
-            >> 0x11U) | ((IData)((vlSelf->SimTop__DOT__top__DOT__core__DOT__execute__DOT____Vcellout__alu__c 
-                                  >> 0x20U)) << 0xfU));
+            >> 0x16U) | ((IData)((vlSelf->SimTop__DOT__top__DOT__core__DOT__execute__DOT____Vcellout__alu__c 
+                                  >> 0x20U)) << 0xaU));
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[2U] 
         = (((IData)((vlSelf->SimTop__DOT__top__DOT__core__DOT__execute__DOT____Vcellout__alu__c 
-                     >> 0x20U)) >> 0x11U) | ((IData)(
+                     >> 0x20U)) >> 0x16U) | ((IData)(
                                                      ((1U 
                                                        & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U])
                                                        ? 
@@ -3345,7 +3293,7 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                                           | ((QData)((IData)(
                                                                              vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0U])) 
                                                              >> 0x18U))))) 
-                                             << 0xfU));
+                                             << 0xaU));
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[3U] 
         = (((IData)(((1U & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U])
                       ? (((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[1U])) 
@@ -3357,7 +3305,7 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                         << 8U) | ((QData)((IData)(
                                                                   vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0U])) 
                                                   >> 0x18U))))) 
-            >> 0x11U) | ((IData)((((1U & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U])
+            >> 0x16U) | ((IData)((((1U & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U])
                                     ? (((QData)((IData)(
                                                         vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[1U])) 
                                         << 0x20U) | (QData)((IData)(
@@ -3370,9 +3318,9 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                          << 8U) | ((QData)((IData)(
                                                                    vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0U])) 
                                                    >> 0x18U)))) 
-                                  >> 0x20U)) << 0xfU));
+                                  >> 0x20U)) << 0xaU));
     vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[4U] 
-        = ((0xffff8000U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[4U]) 
+        = ((0xfffffc00U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[4U]) 
            | ((IData)((((1U & vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[2U])
                          ? (((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__hazardOut[1U])) 
                              << 0x20U) | (QData)((IData)(
@@ -3384,14 +3332,18 @@ void VSimTop___024root___settle__TOP__3(VSimTop___024root* vlSelf) {
                                           ((QData)((IData)(
                                                            vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out[0U])) 
                                            >> 0x18U)))) 
-                       >> 0x20U)) >> 0x11U));
+                       >> 0x20U)) >> 0x16U));
+    vlSelf->SimTop__DOT__top__DOT__core__DOT__jump_delay 
+        = (1U & ((vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[0U] 
+                  >> 3U) & (~ (IData)((vlSelf->SimTop__DOT__top__DOT__iresp 
+                                       >> 0x20U)))));
     vlSelf->SimTop__DOT__top__DOT__core__DOT__pcnext 
-        = ((0x100U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[0U])
+        = ((8U & vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[0U])
             ? (((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[6U])) 
-                << 0x31U) | (((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[5U])) 
-                              << 0x11U) | ((QData)((IData)(
+                << 0x36U) | (((QData)((IData)(vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[5U])) 
+                              << 0x16U) | ((QData)((IData)(
                                                            vlSelf->SimTop__DOT__top__DOT__core__DOT__dataE[4U])) 
-                                           >> 0xfU)))
+                                           >> 0xaU)))
             : (4ULL + vlSelf->SimTop__DOT__top__DOT__core__DOT__pc));
 }
 
@@ -3450,6 +3402,7 @@ void VSimTop___024root___ctor_var_reset(VSimTop___024root* vlSelf) {
     vlSelf->SimTop__DOT__top__DOT__core__DOT__pc = VL_RAND_RESET_Q(64);
     vlSelf->SimTop__DOT__top__DOT__core__DOT__pcnext = VL_RAND_RESET_Q(64);
     vlSelf->SimTop__DOT__top__DOT__core__DOT__memory_delay = VL_RAND_RESET_I(1);
+    vlSelf->SimTop__DOT__top__DOT__core__DOT__jump_delay = VL_RAND_RESET_I(1);
     VL_RAND_RESET_W(96, vlSelf->SimTop__DOT__top__DOT__core__DOT__dataF_out);
     VL_RAND_RESET_W(450, vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD);
     VL_RAND_RESET_W(450, vlSelf->SimTop__DOT__top__DOT__core__DOT__dataD_out);

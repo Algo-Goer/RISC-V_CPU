@@ -99,7 +99,6 @@ typedef struct packed {
     u1 memwrite;				// 内存写使能
     // writeback控制信号
     u1 regwrite;				// regfile写使能
-    creg_addr_t dst;			// 写回regfile编号
 } execute_control_t;
 
 // fetch阶段产生的信号
@@ -125,6 +124,7 @@ typedef struct packed {
 typedef struct packed {
     u64 pc;
     u32 instruction;
+    creg_addr_t dst;			// 写回regfile编号
     u64 j_addr;                 //跳转地址
     word_t memdata;				// 待写入内存的数据
     word_t result;				// 计算结果，可能作为访存地址，也可能作为regfile写回数据

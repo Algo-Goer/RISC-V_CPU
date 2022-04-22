@@ -39,6 +39,7 @@ module core
 	word_t memread_data;
 	u1 fetch_delay;
 	u1 memory_delay;
+	u1 jump_delay;
 
 	fetch_data_t dataF;
 	fetch_data_t dataF_out;
@@ -65,6 +66,7 @@ module core
 	assign instruction = iresp.data;
 
 	// 数据访存设置
+	// 发送请求同时处理访存握手
 	assign dreq.valid = dataE_out.ctl.memread | dataE_out.ctl.memwrite;
 	assign dreq.strobe = (dataE_out.ctl.memwrite) ? '1 : '0;
 	assign dreq.addr = 
@@ -73,12 +75,14 @@ module core
 	assign dreq.data = dataE_out.memdata;
 	assign memread_data = dresp.data;
 
-	// 访存握手
-	always_ff @( posedge clk ) begin
-		if(dreq.valid == 1 && dresp.data_ok == 1) begin
-			dreq.valid = 0;
-		end
-	end
+	// always_ff @( posedge clk ) begin
+	// 	if(dreq.valid == 1 && dresp.data_ok == 1) begin
+	// 		dreq.valid = 0;
+	// 	end
+	// end
+
+	// 控制冒险与取指的冲突信号
+	assign jump_delay = dataE.ctl.jump && fetch_delay;
 
 	always_ff @( posedge clk ) begin
 		// 在不阻塞时更新pc
@@ -86,7 +90,7 @@ module core
 			if (reset) begin
 				pc <= 64'h8000_0000;
 			end 
-			else if (~fetch_delay && ~memory_delay) begin
+			else if (~fetch_delay && ~memory_delay && ~jump_delay) begin
 				pc <= pcnext;
 			end
 		end
@@ -125,7 +129,7 @@ module core
 	decode_execute decode_execute(
 		.clk(clk),
 		.reset(clear || reset),
-		.stall(hazardOut.stall || memory_delay),
+		.stall(hazardOut.stall || memory_delay || jump_delay),
 		.dataD(dataD),
 		.dataD_out(dataD_out)
 	);
@@ -141,7 +145,7 @@ module core
 
 	execute_memory execute_memory(
 		.clk(clk),
-		.reset(hazardOut.clear || reset),
+		.reset(hazardOut.clear || reset || jump_delay),
 		.stall(memory_delay),
 		.dataE(dataE),
 		.dataE_out(dataE_out)
@@ -167,7 +171,7 @@ module core
 
 	// 为转发器生成writeback阶段数据
 	always_ff @( posedge clk ) begin
-		dataW_out <= dataW;		
+		dataW_out <= dataW;	
 	end
 
 	regfile regfile(
@@ -183,25 +187,34 @@ module core
 
 	// execute转发器
 	forward forward1(
-		.regwrite(dataE_out.ctl.regwrite && ~(dataE_out.ctl.memread)),
-		.dst(dataE_out.ctl.dst),
-		.data(dataE_out.result),
+		.clk(clk),
+		.stall(hazardOut.stall || memory_delay || jump_delay),
+		.op(dataE.ctl.op),
+		.regwrite(dataE.ctl.regwrite && ~(dataE.ctl.memread)),
+		.dst(dataE.dst),
+		.data(dataE.result),
 		.dataForward(forward_execute)
 	);
 
 	// memory转发器
 	forward forward2(
-		.regwrite(dataM_out.regwrite),
-		.dst(dataM_out.dst),
-		.data(dataM_out.regdata),
+		.clk(clk),
+		.stall(memory_delay),
+		.op(dataM.op),
+		.regwrite(dataM.regwrite),
+		.dst(dataM.dst),
+		.data(dataM.regdata),
 		.dataForward(forward_memory)
 	);
 
 	// writeback转发器
 	forward forward3(
-		.regwrite(dataW_out.regwrite),
-		.dst(dataW_out.dst),
-		.data(dataW_out.regdata),
+		.clk(clk),
+		.stall(0),
+		.op(dataW.op),
+		.regwrite(dataW.regwrite),
+		.dst(dataW.dst),
+		.data(dataW.regdata),
 		.dataForward(forward_writeback)
 	);
 

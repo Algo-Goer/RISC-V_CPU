@@ -362,6 +362,7 @@ typedef struct packed {
 当前fetch阶段取指的代码如下：
 
 ```verilog
+assign ireq.valid = 1;				// 始终取指令
 assign ireq.addr = pc;				// 设置指令pc
 assign instruction = iresp.data;	// 得到读取的指令
 ```
@@ -391,7 +392,6 @@ always@(posedge clk) begin
     // 若完成一次访存请求
     if (ireq.valid == 1 && iresp.data_ok == 1) begin
         ireq.valid = 0;
-        iresp.data_ok = 0;
     end
 end
 ```
@@ -411,7 +411,7 @@ assign dreq.addr = (dataE_out.ctl.memread | dataE_out.ctl.memwrite) ? dataE_out.
 assign memread_data = dresp.data;							// 得到响应数据
 ```
 
-同样在引入握手总线后的访存（**读内存**）增加为以下过程：
+同样在引入握手总线后的访存增加为以下过程：
 
 - 设置请求参数`dreq.valid`将`addr`传给`dreq`，**发起取指请求**，等待`dresp`的响应；
 - 判断`dresp.data_ok`，为低电平时说明**响应数据未就位**，继续等待（保持流水线状态）；
@@ -433,12 +433,9 @@ always@(posedge clk) begin
     // 若完成一次访存请求
     if (dreq.valid == 1 && dresp.data_ok == 1) begin
         dreq.valid = 0;
-        dresp.data_ok = 0;
     end
 end
 ```
-
-同时别漏掉**写内存的访存情况！**
 
 可以考虑把处理握手的寄存器写为一个单独的模块。
 
@@ -493,30 +490,105 @@ assign dreq.valid = dataE_out.ctl.memwrite || dataE_out.ctl.memread;
 always@(posedge clk) begin
     if(dreq.valid == 1 && dresp.data_ok == 1) begin
         dreq.valid = 0;
-        dresp.data_ok = 0;
     end
 end
 ```
 
 #### （3）仲裁分析
 
-#### （4）流水线冲突分析
+仲裁体现在`ireq.valid`和`dreq.valid`同时为1时，内存会屏蔽一个访存请求，（`vsrc/util/CBusArbiter.sv`是一个实现的仲裁器，默认为`dreq`请求优先）
 
-考虑一个特殊情况：跳转指令导致在取指时`ireq`中`addr`改变
+在执行`dreq`的访存期间，`ireq.valid`始终为1，`iresp.data_ok`始终为0，`dreq.valid`为1，在数据握手前，`dresp.data_ok`为0，按照上面的流水线控制连线来看:
 
-当在`execute`流水段判断到需要跳转时，此时`fetch`流水段在进行取指（一条错误指令），`decode`流水段在进行译码（气泡或一条错误指令）；而`pc_next`已经更新为正确的跳转地址，而由于当前`fetch`阶段还没有取出指令，导致`pc`在阻塞，`pc_next`无法进入流水段；那么在下一个周期（假设取指令完成），`fetch`进行`pc_next`的取指，`decode`因为跳转信号的出现插入气泡，`execute`也插入气泡，可行；但若取指令未完成，`execute`阶段的数据向后移动，导致跳转信号丢失，就**必须在`execute`发现需要跳转时终止当前取指请求（`ireq.valid`变为0），而在下一个时钟上升沿（`pc`更新为跳转地址），重新发起取指请求（`ireq.valid`变为1）**
+- `pc`始终被阻塞；
+- `fetch_decode`寄存器同时有`stall`信号与`flush`信号，由于阻塞优先级高，因此`fetch_decode`寄存器阻塞；
+- `decode_execute`寄存器由于访存被阻塞；
+- `execute_memory`由于访存延迟被阻塞；
+- `memory_writeback`寄存器在执行完首个指令后被插入气泡；
 
-因此**`ireq`的`valid`信号**的逻辑如下（此部分暂不考虑）：
+在`dreq`访存数据就位的下个周期上升沿，`dreq.valid`为0，仲裁器不再屏蔽`ireq`，进行取指的访存，此时各个流水线的信号如下：
+
+- `pc`被阻塞，等待`fetch`阶段的数据就位
+- `fetch_decode`被插入气泡；
+- `decode_execute`正常执行，从`decode`阶段流入的是气泡指令，不影响流水线状态；
+- `execute_memory`与`memory_writeback`同样执行气泡；
+
+综上：在当前仲裁器和流水线的阻塞与清除信号影响下，出现两个访存请求时流水线可以正常执行。
+
+#### （4）流水线冲突
+
+考虑一个特殊情况：`execute`指出指令为跳转指令，即`ireq`此时的访存请求是一条错误的请求指令；
+
+当在`execute`流水段判断到需要跳转时，此时`fetch`流水段在进行取指（一条错误指令），`decode`流水段在进行译码（气泡或一条错误指令）；而`pc_next`已经更新为正确的跳转地址，而由于当前`fetch`阶段还没有取出指令，导致`pc`在阻塞，`pc_next`无法进入流水段；那么在下一个周期（假设取指令完成），`fetch`进行`pc_next`的取指，`decode`因为跳转信号的出现插入气泡，`execute`也插入气泡，可行；但若取指令未完成，`execute`阶段的数据向后移动，导致跳转信号丢失，需要处理跳转的问题。
+
+一种不可行的处理方案如下（**不可行是因为不能中途取消访存请求**）：在`execute`发现需要跳转时终止当前取指请求（`ireq.valid`变为0），而在下一个时钟上升沿（`pc`更新为跳转地址），重新发起取指请求（`ireq.valid`变为1）
+
+因此**`ireq`的`valid`信号**的逻辑如下：
 
 - 在每个时钟上升沿需要为高电平1，标志着该周期发起访存请求；
 - 在握手时（`data_ok`就位的下一个周期上升沿），不需要设置为低电平0，继续下一条指令取指；
 - 在某一周期中发现当前指令为预测错误的指令时（即`execute`跳转信号为1），在当前周期直接将`valid`信号设置为低电平0，标志着此次错误的取指请求结束；并在下一个时钟上升沿重新设置为1进行正确的取指；
 
-综上，`ireq.valid`为`execute`流水段的`jump`信号的相反信号，当`jump`为0表示不跳转时，`valid`为1表示正常取指；而当`jump`为1表示跳转时，`valid`应该设置为0，保证终止此次对错误`pc`的取指，而在下一个时钟上升沿，`jump`重新设置为0，`valid`重新设置为1表示对此次指令进行取指（跳转地址的instruction），从而流水段正确执行。
+即`ireq.valid`为`execute`流水段的`jump`信号的相反信号，当`jump`为0表示不跳转时，`valid`为1表示正常取指；而当`jump`为1表示跳转时，`valid`应该设置为0，保证终止此次对错误`pc`的取指，而在下一个时钟上升沿，`jump`重新设置为0，`valid`重新设置为1表示对此次指令进行取指（跳转地址的instruction），从而流水段正确执行。
 
-即
+**一种可行的方案如下**：
+
+当`execute`流水段指出指令为跳转指令时，同一周期内将`fetch`与`execute`流水段阻塞，`decode`与`memory`流水段插入气泡，（`fetch_decode`与`execute_memory`清除信号拉高）。这种状态持续到当前取指完成，取指完成后的下一个周期上升沿，应该开始`pc`为跳转地址的取指；此时未跳转的错误指令已经被清除出流水线，只需等待指令；
+
+取指刚完成的那个周期：
+
+- `fetch`阶段：`fetch_delay`信号为0，下一个周期不再阻塞；
+- `decode`阶段：`fetch_delay`信号为0，下个周期不再清除；`jump`信号为1，下个周期清除；综合效果为清除；
+- `execute`阶段：`fetch_delay`信号为0，下个周期不再阻塞；
+- `memory`阶段与`writeback`阶段：下个周期不再插入气泡；
+
+取指完成的下一个周期：
+
+- `pc`寄存器不再阻塞，进行跳转指令的取指（fetch阶段）；
+- `decode`清除掉错误指令，当前为气泡，等待fetch传入正确的指令；
+- `execuet``memory`与`writeback`都是为传入的气泡；
+
+如果在execute阶段指出跳转的周期中，`iresp.data_ok`已经为1，即错误指令取指完成；那么`fetch_decode`的清除信号和`decode_execute`的清除信号会拉高（jump），把`fetch`与`decode`流水段可能有的错误指令清除掉，流水线工作正常。
+
+综上：各个寄存器的控制信号做以下增加：
 
 ```verilog
-assign ireq.valid = ~(dataE.ctl.jump);
+// 当execute阶段指出是跳转指令时，阻塞fetch与execute流水段
+assign fetch_stall = dataE.ctl.jump && fetch_delay;
+assign execute_stall = dataE.ctl.jump && fetch_delay;
+
+// 当execute阶段为跳转指令时，清除decode与memory，decode阶段信号不需要添加，memory的清除信号添加
+assign memory_flush = dataE.ctl.jump && fetch_delay;
 ```
+
+注：以上信号为解决控制冲突的信号，还有其他情况，并不代表最终的流水线控制信号。
+
+#### （5）转发器问题
+
+当前转发器为组合逻辑，由于`execute`阶段阻塞，但`memory`阶段清除，导致转发出的`execute`阶段数据出错（转发数据源丢失），解决方法：
+
+方法一：清除各个流水寄存器时，只清除控制信号，其他数据信号保持不变；
+
+方法二：拉出另一个寄存器，用来存放转发数据，该寄存器的清楚信号不被execute等阶段的信号影响；（把转发器设置为时序逻辑）
+
+## 五、不同粒度的读写
+
+## 六、错误记录
+
+#### 1、execute阶段从alu的判断结果转化为跳转信号错误
+
+```verilog
+// alu中得到的结果为64'h0000_0001
+result = (srca == srcb) ? 64'h0000_0001 : '0;
+// execute中转化为jump信号时判断条件为'1
+assign dataE.ctl.jump = (dataD.ctl.jump) | (dataD.ctl.btype == 1 && result == '1) ? 1'b1 : 1'b0;
+```
+
+#### 2、execute阶段计算跳转地址错误
+
+（1）第一次计算错误是因为：转发器失效
+
+（2）
+
+
 

@@ -36,6 +36,7 @@ VL_MODULE(VSimTop___024root) {
 
     // LOCAL SIGNALS
     CData/*0:0*/ SimTop__DOT__top__DOT__core__DOT__memory_delay;
+    CData/*0:0*/ SimTop__DOT__top__DOT__core__DOT__jump_delay;
     CData/*0:0*/ SimTop__DOT__top__DOT__mux__DOT__busy;
     CData/*1:0*/ SimTop__DOT__ram__DOT__state;
     CData/*7:0*/ SimTop__DOT__ram__DOT__count_down;
