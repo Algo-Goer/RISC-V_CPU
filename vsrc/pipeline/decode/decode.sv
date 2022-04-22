@@ -69,10 +69,10 @@ module decode
     assign dataD.imm = imm;
 
     // 确定用来计算pc的值
-    assign dataD.pcdata = (ctl.op == JALR) ? '0 : rd1;
+    assign dataD.pcdata = (ctl.op == JALR) ? rd1 : '0;
 
     // 确定要写入内存的数据
-    assign dataD.memdata = (ctl.op == SD) ? '0 : rd2;
+    assign dataD.memdata = (ctl.op == SD) ? rd2 : '0;
 
     // 确定控制信号
     assign dataD.ctl = ctl;

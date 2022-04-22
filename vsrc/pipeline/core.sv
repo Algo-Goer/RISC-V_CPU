@@ -75,12 +75,6 @@ module core
 	assign dreq.data = dataE_out.memdata;
 	assign memread_data = dresp.data;
 
-	// always_ff @( posedge clk ) begin
-	// 	if(dreq.valid == 1 && dresp.data_ok == 1) begin
-	// 		dreq.valid = 0;
-	// 	end
-	// end
-
 	// 控制冒险与取指的冲突信号
 	assign jump_delay = dataE.ctl.jump && fetch_delay;
 
@@ -188,8 +182,7 @@ module core
 	// execute转发器
 	forward forward1(
 		.clk(clk),
-		.stall(hazardOut.stall || memory_delay || jump_delay),
-		.op(dataE.ctl.op),
+		.stall(hazardOut.stall || memory_delay || jump_delay || dataE.ctl.op == UNKNOWN),
 		.regwrite(dataE.ctl.regwrite && ~(dataE.ctl.memread)),
 		.dst(dataE.dst),
 		.data(dataE.result),
@@ -199,8 +192,7 @@ module core
 	// memory转发器
 	forward forward2(
 		.clk(clk),
-		.stall(memory_delay),
-		.op(dataM.op),
+		.stall(memory_delay || dataM.op == UNKNOWN),
 		.regwrite(dataM.regwrite),
 		.dst(dataM.dst),
 		.data(dataM.regdata),
@@ -210,8 +202,7 @@ module core
 	// writeback转发器
 	forward forward3(
 		.clk(clk),
-		.stall(0),
-		.op(dataW.op),
+		.stall(dataW.op == UNKNOWN),
 		.regwrite(dataW.regwrite),
 		.dst(dataW.dst),
 		.data(dataW.regdata),

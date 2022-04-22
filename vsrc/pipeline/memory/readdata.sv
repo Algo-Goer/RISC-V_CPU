@@ -3,9 +3,8 @@
 
 
 `ifdef VERILATOR
-`include "include/interface.svh"
+`include "include/common.sv"
 `else
-`include "interface.svh"
 `endif
 
 module readdata

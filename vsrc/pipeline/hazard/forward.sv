@@ -13,16 +13,15 @@ module forward
     import pipes::*;(
     
     input u1 clk, stall,
-    input decode_op_t op,
     input u1 regwrite,
     input creg_addr_t dst,
     input word_t data,
     output forward_data_out dataForward
 );
     
-    // 组合逻辑
+    // 时序逻辑
     always_ff @( posedge clk ) begin
-        if (op != UNKNOWN && ~stall) begin
+        if (~stall) begin
             if( regwrite ) begin
                 dataForward.valid = 1'b1;
                 dataForward.dst = dst;
