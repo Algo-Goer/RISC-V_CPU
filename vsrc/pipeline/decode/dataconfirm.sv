@@ -48,7 +48,8 @@ module dataconfirm
             ADDI, ORI, ANDI, XORI, 
             SLTI, SLTIU, SLLI, SRLI, SRAI,
             ADDIW, SLLIW, SRLIW, SRAIW,
-            LD, SD: begin
+            LB, LH, LW, LD, LBU, LHU, LWU,
+            SB, SH, SW, SD: begin
                 data1 = rd1;
                 data2 = imm;
             end

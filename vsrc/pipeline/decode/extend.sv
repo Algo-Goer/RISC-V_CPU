@@ -22,7 +22,7 @@ module extend
         unique case(op)
             ADDI, ORI, ANDI, XORI, SLTI, SLTIU,
             ADDIW,
-            LD, JALR: begin
+            LB, LH, LW, LD, LBU, LHU, LWU, JALR: begin
                 imm = {
                     {52{instruction[31]}}, 
                     instruction[31 : 20]
@@ -35,7 +35,7 @@ module extend
                     12'b0
                 };
             end
-            SD : begin
+            SB, SH, SW, SD : begin
                 imm = {
                     { 52{instruction[31]} },//offset[63 : 12]
                     instruction[31 : 25],   //offset[11 : 5]

@@ -3,14 +3,13 @@
 
 
 `ifdef VERILATOR
-`include "include/interface.svh"
+`include "include/common.sv"
 `else
-`include "interface.svh"
 `endif
 
 module writedata
 	import common::*;
-	import decode_pkg::*; (
+	/*import decode_pkg::*; */(
 	input u3 addr,
 	input u64 _wd,
 	input msize_t msize,

@@ -39,8 +39,30 @@ module execute
     assign memdata = (rs2_mux) ? rs2_forward : dataD.memdata;
     assign srca = (dataD.ctl.srca_r && rs1_mux) ?
                 (rs1_forward) : dataD.srca;
-    assign srcb = (dataD.ctl.srcb_r && rs2_mux) ?
-                (rs2_forward) : dataD.srcb;
+                
+    // 这里需要处理一下移位的运算；
+    always_comb begin
+        if(dataD.ctl.srcb_r && rs2_mux) begin
+            if(dataD.ctl.op == SLL || dataD.ctl.op == SRL || dataD.ctl.op == SRA) begin
+                srcb = {
+                    58'b0,
+                    rs2_forward[5 : 0]
+                };
+            end
+            else if (dataD.ctl.op == SLLW || dataD.ctl.op == SRLW || dataD.ctl.op == SRAW) begin
+                srcb = {
+                    59'b0,
+                    rs2_forward[4 : 0]
+                };
+            end
+            else begin
+                srcb = rs2_forward;
+            end
+        end
+        else begin
+            srcb = dataD.srcb;
+        end
+    end
     
     // 计算跳转pc
     assign dataE.j_addr = (dataD.ctl.op == JALR) ? 
@@ -58,6 +80,9 @@ module execute
     assign dataE.ctl.memwrite = dataD.ctl.memwrite;
     assign dataE.ctl.regwrite = dataD.ctl.regwrite;
     assign dataE.dst = dataD.ctl.dst;
+    // 接收访存参数
+    assign dataE.ctl.msize = dataD.ctl.msize;
+    assign dataE.ctl.mem_unsigned = dataD.ctl.mem_unsigned;
 endmodule
 
 `endif

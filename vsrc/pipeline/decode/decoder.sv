@@ -16,7 +16,8 @@ module decoder
 
     wire [6 : 0] f7 = instruction[6 : 0];
     wire [2 : 0] f3 = instruction[14 : 12];
-    wire [6 : 0] func = instruction[31 : 25];
+    wire [6 : 0] func7 = instruction[31 : 25];
+    wire [5 : 0] func6 = instruction[31 : 26];
 
     always_comb begin
         ctl = '0;
@@ -48,14 +49,14 @@ module decoder
                     end
                     F3_SLTU : begin
                         ctl.op = SLTIU;
-                        ctl.func = ALU_LESS;
+                        ctl.func = ALU_LESS_U;
                     end
                     F3_SLL : begin
                         ctl.op = SLLI;
                         ctl.func = ALU_SHIFTL;
                     end
                     F3_SRL_SRA : begin
-                        if(func == F7_SRL) begin
+                        if(func6 == F6_SRL) begin
                             ctl.op = SRLI;
                             ctl.func = ALU_SHIFTR;
                         end
@@ -75,7 +76,7 @@ module decoder
                 ctl.srcb_r = 1'b1;
                 unique case(f3) 
                     F3_ADD_SUB : begin
-                        if(func == F7_ADD) begin
+                        if(func7 == F7_ADD) begin
                             ctl.op = ADD;
                             ctl.func = ALU_ADD;
                         end else begin
@@ -108,7 +109,7 @@ module decoder
                         ctl.func = ALU_LESS_U;
                     end
                     F3_SRL_SRA : begin
-                        if(func == F7_SRL) begin
+                        if(func6 == F6_SRL) begin
                             ctl.op = SRL;
                             ctl.func = ALU_SHIFTR;
                         end
@@ -132,19 +133,72 @@ module decoder
                 ctl.regwrite = (instruction[11 : 7] == '0) ? 1'b0 : 1'b1;
                 ctl.dst = instruction[11 : 7];
             end
-            F7_LD : begin
-                ctl.op = LD;
+            F7_L_TYPE : begin
                 ctl.func = ALU_ADD;
                 ctl.memread = 1'b1;
                 ctl.regwrite = (instruction[11 : 7] == '0) ? 1'b0 : 1'b1;
                 ctl.dst = instruction[11 : 7];
                 ctl.srca_r = 1'b1;
+                unique case(f3)
+                    F3_B : begin
+                        ctl.op = LB;
+                        ctl.msize = MSIZE1;
+                    end
+                    F3_H : begin
+                        ctl.op = LH;
+                        ctl.msize = MSIZE2;
+                    end
+                    F3_W : begin
+                        ctl.op = LW;
+                        ctl.msize = MSIZE4;
+                    end
+                    F3_D : begin
+                        ctl.op = LD;
+                        ctl.msize = MSIZE8;
+                    end
+                    F3_BU : begin
+                        ctl.op = LBU;
+                        ctl.msize = MSIZE1;
+                        ctl.mem_unsigned = 1;
+                    end
+                    F3_HU : begin
+                        ctl.op = LHU;
+                        ctl.msize = MSIZE2;
+                        ctl.mem_unsigned = 1;
+                    end
+                    F3_WU : begin
+                        ctl.op = LWU;
+                        ctl.msize = MSIZE4;
+                        ctl.mem_unsigned = 1;
+                    end
+                    default : begin
+                    end
+                endcase
             end
-            F7_SD : begin
-                ctl.op = SD;
+            F7_S_TYPE : begin
                 ctl.func = ALU_ADD;
                 ctl.memwrite = 1'b1;
                 ctl.srca_r = 1'b1;
+                unique case(f3)
+                    F3_B : begin
+                        ctl.op = SB;
+                        ctl.msize = MSIZE1;
+                    end
+                    F3_H : begin
+                        ctl.op = SH;
+                        ctl.msize = MSIZE2;
+                    end
+                    F3_W : begin
+                        ctl.op = SW;
+                        ctl.msize = MSIZE4;
+                    end
+                    F3_D : begin
+                        ctl.op = SD;
+                        ctl.msize = MSIZE8;
+                    end
+                    default : begin
+                    end
+                endcase
             end
             F7_JAL : begin
                 ctl.op = JAL;
@@ -193,9 +247,9 @@ module decoder
             end
             F7_IW_TYPE : begin
                 ctl.word = 1'b1;
+                ctl.regwrite = (instruction[11 : 7] == '0) ? 1'b0 : 1'b1;
                 ctl.dst = instruction[11 : 7];
                 ctl.srca_r = 1'b1;
-                ctl.srcb_r = 1'b1;
                 unique case (f3)
                     F3_ADD_SUB : begin
                         ctl.op = ADDIW;
@@ -219,7 +273,7 @@ module decoder
                             ctl.regwrite = 1'b0;
                         end
                         else begin
-                            if(func == F7_SRL) begin
+                            if(func6 == F6_SRL) begin
                                 ctl.op = SRLIW;
                                 ctl.func = ALU_SHIFTR;
                                 ctl.regwrite = (instruction[11 : 7] == '0) ? 1'b0 : 1'b1;
@@ -237,9 +291,13 @@ module decoder
             end
             F7_RW_TYPE : begin
                 ctl.word = 1'b1;
+                ctl.regwrite = (instruction[11 : 7] == '0) ? 1'b0 : 1'b1;
+                ctl.dst = instruction[11 : 7];
+                ctl.srca_r = 1'b1;
+                ctl.srcb_r = 1'b1;
                 unique case(f3)
                     F3_ADD_SUB : begin
-                        if(func == F7_ADD) begin
+                        if(func7 == F7_ADD) begin
                             ctl.op = ADDW;
                             ctl.func = ALU_ADD;
                         end else begin
@@ -252,7 +310,7 @@ module decoder
                         ctl.func = ALU_SHIFTL;
                     end
                     F3_SRL_SRA : begin
-                        if(func == F7_SRL) begin
+                        if(func6 == F6_SRL) begin
                             ctl.op = SRLW;
                             ctl.func = ALU_SHIFTR;
                         end

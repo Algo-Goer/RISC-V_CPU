@@ -595,7 +595,45 @@ end
 
 ## 五、不同粒度的读写
 
+即添加指令：`lb` `lh` `lw` `lbu` `lhu` `lwu` `sb` `sh` `sw`，指令内容如下：
 
+### 1、lb（I-type）
+
+![](img/lb.png)
+
+### 2、lh（I-type）
+
+![](img/lh.png)
+
+### 3、lw（I-type）
+
+![](img/lw.png)
+
+### 4、lbu（I-type）
+
+![](img/lbu.png)
+
+### 5、lhu（I-type）
+
+![](img/lhu.png)
+
+### 6、lwu（I-type）
+
+![](img/lwu.png)
+
+### 7、sb（S-type）
+
+![](img/sb.png)
+
+### 8、sh（S-type）
+
+![](img/sh.png)
+
+### 9、sw（S-type）
+
+![](img/sw.png)
+
+将读取和写入的8字节数据分别传入`readdata`和`writedata`，得到处理后的数据再进行数据访存。
 
 ## 六、错误记录
 
@@ -608,7 +646,56 @@ result = (srca == srcb) ? 64'h0000_0001 : '0;
 assign dataE.ctl.jump = (dataD.ctl.jump) | (dataD.ctl.btype == 1 && result == '1) ? 1'b1 : 1'b0;
 ```
 
+#### 2、decode阶段计算`pcdata`时表达式出错
 
+```verilog
+// 错误写法，把'0和rd1写反了
+assign dataD.pcdata = (ctl.op == JALR) ? '0 : rd1;
+// 正确写法
+assign dataD.pcdata = (ctl.op == JALR) ? rd1 : '0;
+```
 
+#### 3、不同粒度的访存指令出现地址越界
 
+未及时完成新增访存指令的译码，立即数和操作数**未生成**。（**立即数生成逻辑没写**）
+
+（1）立即数计算有问题，访存指令的立即数打散存在了指令中；
+
+（2）操作数的确定有问题，操作数不指定的话会有默认数值，与立即数不相等，会出现计算错误的情况；
+
+#### 4、sllw指令错误
+
+`regwrite`信号未设置，导致寄存器不写入；（**`regwrite`信号逻辑没写**）
+
+#### 5、srli指令错误
+
+问题出在`func`的译码上，ADD与SUB的指令中`func`为7位数据，而`SRL`和`SRA`的指令中`func`为6位数据；
+
+（**`func`译码逻辑有误**）
+
+#### 6、lbu指令访存错误
+
+`lbu`在内的几个无符号访存指令没有进行译码（得到立即数和操作数）（**`lbu`、`lhu`和`lwu`的译码逻辑没写**）；
+
+#### 7、sd访存错误
+
+sd指令的strobe未设置，-> execute阶段没有接收decode传来的`msize`与`mem_unsigned`参数；（**接收访存参数的逻辑没写**）
+
+```verilog
+// 接收访存参数
+assign dataE.ctl.msize = dataD.ctl.msize;
+assign dataE.ctl.mem_unsigned = dataD.ctl.mem_unsigned;
+```
+
+#### 8、sb访存错误
+
+在decode阶段确定`memdata`时，只设置了`sd`指令，没有设置其他指令；（**写入内存数据的逻辑没写**）
+
+```verilog
+// 确定要写入内存的数据，错误写法
+
+assign dataD.memdata = (ctl.op == SD) ? rd2 : '0;
+// 确定要写入内存的数据，正确写法
+assign dataD.memdata = (ctl.op == SD || ctl.op == SB || ctl.op == SH || ctl.op == SW) ? rd2 : '0;
+```
 

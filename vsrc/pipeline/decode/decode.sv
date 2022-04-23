@@ -72,7 +72,7 @@ module decode
     assign dataD.pcdata = (ctl.op == JALR) ? rd1 : '0;
 
     // 确定要写入内存的数据
-    assign dataD.memdata = (ctl.op == SD) ? rd2 : '0;
+    assign dataD.memdata = (ctl.op == SD || ctl.op == SB || ctl.op == SH || ctl.op == SW) ? rd2 : '0;
 
     // 确定控制信号
     assign dataD.ctl = ctl;

@@ -30,12 +30,12 @@ module alu
 			ALU_EQUAL : result = (srca == srcb) ? 64'h0000_0001 : '0;
 			ALU_NOT_EQUAL : result = (srca != srcb) ? 64'h0000_0001 : '0;
 			ALU_LESS : result = ($signed(srca) < $signed(srcb)) ? 64'h0000_0001 : '0;
-			ALU_GREATER : result = ($signed(srca) > $signed(srcb)) ? 64'h0000_0001 : '0;
+			ALU_GREATER : result = ($signed(srca) >= $signed(srcb)) ? 64'h0000_0001 : '0;
 			ALU_LESS_U : result = (srca < srcb) ? 64'h0000_0001 : '0;
-			ALU_GREATER_U  : result = (srca > srcb) ? 64'h0000_0001 : '0;
+			ALU_GREATER_U  : result = (srca >= srcb) ? 64'h0000_0001 : '0;
 			ALU_SHIFTL : result = srca << srcb;
 			ALU_SHIFTR : result = srca >> srcb;
-			ALU_SHIFTRS : result = $signed(srca) >>> srcb;
+			ALU_SHIFTRS : result = ($signed(srca)) >>> srcb;
 			default: begin
 				result = srca;
 			end
@@ -43,8 +43,20 @@ module alu
 	end
 
 	// 截断操作数
-	assign srca = word ? {32'b0, a[31 : 0]} : a;
 	assign srcb = word ? {32'b0, b[31 : 0]} : b;
+	always_comb begin
+		if(word) begin
+			if(alufunc == ALU_SHIFTRS) begin
+				srca = {{32{a[31]}}, a[31 : 0]};
+			end
+			else begin
+				srca = {32'b0, a[31 : 0]};
+			end
+		end
+		else begin
+			srca = a;
+		end
+	end
 	// 扩展结果
 	assign c = word ? {{32{result[31]}}, result[31 : 0]} : result;
 endmodule

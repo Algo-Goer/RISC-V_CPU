@@ -15,16 +15,16 @@ parameter F7_R_TYPE = 7'b0110011;
 parameter F7_RW_TYPE = 7'b0111011;
 parameter F7_LUI = 7'b0110111;
 parameter F7_AUIPC = 7'b0010111;
-parameter F7_LD = 7'b0000011;
-parameter F7_SD = 7'b0100011;
+parameter F7_L_TYPE = 7'b0000011;
+parameter F7_S_TYPE = 7'b0100011;
 parameter F7_JAL = 7'b1101111;
 parameter F7_JALR = 7'b1100111;
 parameter F7_B_TYPE = 7'b1100011;
 
 parameter F7_ADD = 7'b0000000;
 parameter F7_SUB = 7'b0100000;
-parameter F7_SRL = 7'b0000000;
-parameter F7_SRA = 7'b0100000;
+parameter F6_SRL = 6'b000000;
+parameter F6_SRA = 6'b010000;
 parameter F3_ADD_SUB = 3'b000;
 parameter F3_AND = 3'b111;
 parameter F3_OR = 3'b110;
@@ -39,6 +39,13 @@ parameter F3_BLT = 3'b100;
 parameter F3_BGE = 3'b101;
 parameter F3_BLTU = 3'b110;
 parameter F3_BGEU = 3'b111;
+parameter F3_B = 3'b000;
+parameter F3_H = 3'b001;
+parameter F3_W = 3'b010;
+parameter F3_D = 3'b011;
+parameter F3_BU = 3'b100;
+parameter F3_HU = 3'b101;
+parameter F3_WU = 3'b110;
 
 
 
@@ -63,7 +70,8 @@ typedef enum logic [5 : 0] {
 	ADD, SUB, OR, AND, XOR,
     SLL, SLT, SLTU, SRL, SRA,
     ADDW, SUBW, SLLW, SRLW, SRAW,
-	LD, SD,
+	LD, LB, LH, LW, LBU, LHU, LWU,
+    SD, SB, SH, SW,
 	JAL, JALR, 
 	BEQ, BNE, BLT, BGE, BLTU, BGEU
 } decode_op_t;
@@ -83,6 +91,8 @@ typedef struct packed {
     // memory控制信号
     u1 memread;					// 内存读使能
     u1 memwrite;				// 内存写使能
+    msize_t msize;              // 内存访存大小
+    u1 mem_unsigned;            // 内存访存方式
     // writeback控制信号
     u1 regwrite;				// regfile写使能
     creg_addr_t dst;			// 写回regfile编号
@@ -97,6 +107,8 @@ typedef struct packed {
     // memory控制信号
     u1 memread;					// 内存读使能
     u1 memwrite;				// 内存写使能
+    msize_t msize;              // 内存访存大小
+    u1 mem_unsigned;            // 内存访存方式
     // writeback控制信号
     u1 regwrite;				// regfile写使能
 } execute_control_t;

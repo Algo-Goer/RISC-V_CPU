@@ -9,6 +9,8 @@
 `include "pipeline/decode/decode.sv"
 `include "pipeline/execute/execute.sv"
 `include "pipeline/memory/memory.sv"
+`include "pipeline/memory/readdata.sv"
+`include "pipeline/memory/writedata.sv"
 `include "pipeline/writeback/writeback.sv"
 `include "pipeline/registers/fetch_decode.sv"
 `include "pipeline/registers/decode_execute.sv"
@@ -40,6 +42,7 @@ module core
 	u1 fetch_delay;
 	u1 memory_delay;
 	u1 jump_delay;
+	strobe_t strobe;
 
 	fetch_data_t dataF;
 	fetch_data_t dataF_out;
@@ -68,12 +71,13 @@ module core
 	// 数据访存设置
 	// 发送请求同时处理访存握手
 	assign dreq.valid = dataE_out.ctl.memread | dataE_out.ctl.memwrite;
-	assign dreq.strobe = (dataE_out.ctl.memwrite) ? '1 : '0;
+	assign dreq.strobe = (dataE_out.ctl.memwrite) ? strobe : '0;
 	assign dreq.addr = 
 		(dataE_out.ctl.memread | dataE_out.ctl.memwrite)
 		? dataE_out.result : '0;
-	assign dreq.data = dataE_out.memdata;
-	assign memread_data = dresp.data;
+	assign dreq.size = dataE_out.ctl.msize;
+	// assign dreq.data = dataE_out.memdata;
+	// assign memread_data = dresp.data;
 
 	// 控制冒险与取指的冲突信号
 	assign jump_delay = dataE.ctl.jump && fetch_delay;
@@ -224,6 +228,24 @@ module core
 	controller controller(
 		.jump(dataE.ctl.jump),
 		.clear(clear)
+	);
+
+	// 设置不同粒度读内存
+	readdata readdata(
+		._rd(dresp.data),
+		.addr(dataE_out.result[2 : 0]),
+		.msize(dataE_out.ctl.msize),
+		.mem_unsigned(dataE_out.ctl.mem_unsigned),
+		.rd(memread_data)
+	);
+
+	// 设置不同粒度写内存
+	writedata writedata(
+		.addr(dataE_out.result[2 : 0]),
+		._wd(dataE_out.memdata),
+		.msize(dataE_out.ctl.msize),
+		.wd(dreq.data),
+		.strobe(strobe)
 	);
 
 `ifdef VERILATOR

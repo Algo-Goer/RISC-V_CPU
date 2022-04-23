@@ -9,7 +9,7 @@
 
 module readdata
 	import common::*;
-	import decode_pkg::*;(
+	/*import decode_pkg::*;*/(
 	input u64 _rd,
 	output u64 rd,
 	input u3 addr,
