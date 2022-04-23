@@ -633,7 +633,7 @@ end
 
 ![](img/sw.png)
 
-将读取和写入的8字节数据分别传入`readdata`和`writedata`，得到处理后的数据再进行数据访存。
+**实现方式**：将读取和写入的8字节数据分别传入`readdata`和`writedata`，得到处理后的数据再进行数据访存。
 
 ## 六、错误记录
 
@@ -699,3 +699,92 @@ assign dataD.memdata = (ctl.op == SD) ? rd2 : '0;
 assign dataD.memdata = (ctl.op == SD || ctl.op == SB || ctl.op == SH || ctl.op == SW) ? rd2 : '0;
 ```
 
+## 七、最终实现
+
+#### 目录结构：
+
+![](img/catalogue.png)
+
+与上次相比，此次修改了`core.sv`文件，修改了其中的访存设置，添加握手总线，更新流水寄存器的控制信号；修改了memory流水段的访存过程，为支持不同粒度的读写添加`readdata`和`writedata`模块，实现对数据的处理。
+
+#### verilator仿真结果
+
+`paint`：
+
+终端结果
+
+![](img/paint.png)
+
+绘制完成的图像，绘制用时4646毫秒；
+
+![](img/paintpage.png)
+
+`coremark`：
+
+![](img/coremark.png)
+
+测试得到`CoreMArk Iterations/Sec` 参数为2；
+
+`dhrystone`：
+
+![](img/dhrystone.png)
+
+测试得分为5分；
+
+`stream`：
+
+![](img/stream.png)
+
+输出`avg error less than 1.000000e-13 on all three arrays`说明测试通过；
+
+`conwaygame`：
+
+![](img/conwaygame.png)
+
+元胞自动机演化结果如上图；
+
+`Hit Good Trap`：
+
+![](img/hitgoodtrap.png)
+
+终端输出`HIT GOOD TRAP`，测试通过。
+
+#### 上板串口软件测试结果
+
+`paint`：
+
+串口软件输出
+
+![](img/crtpaint.png)
+
+绘制得到的图像
+
+![](img/crtpaintpage.png)
+
+cpu绘制图片用时22578毫秒；
+
+`coremark`：
+
+![](img/crtcoremark.png)
+
+测试得到`CoreMArk Iterations/Sec` 参数为2；
+
+`dhrystone`：
+
+![](img/crtdhrystone.png)
+
+测试得分为1分；
+
+`stream`：
+
+![](img/crtstream.png)
+
+输出`avg error less than 1.000000e-13 on all three arrays`说明测试通过；
+
+`conwaygame`：
+
+![](img/crtconwaygame.png)
+
+串口软件测试得到的元胞自动机演化结果如上；
+
+上板测试通过。
