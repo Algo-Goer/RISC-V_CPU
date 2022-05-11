@@ -176,11 +176,18 @@ module DCache
                 if(creq.valid) begin
                     state_nxt = COMPARE;
                 end
+                else begin
+                    state_nxt = IDLE;
+                end
             end
             // COMPARE状态
             COMPARE : begin
-                // 若命中，信号已经驱动完毕，无需设置其他信号，考虑miss的情况：
-                if(~hit) begin
+                // 若命中，信号已经驱动完毕，无需设置其他信号，只需要设置状态
+                if(hit) begin
+                    state_nxt = IDLE;
+                end
+                // 考虑miss的情况：
+                else begin
                     /**
                      * miss时，肯定会发起主存请求，
                      * 读请求需要一个一个写入ram，写请求需要一个一个读出ram
@@ -236,6 +243,19 @@ module DCache
             default: begin
             end
         endcase
+    end
+
+    // 时序控制
+    always_ff@(posedge clk) begin
+        if(reset) begin
+            state = IDLE;
+            ram_offset = 0;
+            // TODO : 实现reset时对缓存清零
+
+        end
+        else begin
+            state = state_nxt;
+        end
     end
 
     // 例化cache内的数据ram
