@@ -24,22 +24,26 @@ module DCache
 
 	/* TODO: Lab3 Cache */
     /* 定义一些取位函数与类型 */
-    localparam TOTAL_LINE = 16;
-    localparam WORDS_PER_LINE = 16;                         // 块大小
-    localparam ASSOCIATIVITY = 2;                           // 关联度
-    localparam SET_NUM = 16 / ASSOCIATIVITY;                // set个数
-    localparam OFFSET_BITS = $clog2(WORDS_PER_LINE);        // offset块内偏移的位数
-    localparam INDEX_BITS = $clog2(SET_NUM);                // index组号的位数
-    localparam TAG_BITS = 64 - INDEX_BITS - OFFSET_BITS - 3;// tag块标志的位数
-    localparam TAG_START = 3 + OFFSET_BITS + INDEX_BITS;    // tag开始下标
-    localparam TAG_END = 63;// tag结束下标
-    localparam ADDR_BITS = $clog2(TOTAL_LINE * WORDS_PER_LINE); // ram的地址位数
+    localparam LINE_SUM = 16;
+    localparam WORDS_PER_LINE = 16;                             // 块大小
+    localparam ASSOCIATIVITY = 4;                               // 关联度
+    localparam SET_NUM = 16 / ASSOCIATIVITY;                    // set个数
+    localparam ASSOCIATIVITY_BITS = $clog2(ASSOCIATIVITY);      // 关联度位数
+    localparam OFFSET_BITS = $clog2(WORDS_PER_LINE);            // offset块内偏移的位数
+    localparam INDEX_BITS = $clog2(SET_NUM);                    // index组号的位数
+    localparam TAG_BITS = 64 - INDEX_BITS - OFFSET_BITS - 3;    // tag块标志的位数
+    localparam TAG_START = 3 + OFFSET_BITS + INDEX_BITS;        // tag开始下标
+    localparam TAG_END = 63;                                    // tag结束下标
+    localparam ADDR_BITS = $clog2(LINE_SUM * WORDS_PER_LINE);   // ram的地址位数
+    localparam COUNTER_BITS = $clog2(SET_NUM * ASSOCIATIVITY);  // meta的个数对应地址位数
     localparam type offset_t = logic [OFFSET_BITS-1:0];    
     localparam type index_t = logic [INDEX_BITS-1:0];
     localparam type tag_t = logic [TAG_BITS-1:0];
-    localparam type addr_t = logic [ADDR_BITS - 1: 0];      // 访问数据时的地址
+    localparam type addr_t = logic [ADDR_BITS - 1: 0];          // 访问数据时的地址
 
     /* 定义用到的信号 */
+    // reset的计时器
+    logic [COUNTER_BITS - 1 : 0] counter;
     // 定义cache的状态
     localparam type state_t = enum logic[2:0] {
         IDLE, COMPARE, ALLOCATE, WRITEBACK
@@ -65,6 +69,8 @@ module DCache
         addr_sets addrs;
     } cache_sets;
     cache_sets sets[SET_NUM];
+    meta_t meta_to_line;                // 写入的meta
+    logic meta_en;
 
     // 操作的块，cache set的内部下标
     u2 position;
@@ -84,9 +90,9 @@ module DCache
         addr_t   addr;          // 访问地址（字的地址）
         strobe_t strobe;        // 写入的位数（一个）
         word_t   wdata;         // 写入的数据（一个字）
-        word_t   rdata;         // 读出的数据
     } ram;
     offset_t ram_offset;
+    word_t   rdata;             // 读出的数据
 
     /* 驱动不同信号 */
     // 解析地址
@@ -99,19 +105,29 @@ module DCache
 
     // 驱动dresp信号
     assign dresp.addr_ok = dreq.valid;
-    assign dresp.data_ok = hit;
-    assign dresp.data = ram.rdata;
+    assign dresp.data_ok = hit && state == COMPARE;
+    assign dresp.data = rdata;
 
     // 驱动creq信号
     assign creq.valid = state == ALLOCATE || state == WRITEBACK;
     assign creq.is_write = state == WRITEBACK;
     assign creq.size = MSIZE8;
     // TODO : 驱动creq.addr，即主存的访存地址
-    // assign creq.addr = {meta_from_set[position].tag, meta_from_set[position].index};
+    assign creq.addr = {meta_from_set[position].tag, index, {3 + OFFSET_BITS{'0}}};
     assign creq.strobe = state == WRITEBACK ? '1 : '0;
-    assign creq.data = ram.rdata;
+    assign creq.data = rdata;
     assign creq.len = MLEN16;
     assign creq.burst = AXI_BURST_INCR;
+
+    // 遍历并驱动sets
+    for(genvar i = 0; i < SET_NUM; i++) begin : cache_sets_info
+        // // 驱动sets[i].metas
+        // assign sets[i].metas = '0;
+        // 驱动sets[i].addrs
+        for(genvar j = 0; j < ASSOCIATIVITY; j++) begin
+            assign sets[i].addrs[j] = i * ASSOCIATIVITY * WORDS_PER_LINE + j;
+        end
+    end : cache_sets_info
 
     // 驱动ram的访存信号
     always_comb begin
@@ -133,7 +149,9 @@ module DCache
                 ram.strobe = '0;
                 ram.addr = sets[index].addrs[position] + {4'b0, offset};
             end
-            default: ram = '0;
+            default: begin 
+                ram = '0;
+            end
         endcase
     end
 
@@ -162,18 +180,23 @@ module DCache
              * TODO : 设计LRU算法
              * 设置LRU算法，得到position缺失状态下的position
              * 写回时position为要写回的块的组内编号，（读取数据的块位置）
-             * 读取时position为要读取的块的组内编号（存放数据的块位置）
+             * 分配时position为要分配的块的组内编号（存放数据的块位置）
              */
+            
             position = 2'b00;
         end
     end
 
     // FSM
     always_comb begin
+        ram_offset = 0;
+        state_nxt = IDLE;
+        meta_to_line = '0;
+        meta_en = 0;
         unique case(state)
-            // IDLE状态下，接收cpu请求，转变为COMPARE状态
+            // IDLE状态下，接收cpu请求dreq，转变为COMPARE状态
             IDLE : begin
-                if(creq.valid) begin
+                if(dreq.valid) begin
                     state_nxt = COMPARE;
                 end
                 else begin
@@ -194,7 +217,7 @@ module DCache
                      * 一个一个读写由ram_offset控制，从0开始
                      * 设置好ram.addr从块首地址开始，
                      * 读出cache（ram.wdata，写入memory）
-                     * 或写入cache（ram.rdata，从memory读）
+                     * 或写入cache（rdata，从memory读）
                      */
                     ram_offset = 0;
                     // 如果是脏数据，则下一周期为WRITEBACK，自动发起写请求
@@ -202,6 +225,11 @@ module DCache
                         state_nxt = WRITEBACK;
                     end
                     else begin
+                        // 写之前需要设置新的tag
+                        meta_to_line.valid = 1;
+                        meta_to_line.dirty = 1;
+                        meta_to_line.tag = tag;
+                        meta_en = 1;
                         state_nxt = ALLOCATE;
                     end
                 end
@@ -228,6 +256,11 @@ module DCache
                 // 如果整个事务握手，事务完毕，重置ram_offset，下个周期为ALLOCATE
                 if(cresp.last) begin
                     ram_offset = 0;
+                    // 写之前需要设置新的tag
+                    meta_to_line.valid = 1;
+                    meta_to_line.dirty = 1;
+                    meta_to_line.tag = tag;
+                    meta_en = 1;
                     state_nxt = ALLOCATE;
                 end
                 // 如果单个数据握手，调整ram_offset更新ram访存地址，读取到下一个数据写入memory
@@ -248,19 +281,36 @@ module DCache
     // 时序控制
     always_ff@(posedge clk) begin
         if(reset) begin
-            state = IDLE;
-            ram_offset = 0;
+            state <= IDLE;
             // TODO : 实现reset时对缓存清零
-
+            // 清除meta
+            sets[counter[COUNTER_BITS - 1 : ASSOCIATIVITY_BITS]].metas[counter[ASSOCIATIVITY_BITS - 1 : 0]] <= '0;
         end
         else begin
-            state = state_nxt;
+            state <= state_nxt;
+        end
+    end
+
+    // 控制counter时序
+    always_ff@(posedge clk) begin
+        if(reset) begin
+            counter <= counter + 1;
+        end
+        else begin
+            counter <= 0;
+        end
+    end
+
+    // 控制meta的写入
+    always_ff@(posedge clk) begin
+        if(~reset && meta_en) begin
+            sets[index].metas[position] <= meta_to_line;
         end
     end
 
     // 例化cache内的数据ram
     RAM_SinglePort #(
-		.ADDR_WIDTH(16),
+		.ADDR_WIDTH(ADDR_BITS),
 		.DATA_WIDTH(64),
 		.BYTE_WIDTH(8),
 		.READ_LATENCY(0)
@@ -269,7 +319,7 @@ module DCache
         .addr(ram.addr),
         .strobe(ram.strobe),
         .wdata(ram.wdata),
-        .rdata(ram.rdata)
+        .rdata(rdata)
     );
 
 `else
