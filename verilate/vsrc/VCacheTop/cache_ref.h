@@ -27,8 +27,11 @@ private:
 	 *
 	 * NOTE: you can use BlockMemory, or replace it with anything you like.
 	 */
+	// cache的数据存储，一个块
+	word_t buffer[16];
+	BlockMemory mem;
 #endif
 
 	 // int state;
-	BlockMemory mem;
+	// BlockMemory mem;
 };

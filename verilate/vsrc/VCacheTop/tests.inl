@@ -22,13 +22,13 @@ extern CacheRefModel *ref;
   * basic tests
   */
 
-WITH TRACE{
+WITH{
 	dbus->async_load(0xc, MSIZE4);
 	top->tick();
 	// ASSERT(top->dresp == 0);
 } AS("void");
 
-WITH SKIP TRACE{
+WITH SKIP{
 	// NOTE: it depends on your design.
 	//       maybe your cache likes to set addr_ok to false.
 	//       in that case, change following lines to match your design.
@@ -37,7 +37,7 @@ WITH SKIP TRACE{
 	ASSERT(dbus->rdata() == 0);
 } AS("reset");
 
-WITH TRACE{
+WITH{
 	for (int i = 0; i < 4096; i++) {
 		dbus->async_loadw(4 * i);
 		dbus->clear();
@@ -50,7 +50,7 @@ WITH TRACE{
 	}
 } AS("fake load");
 
-WITH TRACE{
+WITH{
 	for (int i = 0; i < 4096; i++) {
 		dbus->async_storew(4 * i, 0xdeadbeef);
 		dbus->clear();
@@ -64,14 +64,14 @@ WITH TRACE{
 } AS("fake store");
 
 // both dbus->store and dbus->load wait for your model to complete
-WITH TRACE{
+WITH{
 	dbus->store(0, MSIZE4, 0b1111, 0x2048ffff);
 // printf("dbus->load(0, MSIZE4) is %x\n", dbus->load(0, MSIZE4));
 ASSERT(dbus->load(0, MSIZE4) == 0x2048ffff);
 } AS("naive");
 
 // this test is explicitly marked with "SKIP".
-WITH SKIP TRACE{
+WITH SKIP{
 	bool one = 1, three = 3;
 	ASSERT(one + one == three);  // trust me, it must fail
 	// but you should not fail here since it's skipped.
@@ -79,7 +79,7 @@ WITH SKIP TRACE{
 
 // if your cache does not support partial writes, you can simply skip
 // this test by marking it with SKIP.
-WITH /*SKIP*/ TRACE{
+WITH /*SKIP*/{
 	// S iterates over 0b0000 to 0b1111.
 	std::vector<word_t> a;  // to store the correct value
 	a.resize(16);
@@ -101,7 +101,7 @@ WITH /*SKIP*/ TRACE{
 
 // this is a more detailed example of DBus.
 // add DEBUG to see all memory operations.
-WITH /*TRACE*/ /*DEBUG*/ TRACE{
+WITH /*TRACE*/ /*DEBUG*/{
 	{
 		dbus->store(0xc, MSIZE4, 0b1111, 0x12345678);
 		ASSERT(dbus->load(0xc, MSIZE4) == 0x12345678);
@@ -172,7 +172,7 @@ WITH /*TRACE*/ /*DEBUG*/ TRACE{
 // all operations performed by pipeline are asynchronous, unless
 // p.fence() is called.
 // add DEBUG to see all memory & pipeline operations.
-WITH /*TRACE*/ /*DEBUG*/ TRACE{
+WITH /*TRACE*/ /*DEBUG*/{
 	auto p = DBusPipeline(top, dbus);
 
 	{
@@ -238,7 +238,7 @@ WITH /*TRACE*/ /*DEBUG*/ TRACE{
 	//       destructed here.
 } AS("pipelined");
 
-WITH TRACE{
+WITH{
 	auto p = DBusPipeline(top, dbus);
 	auto factory = MemoryCellFactory(&p);
 
@@ -264,7 +264,7 @@ WITH TRACE{
 	ASSERT(b.get() == 0x0000dead);
 } AS("memory cell");
 
-WITH TRACE{
+WITH{
 	constexpr int n = 64;
 
 	auto p = DBusPipeline(top, dbus);

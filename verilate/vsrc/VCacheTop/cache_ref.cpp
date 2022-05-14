@@ -1,5 +1,6 @@
 #include "mycache.h"
 #include "cache_ref.h"
+#include <iostream>
 
 CacheRefModel::CacheRefModel(MyCache *_top, size_t memory_size)
 	: top(_top), scope(top->VCacheTop), mem(memory_size)
@@ -43,8 +44,12 @@ auto CacheRefModel::load(addr_t addr, AXISize size) -> word_t
 	/**
 	 * TODO (Lab3) implement load operation for reference model :)
 	 */
-
-	return mem.load(0x0);
+	// 从cache中取出数据，addr为内存地址
+	addr_t start = addr / 128 * 128;			// 地址对齐
+	for (int i = 0; i < 16; i++) {
+		buffer[i] = mem.load(start + 8 * i);
+	}
+	return buffer[addr % 128 / 8];
 #endif
 }
 
@@ -69,8 +74,18 @@ void CacheRefModel::store(addr_t addr, AXISize size, word_t strobe, word_t data)
 	/**
 	 * TODO (Lab3) implement store operation for reference model :)
 	 */
+	// 向内存地址addr写入数据data
+	addr_t start = addr / 128 * 128;					// 地址对齐
+	for (int i = 0; i < 16; i++) {
+		buffer[i] = mem.load(start + 8 * i);			// 先查找addr，如果没有就去内存读
+	}
 
-	mem.store(0x0, 0xdeadbeef, 0b1111);
+	auto mask1 = STROBE_TO_MASK[strobe & 0xf];
+	auto mask2 = STROBE_TO_MASK[((strobe) >> 4) & 0xf];
+	auto mask = (mask2 << 32) | mask1;
+	auto &value = buffer[addr % 128 / 8];
+	value = (data & mask) | (value & ~mask);
+	mem.store(addr, data, mask);
 #endif
 }
 
@@ -96,7 +111,14 @@ void CacheRefModel::check_internal()
 	 * NOTE: you can use pointer top and scope to access internal signals
 	 *       in your RTL model, e.g., top->clk, scope->mem.
 	 */
-
+	// for (int i = 0; i < 16; i++) {
+	// 	asserts(
+	// 		buffer[i] == scope->mem[i],
+	// 		"reference model's internal state is different from RTL model."
+	// 		" at mem[%x], expected = %016x, got = %016x",
+	// 		i, buffer[i], scope->mem[i]
+	// 	);
+	// }
 #endif
 }
 
@@ -117,6 +139,19 @@ void CacheRefModel::check_memory()
 	 *       you can use mem.dump() and MyCache::dump() to get the full contents
 	 *       of both memories.
 	 */
-
+	// debug memory
+	// std::cout << std::endl;
+	// for(int i = 0; i < 4; i++) {
+	// 	std::cout << "index : " << i << std::endl;
+	// 	for(int j = 0; j < 4; j++) {
+	// 		std::cout << "index : " << i << " cache line : " << j << std::endl;
+	// 		for(int k = 0; k < 16; k++) {
+	// 			int index = i * 4 * 16 + j * 16 + k;
+	// 			std::cout << "index : " << i << " cache line :" << j 
+	// 				<< " memory[" << index << "] = " << std::hex << scope->mem[index] << std::endl;
+	// 		}
+	// 	}
+	// }
+	// asserts(mem.dump(0, mem.size()) == top->dump(), "reference model's memory content is different from RTL model");
 #endif
 }

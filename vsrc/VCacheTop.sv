@@ -50,13 +50,13 @@ module VCacheTop
     //
     // /* verilator tracing_off */
     // cache_line_t [3:0] mem /* verilator public_flat_rd */;
-    // /* verilator tracing_on */
-    //
+    /* verilator tracing_on */
     // for (genvar i = 0; i < 4; i++) begin
-	// 	   for (genvar j = 0; j < 4; i++)
-    //     		assign mem[i][j] = top.xxx.yyy.zzz.lutrams[i].ram_inst.mem[j];
+    //     for (genvar j = 0; j < 16; i++)
+    //         assign mem[i][j] = top.ram_inst.mem[j];
     // end
-
-
+    word_t  mem [255 : 0]/* verilator public_flat_rd */;
+	for (genvar i = 0; i < 256; i++)
+    	assign mem[i] = top.ram_inst.mem[i];
 `endif
 endmodule

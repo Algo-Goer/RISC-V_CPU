@@ -60,6 +60,12 @@ module DCache
     } meta_t;
     typedef meta_t[ASSOCIATIVITY - 1 : 0] meta_sets;        // 一个set内的所有meta
     typedef addr_t[ASSOCIATIVITY - 1 : 0] addr_sets;        // 一个set内的所有data address
+    // 一个set中cache line的组内编号
+    // （四路组相联为00, 01, 10, 11）
+    typedef logic [ASSOCIATIVITY_BITS - 1 : 0] line_index;  
+    typedef logic [ASSOCIATIVITY_BITS : 0] for_index;
+    for_index max_line_index = {1'b0, {ASSOCIATIVITY_BITS{1'b1}}};
+    typedef line_index [ASSOCIATIVITY - 1 : 0] used_t;      // 一个set中的数据块访问情况，ASSO
 
     // 定义管理每个cache set的信号
     typedef struct packed {
@@ -67,14 +73,21 @@ module DCache
         meta_sets metas;
         // data_address的信号
         addr_sets addrs;
+        // 驱动LRU的信号
+        used_t used_line;
     } cache_sets;
     cache_sets sets[SET_NUM];
     meta_t meta_to_line;                // 写入的meta
     logic meta_en;
+    line_index windex;                  // hit的块的组内编号
+
+    used_t used_line_data;
 
     // 操作的块，cache set的内部下标
-    u2 position;
+    line_index position;
+    line_index position_pre;
     meta_sets meta_from_set;     // 指定的cache set的meta信号
+    line_index max;
 
     // 解析cpu请求地址参数
     tag_t tag;
@@ -119,22 +132,74 @@ module DCache
     assign creq.len = MLEN16;
     assign creq.burst = AXI_BURST_INCR;
 
-    // 遍历并驱动sets
+    // 遍历并驱动sets，块首地址是不改变的
     for(genvar i = 0; i < SET_NUM; i++) begin : cache_sets_info
-        // // 驱动sets[i].metas
-        // assign sets[i].metas = '0;
         // 驱动sets[i].addrs
         for(genvar j = 0; j < ASSOCIATIVITY; j++) begin
-            assign sets[i].addrs[j] = i * ASSOCIATIVITY * WORDS_PER_LINE + j;
+            assign sets[i].addrs[j] = i * ASSOCIATIVITY * WORDS_PER_LINE + j * WORDS_PER_LINE;
+            // 驱动used_line
+            always_ff@(posedge clk) begin
+                if(sets[i].metas[j].valid == 0) begin
+                    sets[i].used_line[j] <= '1;
+                end
+                else if(state == IDLE || state_nxt != COMPARE) begin
+                    sets[i].used_line[j] <= sets[i].used_line[j];
+                end
+                else if(j == position) begin
+                    sets[i].used_line[j] <= '0;
+                end
+                else if(sets[i].used_line[j] >= sets[index].used_line[position]) begin
+                    sets[i].used_line[j] <= sets[i].used_line[j];
+                end
+                else if(sets[i].used_line[j] < sets[index].used_line[position])begin
+                    sets[i].used_line[j] <= sets[i].used_line[j] + 1;
+                end
+                else begin
+                    sets[i].used_line[j] <= '1;
+                end
+            end
         end
     end : cache_sets_info
+
+    // 驱动used_line_data
+    for(genvar i = 0; i < ASSOCIATIVITY; i++) begin
+        assign used_line_data[i] = sets[index].used_line[i];
+    end
+
+    // 驱动max，查找index组内的最大值对应下标
+    always_comb begin
+        // 判断最大值
+        if(used_line_data[0] >= used_line_data[1] && 
+            used_line_data[0] >= used_line_data[2] && 
+            used_line_data[0] >= used_line_data[3])begin
+            max = 0;
+        end 
+        else if(used_line_data[1] >= used_line_data[0] && 
+            used_line_data[1] >= used_line_data[2] && 
+            used_line_data[1] >= used_line_data[3]) begin
+            max = 1;
+        end
+        else if(used_line_data[2] >= used_line_data[0] && 
+            used_line_data[2] >= used_line_data[1] && 
+            used_line_data[2] >= used_line_data[3]) begin
+            max = 2;
+        end
+        else if(used_line_data[3] >= used_line_data[0] && 
+            used_line_data[3] >= used_line_data[1] && 
+            used_line_data[3] >= used_line_data[2]) begin
+            max = 3;
+        end
+        else begin
+            max = 0;
+        end
+    end
 
     // 驱动ram的访存信号
     always_comb begin
         unique case (state)
             COMPARE: begin
                 ram.en = 1;
-                ram.strobe = dreq.strobe;
+                ram.strobe = hit ? dreq.strobe : '0;
                 ram.wdata  = dreq.data;
                 ram.addr = sets[index].addrs[position] + {4'b0, offset};
             end
@@ -142,12 +207,12 @@ module DCache
                 ram.en = 1;
                 ram.strobe = 8'b11111111;
                 ram.wdata  = cresp.data;
-                ram.addr = sets[index].addrs[position] + {4'b0, offset};
+                ram.addr = sets[index].addrs[position] + {4'b0, ram_offset};
             end
             WRITEBACK : begin
                 ram.en = 1;
                 ram.strobe = '0;
-                ram.addr = sets[index].addrs[position] + {4'b0, offset};
+                ram.addr = sets[index].addrs[position] + {4'b0, ram_offset};
             end
             default: begin 
                 ram = '0;
@@ -177,19 +242,42 @@ module DCache
         end
         else begin
             /**
-             * TODO : 设计LRU算法
+             * TODO : 设计替换LRU算法
+             * 当组内空间未满时，position直接指向valid的空的块，若都有数据则进行替换
              * 设置LRU算法，得到position缺失状态下的position
              * 写回时position为要写回的块的组内编号，（读取数据的块位置）
              * 分配时position为要分配的块的组内编号（存放数据的块位置）
              */
-            
-            position = 2'b00;
+            position = max;
         end
     end
 
+    // 驱动ram_offset，每个时钟上升沿，如果state == ALLOCATE || WRITEBACK，且ready == 1，则+1；
+    always_ff@(posedge clk) begin
+        unique case(state)
+            ALLOCATE, WRITEBACK: begin
+                if(cresp.last) begin
+                    ram_offset <= '0;
+                end
+                else if(cresp.ready) begin
+                    ram_offset <= ram_offset + 1;
+                end
+                else begin
+                    ram_offset <= ram_offset;
+                end
+            end
+            default : begin
+                ram_offset <= '0;
+            end
+        endcase
+    end
+
     // FSM
+    /**
+     * TODO : 添加Uncached状态
+     * IDLE校验dreq.addr[31]，判断是否经过cache
+     */
     always_comb begin
-        ram_offset = 0;
         state_nxt = IDLE;
         meta_to_line = '0;
         meta_en = 0;
@@ -207,6 +295,13 @@ module DCache
             COMPARE : begin
                 // 若命中，信号已经驱动完毕，无需设置其他信号，只需要设置状态
                 if(hit) begin
+                    // 写请求则改为脏数据
+                    if(|dreq.strobe) begin
+                        meta_to_line.valid = 1;
+                        meta_to_line.dirty = 1;
+                        meta_to_line.tag = tag;
+                        meta_en = 1;
+                    end // 读请求不需要更改
                     state_nxt = IDLE;
                 end
                 // 考虑miss的情况：
@@ -219,15 +314,14 @@ module DCache
                      * 读出cache（ram.wdata，写入memory）
                      * 或写入cache（rdata，从memory读）
                      */
-                    ram_offset = 0;
                     // 如果是脏数据，则下一周期为WRITEBACK，自动发起写请求
                     if(meta_from_set[position].valid && meta_from_set[position].dirty) begin
                         state_nxt = WRITEBACK;
                     end
                     else begin
-                        // 写之前需要设置新的tag
+                        // 写之前需要设置新的tag，下个周期写入
                         meta_to_line.valid = 1;
-                        meta_to_line.dirty = 1;
+                        meta_to_line.dirty = 0;
                         meta_to_line.tag = tag;
                         meta_en = 1;
                         state_nxt = ALLOCATE;
@@ -238,12 +332,10 @@ module DCache
             ALLOCATE : begin
                 // 如果整个事务握手，设置信号存储最后一个数据，下个周期为COMPARE
                 if(cresp.last) begin
-                    ram_offset = 0;
                     state_nxt = COMPARE;
                 end
                 // 如果单个数据握手，则设置信号存储这个数据，下个周期为ALLOCATE
                 else if(cresp.ready) begin
-                    ram_offset += 1;
                     state_nxt = ALLOCATE;
                 end
                 // 寻址时保持请求数据
@@ -255,17 +347,15 @@ module DCache
             WRITEBACK : begin
                 // 如果整个事务握手，事务完毕，重置ram_offset，下个周期为ALLOCATE
                 if(cresp.last) begin
-                    ram_offset = 0;
                     // 写之前需要设置新的tag
                     meta_to_line.valid = 1;
-                    meta_to_line.dirty = 1;
+                    meta_to_line.dirty = 0;
                     meta_to_line.tag = tag;
                     meta_en = 1;
                     state_nxt = ALLOCATE;
                 end
                 // 如果单个数据握手，调整ram_offset更新ram访存地址，读取到下一个数据写入memory
                 else if(cresp.ready) begin
-                    ram_offset += 1;
                     state_nxt = WRITEBACK;
                 end
                 // 寻址时保持请求数据
