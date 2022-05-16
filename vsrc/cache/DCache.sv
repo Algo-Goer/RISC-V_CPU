@@ -388,9 +388,6 @@ module DCache
     always_ff@(posedge clk) begin
         if(reset) begin
             state <= IDLE;
-            // TODO : 实现reset时对缓存清零
-            // 清除meta
-            sets[counter[COUNTER_BITS - 1 : ASSOCIATIVITY_BITS]].metas[counter[ASSOCIATIVITY_BITS - 1 : 0]] <= '0;
         end
         else begin
             state <= state_nxt;
@@ -409,6 +406,11 @@ module DCache
 
     // 控制meta的写入
     always_ff@(posedge clk) begin
+        if(reset) begin
+            // TODO : 实现reset时对缓存清零
+            // 清除meta
+            sets[counter[COUNTER_BITS - 1 : ASSOCIATIVITY_BITS]].metas[counter[ASSOCIATIVITY_BITS - 1 : 0]] <= '0;
+        end
         if(~reset && meta_en) begin
             sets[index].metas[position] <= meta_to_line;
         end
