@@ -16,8 +16,8 @@ module decoder
 
     wire [6 : 0] f7 = instruction[6 : 0];
     wire [2 : 0] f3 = instruction[14 : 12];
-    wire [6 : 0] func7 = instruction[31 : 25];
     wire [5 : 0] func6 = instruction[31 : 26];
+    wire [6 : 0] func7 = instruction[31 : 25];
 
     always_comb begin
         ctl = '0;
@@ -27,19 +27,19 @@ module decoder
                 ctl.dst = instruction[11 : 7];
                 ctl.srca_r = 1'b1;
                 unique case(f3) 
-                    F3_ADD_SUB : begin
+                    F3_ADD_SUB_MUL : begin
                         ctl.op = ADDI;
                         ctl.func = ALU_ADD;
                     end
-                    F3_AND : begin
+                    F3_AND_MODU : begin
                         ctl.op = ANDI;
                         ctl.func = ALU_AND;
                     end
-                    F3_OR : begin
+                    F3_OR_MOD : begin
                         ctl.op = ORI;
                         ctl.func = ALU_OR;
                     end
-                    F3_XOR : begin
+                    F3_XOR_DIV : begin
                         ctl.op = XORI;
                         ctl.func = ALU_XOR;
                     end
@@ -55,7 +55,7 @@ module decoder
                         ctl.op = SLLI;
                         ctl.func = ALU_SHIFTL;
                     end
-                    F3_SRL_SRA : begin
+                    F3_SRL_SRA_DIVU : begin
                         if(func6 == F6_SRL) begin
                             ctl.op = SRLI;
                             ctl.func = ALU_SHIFTR;
@@ -75,26 +75,46 @@ module decoder
                 ctl.srca_r = 1'b1;
                 ctl.srcb_r = 1'b1;
                 unique case(f3) 
-                    F3_ADD_SUB : begin
+                    F3_ADD_SUB_MUL : begin
                         if(func7 == F7_ADD) begin
                             ctl.op = ADD;
                             ctl.func = ALU_ADD;
-                        end else begin
+                        end else if(func7 == F7_SUB) begin
                             ctl.op = SUB;
                             ctl.func = ALU_SUB;
+                        end else if(func7 == F7_MUL_DIV) begin
+                            ctl.op = MUL;
+                            ctl.func = ALU_MUL;
                         end
                     end
-                    F3_AND : begin
-                        ctl.op = AND;
-                        ctl.func = ALU_AND;
+                    F3_AND_MODU : begin
+                        if(func7 == F7_MUL_DIV) begin
+                            ctl.op = MODU;
+                            ctl.func = ALU_MODU;
+                        end
+                        else begin
+                            ctl.op = AND;
+                            ctl.func = ALU_AND;
+                        end
                     end
-                    F3_OR : begin
-                        ctl.op = OR;
-                        ctl.func = ALU_OR;
+                    F3_OR_MOD : begin
+                        if(func7 == F7_MUL_DIV) begin
+                            ctl.op = MOD;
+                            ctl.func = ALU_MOD;
+                        end
+                        else begin
+                            ctl.op = OR;
+                            ctl.func = ALU_OR;
+                        end
                     end
-                    F3_XOR : begin
-                        ctl.op = XOR;
-                        ctl.func = ALU_XOR;
+                    F3_XOR_DIV : begin
+                        if(func7 == F7_MUL_DIV) begin
+                            ctl.op = DIV;
+                            ctl.func = ALU_DIV;
+                        end else begin
+                            ctl.op = XOR;
+                            ctl.func = ALU_XOR;
+                        end
                     end
                     F3_SLL : begin
                         ctl.op = SLL;
@@ -108,14 +128,18 @@ module decoder
                         ctl.op = SLTU;
                         ctl.func = ALU_LESS_U;
                     end
-                    F3_SRL_SRA : begin
-                        if(func6 == F6_SRL) begin
+                    F3_SRL_SRA_DIVU : begin
+                        if(func7 == F7_SRL) begin
                             ctl.op = SRL;
                             ctl.func = ALU_SHIFTR;
                         end
-                        else begin
+                        else if(func7 == F7_SRA)begin
                             ctl.op = SRA;
                             ctl.func = ALU_SHIFTRS;
+                        end 
+                        else if(func7 == F7_MUL_DIV) begin
+                            ctl.op = DIVU;
+                            ctl.func = ALU_DIVU;
                         end
                     end
                     default : begin
@@ -251,7 +275,7 @@ module decoder
                 ctl.dst = instruction[11 : 7];
                 ctl.srca_r = 1'b1;
                 unique case (f3)
-                    F3_ADD_SUB : begin
+                    F3_ADD_SUB_MUL : begin
                         ctl.op = ADDIW;
                         ctl.func = ALU_ADD;
                         ctl.regwrite = (instruction[11 : 7] == '0) ? 1'b0 : 1'b1;
@@ -267,13 +291,13 @@ module decoder
                             ctl.regwrite = (instruction[11 : 7] == '0) ? 1'b0 : 1'b1;
                         end
                     end
-                    F3_SRL_SRA : begin
+                    F3_SRL_SRA_DIVU : begin
                         if(instruction[25]) begin
                             ctl.op = UNKNOWN;
                             ctl.regwrite = 1'b0;
                         end
                         else begin
-                            if(func6 == F6_SRL) begin
+                            if(func7 == F7_SRL) begin
                                 ctl.op = SRLIW;
                                 ctl.func = ALU_SHIFTR;
                                 ctl.regwrite = (instruction[11 : 7] == '0) ? 1'b0 : 1'b1;
@@ -296,28 +320,49 @@ module decoder
                 ctl.srca_r = 1'b1;
                 ctl.srcb_r = 1'b1;
                 unique case(f3)
-                    F3_ADD_SUB : begin
+                    F3_ADD_SUB_MUL : begin
                         if(func7 == F7_ADD) begin
                             ctl.op = ADDW;
                             ctl.func = ALU_ADD;
-                        end else begin
+                        end 
+                        else if(func7 == F7_SUB) begin
                             ctl.op = SUBW;
                             ctl.func = ALU_SUB;
+                        end
+                        else if(func7 == F7_MUL_DIV) begin
+                            ctl.op = MULW;
+                            ctl.func = ALU_MUL;
                         end
                     end
                     F3_SLL : begin
                         ctl.op = SLLW;
                         ctl.func = ALU_SHIFTL;
                     end
-                    F3_SRL_SRA : begin
-                        if(func6 == F6_SRL) begin
+                    F3_SRL_SRA_DIVU : begin
+                        if(func7 == F7_SRL) begin
                             ctl.op = SRLW;
                             ctl.func = ALU_SHIFTR;
                         end
-                        else begin
+                        else if(func7 == F7_SRA) begin
                             ctl.op = SRAW;
                             ctl.func = ALU_SHIFTRS;
                         end
+                        else if(func7 == F7_MUL_DIV) begin
+                            ctl.op = DIVUW;
+                            ctl.func = ALU_DIVU;
+                        end
+                    end
+                    F3_XOR_DIV : begin
+                        ctl.op = DIVW;
+                        ctl.func = ALU_DIV;
+                    end
+                    F3_OR_MOD : begin
+                        ctl.op = MODW;
+                        ctl.func = ALU_MOD;
+                    end
+                    F3_AND_MODU : begin
+                        ctl.op = MODUW;
+                        ctl.func = ALU_MODU;
                     end
                     default : begin
                     end

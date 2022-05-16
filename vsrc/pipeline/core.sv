@@ -45,6 +45,7 @@ module core
 	strobe_t strobe;
 	u1 execute_stall;
 	u1 memory_stall;
+	u1 execute_data_ok;
 
 	fetch_data_t dataF;
 	fetch_data_t dataF_out;
@@ -73,27 +74,8 @@ module core
 	assign instruction = iresp.data;
 
 	// 阻塞信号
-	assign execute_stall = hazardOut.stall || memory_delay || jump_delay;
+	assign execute_stall = hazardOut.stall || memory_delay || jump_delay || ~execute_data_ok;
 	assign memory_stall = memory_delay;
-
-	// // debug
-	// integer handel;
-	// initial begin
-	// 	handel = $fopen("jump1.out");
-	// end
-
-	// always_ff@(posedge clk) begin
-	// 	if(dataE.pc == 64'h8001_6b7c) begin
-	// 		$fdisplay(handel, "pc = %x, jump = %x, j_addr = %x", dataE.pc, dataE.ctl.jump, dataE.j_addr);
-	// 		$fdisplay(handel, "imm = %x, op = %x, pcdata = %x", dataD_out.imm, dataD_out.ctl.op, dataD_out.pcdata);
-	// 		$fdisplay(handel, "execute_stall = %x, memory_stall = %x", execute_stall, memory_stall);
-	// 		$fdisplay(handel, "forward1.valid = %x, forward1.dst = %x, forward1.data = %x",forward_execute.valid, forward_execute.dst, forward_execute.data);
-	// 		$fdisplay(handel, "forward2.valid = %x, forward2.dst = %x, forward2.data = %x",forward_memory.valid, forward_memory.dst, forward_memory.data);
-	// 		$fdisplay(handel, "forward3.valid = %x, forward3.dst = %x, forward3.data = %x",forward_writeback.valid, forward_writeback.dst, forward_writeback.data);
-	// 		$fdisplay(handel, "forward4.valid = %x, forward4.dst = %x, forward4.data = %x",forward_memory_copy.valid, forward_memory_copy.dst, forward_memory_copy.data);
-	// 		$fdisplay(handel, "forward5.valid = %x, forward5.dst = %x, forward5.data = %x",forward_writeback_copy.valid, forward_writeback_copy.dst, forward_writeback_copy.data);
-	// 	end
-	// end
 
 	// 数据访存设置
 	// 发送请求同时处理访存握手
@@ -113,7 +95,7 @@ module core
 			if (reset) begin
 				pc <= 64'h8000_0000;
 			end 
-			else if (~fetch_delay && ~memory_delay && ~jump_delay) begin
+			else if (~fetch_delay && ~memory_delay && ~jump_delay && execute_data_ok) begin
 				pc <= pcnext;
 			end
 		end
@@ -135,7 +117,7 @@ module core
 	fetch_decode fetch_decode(
 		.clk(clk),
 		.reset(clear || reset || fetch_delay),
-		.stall(hazardOut.stall || memory_delay),
+		.stall(hazardOut.stall || memory_delay || ~execute_data_ok),
 		.dataF(dataF),
 		.dataF_out(dataF_out)
 	);
@@ -158,17 +140,20 @@ module core
 	);
 
 	execute execute(
+		.clk(clk),
+		.reset(hazardOut.stall),
 		.dataD(dataD_out),
 		.rs1_mux(hazardOut.srca_mux),
 		.rs1_forward(hazardOut.srca_forward),
 		.rs2_mux(hazardOut.srcb_mux),
 		.rs2_forward(hazardOut.srcb_forward),
+		.data_ok(execute_data_ok),
 		.dataE(dataE)
 	);
 
 	execute_memory execute_memory(
 		.clk(clk), 
-		.reset(hazardOut.clear || reset || jump_delay),
+		.reset(hazardOut.clear || reset || jump_delay || ~execute_data_ok),
 		.stall(memory_stall),
 		.dataE(dataE),
 		.dataE_out(dataE_out)

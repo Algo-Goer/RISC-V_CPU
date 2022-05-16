@@ -23,16 +23,19 @@ parameter F7_B_TYPE = 7'b1100011;
 
 parameter F7_ADD = 7'b0000000;
 parameter F7_SUB = 7'b0100000;
+parameter F7_MUL_DIV = 7'b0000001;
+parameter F7_SRL = 7'b0000000;
 parameter F6_SRL = 6'b000000;
+parameter F7_SRA = 7'b0100000;
 parameter F6_SRA = 6'b010000;
-parameter F3_ADD_SUB = 3'b000;
-parameter F3_AND = 3'b111;
-parameter F3_OR = 3'b110;
-parameter F3_XOR = 3'b100;
+parameter F3_ADD_SUB_MUL = 3'b000;
+parameter F3_AND_MODU = 3'b111;
+parameter F3_OR_MOD = 3'b110;
+parameter F3_XOR_DIV = 3'b100;
 parameter F3_SLL = 3'b001;
 parameter F3_SLT = 3'b010;
 parameter F3_SLTU = 3'b011;
-parameter F3_SRL_SRA = 3'b101;
+parameter F3_SRL_SRA_DIVU = 3'b101;
 parameter F3_BEQ = 3'b000;
 parameter F3_BNE = 3'b001;
 parameter F3_BLT = 3'b100;
@@ -56,7 +59,9 @@ typedef enum logic [4 : 0] {
     ALU_LESS, ALU_GREATER,
     ALU_LESS_U, ALU_GREATER_U,
     ALU_SHIFTL, ALU_SHIFTR,
-    ALU_SHIFTRS
+    ALU_SHIFTRS,
+    ALU_MUL, ALU_DIV, ALU_DIVU,
+    ALU_MOD, ALU_MODU
 } alufunc_t;
 
 // decode判断出的指令类型
@@ -71,8 +76,15 @@ typedef enum logic [5 : 0] {
 	LD, LB, LH, LW, LBU, LHU, LWU,
     SD, SB, SH, SW,
 	JAL, JALR, 
-	BEQ, BNE, BLT, BGE, BLTU, BGEU
+	BEQ, BNE, BLT, BGE, BLTU, BGEU,
+    MUL, MULW, DIV, DIVW, MOD, MODW,
+    DIVU, DIVUW, MODU, MODUW
 } decode_op_t;
+
+// divider的计算类型
+typedef enum logic {
+    DIVOP, MODOP
+} divider_op_t;
 
 // decode流水段产生的控制信号
 typedef struct packed {

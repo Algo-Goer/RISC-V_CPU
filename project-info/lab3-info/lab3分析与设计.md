@@ -33,15 +33,7 @@ alu的处理逻辑为：首先把两个数据进行截断，得到低32位（高
 
 alu操作为：`DIV`，结果写回寄存器；
 
-### 4、divu（R-type）
-
-![](img/divu.png)
-
-把两个寄存器数据`rd1`和`rd2`无符号相除的结果写入目标寄存器，也就是把数据视为无符号数；
-
-alu操作为：`DIVU`，结果写回寄存器；
-
-### 5、divw（R-type）
+### 4、divw（R-type）
 
 ![](img/divw.png)
 
@@ -50,6 +42,14 @@ alu操作为：`DIVU`，结果写回寄存器；
 alu操作为：`DIV`，结果写回寄存器；
 
 alu的处理过程与`mulw`一致，先截取操作数，进行计算，随后扩展得到的结果；
+
+### 5、divu（R-type）
+
+![](img/divu.png)
+
+把两个寄存器数据`rd1`和`rd2`无符号相除的结果写入目标寄存器，也就是把数据视为无符号数；
+
+alu操作为：`DIVU`，结果写回寄存器；
 
 ### 6、divuw（R-type）
 
@@ -69,15 +69,7 @@ alu的处理过程与`mulw`一致，先截取操作数，进行计算，随后�
 
 alu操作为：`MOD`，结果写回寄存器；
 
-### 8、remu（R-type）
-
-![](img/remu.png)
-
-把两个寄存器数据`rd1`和`rd2`余数写入目标寄存器，数据视为无符号数；
-
-alu操作为：`MODU`，结果写回寄存器；
-
-### 9、remw（R-type）
+### 8、remw（R-type）
 
 ![](img/remw.png)
 
@@ -86,6 +78,14 @@ alu操作为：`MODU`，结果写回寄存器；
 alu操作为：`MOD`，结果写回寄存器；
 
 alu的处理过程与`mulw`一致，先截取操作数，进行计算，随后扩展得到的结果；
+
+### 9、remu（R-type）
+
+![](img/remu.png)
+
+把两个寄存器数据`rd1`和`rd2`余数写入目标寄存器，数据视为无符号数；
+
+alu操作为：`MODU`，结果写回寄存器；
 
 ### 10、remuw（R-type）
 
@@ -99,9 +99,9 @@ alu的处理过程与`mulw`一致，先截取操作数，进行计算，随后�
 
 ## 二、alu的改进
 
-为了支持乘除法指令，需要实现多周期的：乘法器`multiplier`，除法器`divider`和取模器`modulus`；三种运算都采用有限状态机控制的方式，通过竖式计算的逻辑实现电路计算；（`multiplier.sv`和`divider.sv`为两个参考的32位多周期乘除法器）
+为了支持乘除法指令，需要实现多周期的：乘法器`multiplier`，除法器`divider`；两种种运算都采用有限状态机控制的方式，通过竖式计算的逻辑实现电路计算；（`multiplier.sv`和`divider.sv`为两个参考的32位多周期乘除法器）
 
-假设三种运算器都实现后，alu中应改进为时序逻辑并始终连接运算器，以乘法器为例，
+假设两种运算器都实现后，alu中应改进为时序逻辑并始终连接运算器，以乘法器为例，
 
 乘法器的输入输出端口如下：
 
@@ -511,5 +511,67 @@ end
 
 通过两个备份转发器，在对应条件下阻塞，备份execute之前的几条指令的转发数据，防止数据覆盖导致的数据源丢失；
 
+### （6）添加乘除法器后的取指问题
 
+```verilog
+else if (~fetch_delay && ~memory_delay && ~jump_delay && ~execute_data_ok) begin
+    // 这里应该是execute_data_ok，而不用取反，当没有计算完成时（execute_data_ok = 0）时阻塞，为1时更新pc
+    pc <= pcnext;
+end
+```
+
+### （7）32位运算的问题
+
+因为`mulw``divw`等指令是对32位数据进行乘除运算并且是有符号数，所以像原来那样采用64位低位运算的方式会影响结果，需要设置32位乘除法器，因此将乘除法器的`word_t`进行参数化，例化多个乘除法器对结果进行选择：
+
+```verilog
+// 将WORD_BITS参数化，以divider为例，multiplier同理
+module divider 
+    import common::*;
+    import pipes::*; #(
+        parameter WORD_BITS = 64
+    ) (
+    input logic clk, resetn, valid,
+    input divider_op_t op,
+    input logic unsign,
+    input logic[WORD_BITS - 1 : 0] a, b,
+    output logic done,
+    output logic[WORD_BITS - 1 : 0] c // c = {a % b, a / b}
+);
+```
+
+### （8）srli的译码问题
+
+`srl`与`srli`指令的高位`func`位数不一致，`srl`为7位信号，而`srli`为6位信号，在译码的时候对`srli`进行`F7`的比较会导致译码错误运算结果出错；
+
+```verilog
+// 对srli译码，用6位func 
+F3_SRL_SRA_DIVU : begin
+    if(func6 == F6_SRL) begin
+        ctl.op = SRLI;
+        ctl.func = ALU_SHIFTR;
+    end
+    else begin
+        ctl.op = SRAI;
+        ctl.func = ALU_SHIFTRS;
+    end
+end
+// 对srl译码，用7位func
+F3_SRL_SRA_DIVU : begin
+    if(func7 == F7_SRL) begin
+        ctl.op = SRL;
+        ctl.func = ALU_SHIFTR;
+    end
+    else if(func7 == F7_SRA)begin
+        ctl.op = SRA;
+        ctl.func = ALU_SHIFTRS;
+    end 
+    else if(func7 == F7_MUL_DIV) begin
+        ctl.op = DIVU;
+        ctl.func = ALU_DIVU;
+    end
+end
+```
+
+## 七、最终实现
 

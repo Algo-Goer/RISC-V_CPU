@@ -13,11 +13,13 @@ module execute
     import common::*;
     import pipes::*;(
     
+    input u1 clk, reset,
     input decode_data_t dataD,
     input u1 rs1_mux,
     input word_t rs1_forward,
     input u1 rs2_mux,
     input word_t rs2_forward,
+    output logic data_ok,
     output execute_data_t dataE
 );
 
@@ -25,12 +27,16 @@ module execute
     word_t pcdata;      // 这两个数据肯定是从寄存器读出的，
     word_t memdata;     // 只管更新就行，会有信号进行过滤
     word_t result;
+    logic done;
 
     alu alu(
+        .clk(clk),
+        .reset(reset),
         .a(srca),
         .b(srcb),
         .alufunc(dataD.ctl.func),
         .word(dataD.ctl.word),
+        .done(done),
         .c(result)
     );
     
@@ -83,6 +89,7 @@ module execute
     // 接收访存参数
     assign dataE.ctl.msize = dataD.ctl.msize;
     assign dataE.ctl.mem_unsigned = dataD.ctl.mem_unsigned;
+    assign data_ok = done;
 endmodule
 
 `endif

@@ -27,6 +27,8 @@ module dataconfirm
         unique case(op)
             ADD, SUB, OR, AND, XOR, 
             SLT, SLTU, ADDW, SUBW,
+            MUL, MULW, DIV, DIVW, DIVU, DIVUW,
+            MOD, MODW, MODU, MODUW,
             BEQ, BNE, BLT, BGE, BLTU, BGEU: begin
                 data1 = rd1;
                 data2 = rd2;
