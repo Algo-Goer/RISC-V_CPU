@@ -46,7 +46,7 @@ module DCache
     logic [COUNTER_BITS - 1 : 0] counter;
     // 定义cache的状态
     localparam type state_t = enum logic[2:0] {
-        IDLE, COMPARE, ALLOCATE, WRITEBACK
+        IDLE, COMPARE, ALLOCATE, WRITEBACK, UNCACHED
     };
 
     // state寄存器保存状态
@@ -106,6 +106,7 @@ module DCache
     } ram;
     offset_t ram_offset;
     word_t   rdata;             // 读出的数据
+    word_t   uncached_data;     // UNCACHED状态下不经过cache直接由cresp得到的数据
 
     /* 驱动不同信号 */
     // 解析地址
@@ -118,19 +119,19 @@ module DCache
 
     // 驱动dresp信号
     assign dresp.addr_ok = dreq.valid;
-    assign dresp.data_ok = hit && state == COMPARE;
-    assign dresp.data = rdata;
+    assign dresp.data_ok = (hit && state == COMPARE) | (cresp.last && state == UNCACHED);
+    assign dresp.data = state == UNCACHED ? uncached_data : rdata;
 
     // 驱动creq信号
-    assign creq.valid = state == ALLOCATE || state == WRITEBACK;
-    assign creq.is_write = state == WRITEBACK;
-    assign creq.size = MSIZE8;
-    // TODO : 驱动creq.addr，即主存的访存地址
-    assign creq.addr = {meta_from_set[position].tag, index, {3 + OFFSET_BITS{'0}}};
-    assign creq.strobe = state == WRITEBACK ? '1 : '0;
-    assign creq.data = rdata;
-    assign creq.len = MLEN16;
-    assign creq.burst = AXI_BURST_INCR;
+    assign creq.valid = state == ALLOCATE || state == WRITEBACK || state == UNCACHED;
+    assign creq.is_write = state == WRITEBACK || (state == UNCACHED & |dreq.strobe);
+    assign creq.size = state == UNCACHED ? dreq.size : MSIZE8;
+    assign creq.addr = state == UNCACHED ? dreq.addr : 
+                {meta_from_set[position].tag, index, {OFFSET_BITS{'0}}, 3'b0};
+    assign creq.strobe = state == UNCACHED ? dreq.strobe : (state == WRITEBACK ? '1 : '0);
+    assign creq.data = state == UNCACHED ? dreq.data : rdata;
+    assign creq.len = state == UNCACHED ? MLEN1 : MLEN16;
+    assign creq.burst = state == UNCACHED ? AXI_BURST_FIXED : AXI_BURST_INCR;
 
     // 遍历并驱动sets，块首地址是不改变的
     for(genvar i = 0; i < SET_NUM; i++) begin : cache_sets_info
@@ -281,11 +282,17 @@ module DCache
         state_nxt = IDLE;
         meta_to_line = '0;
         meta_en = 0;
+        uncached_data = '0;
         unique case(state)
             // IDLE状态下，接收cpu请求dreq，转变为COMPARE状态
             IDLE : begin
                 if(dreq.valid) begin
-                    state_nxt = COMPARE;
+                    if(dreq.addr[31] == 0) begin
+                        state_nxt = UNCACHED;
+                    end
+                    else begin
+                        state_nxt = COMPARE;
+                    end
                 end
                 else begin
                     state_nxt = IDLE;
@@ -361,6 +368,15 @@ module DCache
                 // 寻址时保持请求数据
                 else begin
                     state_nxt = WRITEBACK;
+                end
+            end
+            UNCACHED : begin
+                if(cresp.ready) begin
+                    uncached_data = cresp.data;
+                    state_nxt = IDLE;
+                end 
+                else begin
+                    state_nxt = UNCACHED;
                 end
             end
             default: begin

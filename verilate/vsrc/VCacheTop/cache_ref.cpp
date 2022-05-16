@@ -111,14 +111,8 @@ void CacheRefModel::check_internal()
 	 * NOTE: you can use pointer top and scope to access internal signals
 	 *       in your RTL model, e.g., top->clk, scope->mem.
 	 */
-	// for (int i = 0; i < 16; i++) {
-	// 	asserts(
-	// 		buffer[i] == scope->mem[i],
-	// 		"reference model's internal state is different from RTL model."
-	// 		" at mem[%x], expected = %016x, got = %016x",
-	// 		i, buffer[i], scope->mem[i]
-	// 	);
-	// }
+	// TODO : 测试LRU算法选择的组内替换块
+	
 #endif
 }
 

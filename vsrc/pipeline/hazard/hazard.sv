@@ -19,6 +19,8 @@ module hazard
     input forward_data_out forward_execute,
     input forward_data_out forward_memory,
     input forward_data_out forward_writeback,
+    input forward_data_out forward_memory_copy,
+    input forward_data_out forward_writeback_copy,
     output hazard_data_out hazardOut
 );
     // hazard为一个大的组合逻辑
@@ -73,6 +75,24 @@ module hazard
             hazardOut.srca_mux = 1'b1;
             hazardOut.srca_forward = forward_writeback.data;
         end 
+        // memory_copy数据转发
+        else if(
+            forward_memory_copy.valid 
+            && 
+            forward_memory_copy.dst == rs
+        ) begin
+            hazardOut.srca_mux = 1'b1;
+            hazardOut.srca_forward = forward_memory_copy.data;
+        end
+        // writeback_copy数据转发
+        else if(
+            forward_writeback_copy.valid 
+            && 
+            forward_writeback_copy.dst == rs
+        ) begin
+            hazardOut.srca_mux = 1'b1;
+            hazardOut.srca_forward = forward_writeback_copy.data;
+        end
         else begin
             hazardOut.srca_mux = 1'b0;
         end
@@ -105,6 +125,24 @@ module hazard
         ) begin
             hazardOut.srcb_mux = 1'b1;
             hazardOut.srcb_forward = forward_writeback.data;
+        end
+        // memory_copy数据转发
+        else if(
+            forward_memory_copy.valid 
+            && 
+            forward_memory_copy.dst == rt
+        ) begin
+            hazardOut.srcb_mux = 1'b1;
+            hazardOut.srcb_forward = forward_memory_copy.data;
+        end
+        // writeback_copy数据转发
+        else if(
+            forward_writeback_copy.valid 
+            && 
+            forward_writeback_copy.dst == rt
+        ) begin
+            hazardOut.srcb_mux = 1'b1;
+            hazardOut.srcb_forward = forward_writeback_copy.data;
         end
         else begin
             hazardOut.srcb_mux = 1'b0;

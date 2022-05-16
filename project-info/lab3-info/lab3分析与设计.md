@@ -501,3 +501,15 @@ end
 
 ### （4）LRU算法
 
+### （5）转发器问题
+
+`execute`阻塞，`memory`与`writeback`继续流动，此时会导致转发器数据丢失（memory会把writeback转发的数据覆盖掉）
+
+解决方案：添加两个备份转发器，当`execute`阻塞而`memory`不阻塞时，阻塞两个备份转发器，五个转发器进行转发；
+
+<img src="img/forward_design.jpg" style="zoom: 33%;" />
+
+通过两个备份转发器，在对应条件下阻塞，备份execute之前的几条指令的转发数据，防止数据覆盖导致的数据源丢失；
+
+
+

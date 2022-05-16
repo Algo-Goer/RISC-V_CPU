@@ -47,8 +47,6 @@ parameter F3_BU = 3'b100;
 parameter F3_HU = 3'b101;
 parameter F3_WU = 3'b110;
 
-
-
 /* Define pipeline structures here */
 // alu进行的操作类型
 typedef enum logic [4 : 0] {
