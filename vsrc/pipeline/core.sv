@@ -236,7 +236,7 @@ module core
 	// writeback备份转发器，execute阻塞但memory不阻塞时保存数据
 	forward forward5(
 		.clk(clk),
-		.stall( (execute_stall && ~memory_stall) || dataW.op == UNKNOWN),
+		.stall( (execute_stall && ~memory_stall)  || memory_stall || dataW.op == UNKNOWN),
 		.regwrite(dataW.regwrite),
 		.dst(dataW.dst),
 		.data(dataW.regdata),

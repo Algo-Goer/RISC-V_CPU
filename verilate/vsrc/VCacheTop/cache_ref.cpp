@@ -111,7 +111,6 @@ void CacheRefModel::check_internal()
 	 * NOTE: you can use pointer top and scope to access internal signals
 	 *       in your RTL model, e.g., top->clk, scope->mem.
 	 */
-	// TODO : 测试LRU算法选择的组内替换块
 	
 #endif
 }
@@ -133,19 +132,6 @@ void CacheRefModel::check_memory()
 	 *       you can use mem.dump() and MyCache::dump() to get the full contents
 	 *       of both memories.
 	 */
-	// debug memory
-	// std::cout << std::endl;
-	// for(int i = 0; i < 4; i++) {
-	// 	std::cout << "index : " << i << std::endl;
-	// 	for(int j = 0; j < 4; j++) {
-	// 		std::cout << "index : " << i << " cache line : " << j << std::endl;
-	// 		for(int k = 0; k < 16; k++) {
-	// 			int index = i * 4 * 16 + j * 16 + k;
-	// 			std::cout << "index : " << i << " cache line :" << j 
-	// 				<< " memory[" << index << "] = " << std::hex << scope->mem[index] << std::endl;
-	// 		}
-	// 	}
-	// }
-	// asserts(mem.dump(0, mem.size()) == top->dump(), "reference model's memory content is different from RTL model");
+
 #endif
 }

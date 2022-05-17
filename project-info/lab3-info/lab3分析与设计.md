@@ -359,9 +359,7 @@ cache与memory通信通过`creq`发起对主存的访存请求，通过`cresp`�
 
 写请求：写请求发生在`WRITEBACK`状态，cache应设置`creq`的相关信号，`valid`置为1，`is_write`置为0，`size`置为8，`addr`置为块的首地址，`strobe`置为`'1`，表示改字全部写入，`data`为当前字地址要写入的数据，`len`设置为`MLEN16`，表示突发传输16个字，除了`data`外，其他信息在一次事务中必须保持不变；需要注意的是，写请求需要设置读取cache line的参数，每次`ready`为1的周期，需要把`creq.data`向后更新一个字，即offset + 1，（position保持不变），读到下一个字设置到对内存的写请求中，直到突发传输完成。
 
-## 四、缓存实现
-
-### 1、参数
+### 7、参数
 
 缓存实现中需要用到的参数：
 
@@ -385,15 +383,7 @@ cache与memory通信通过`creq`发起对主存的访存请求，通过`cresp`�
 
 ​		`cache_sets`：记录一个组中每个块的元信息与`data`块首地址；（内部有一个`meta_t[ASSOCIATIVITY]`与`addr[ASSOCIATIVITY]`）
 
-​		
-
-### 2、驱动
-
-对各个信号的驱动方式：
-
-（1）`dresp`信号：assign驱动每个属性，
-
-## 五、LRU替换算法
+## 四、LRU替换算法
 
 cache为四路组相联，cache line替换策略使用LRU算法，当组内满时将最久没有被访问的cache块替换掉（把该块的组内编号赋值给position，不需要考虑组的问题，会被`dreq`中address替换掉的块组号肯定和`index`一致，用index索引组，用position索引块进行替换即可）
 
@@ -464,6 +454,27 @@ always_ff@(posedge clk) begin
 end
 ```
 
+## 五、流水线调整
+
+### 1、支持乘多周期除法器
+
+为了支持乘除法器的多周期运算，给`alu`和`execute`添加时钟与握手信号；当`execute_data_ok`为低电平时，说明`execute`在该周期未计算完成，此时需要阻塞`execute`以及之前的流水段，`memory`与`writeback`流水段继续流动并插入气泡，直到某个周期中`execute_data_ok`信号为高电平，恢复流动。
+
+存在一种情况：`execute`计算乘除法，此时需要用到`memory`转发的数据，但`memory`为访存指令存在延迟，即`multiplier`和`divider`拿到的操作数据有可能是不对的，需要在拿到正确的数据后进行重新计算，解决方案为在满足上述条件时（具体到信号为`hazardOut.clear == 1`），将`multiplier`与`divider`的`reset`信号拉高，直到某一周期`memory`得到正确的结果`state_nxt`设置为`DOING`，下一周期开始计算。
+
+### 2、转发器问题
+
+`execute`阻塞，`memory`与`writeback`继续流动，此时会导致转发器数据覆盖，即memory会把writeback转发的数据覆盖掉（lab2时已经改进转发器解决无效数据转发的问题），若此时`execute`阻塞阶段需要用到writeback转发的数据就会导致执行错误。若通过`memory`阻塞的方式防止覆盖，在特定条件下会导致`ireq`和`dreq`循环访存一直阻塞，无法正常执行。
+
+解决方案：添加两个备份转发器，当`execute`阻塞而`memory`不阻塞时，阻塞两个备份转发器，五个转发器进行转发；如下图：
+
+<img src="img/forward_design.jpg" style="zoom: 25%;" />
+
+通过两个备份转发器，在一般情况下，`forward4`与`forward5`转发器与`forward2`和`forward3`转发器的数据同步，在特殊条件下阻塞：
+
+- `execute`阻塞而`memory`不阻塞时：`forward4`与`forward5`阻塞，1~3正常运行，备份execute之前的几条指令的转发数据，防止数据覆盖导致的数据源丢失；
+- `memory`阻塞时，`forward5`阻塞保持`i3`转发的数据，`forward3`正常转发接收`i2`转发的数据；
+
 ## 六、错误记录
 
 ### （1）驱动used_line
@@ -499,19 +510,7 @@ end
 
 在`COMPARE`阶段要把使能置为1，为了读取，但同时，为了防止未hit的情况下修改ram中的内容，只有在hit情况下才设置`strobe = dreq.strobe`，否则把`strobe`置为0，防止污染`ram`的数据；
 
-### （4）LRU算法
-
-### （5）转发器问题
-
-`execute`阻塞，`memory`与`writeback`继续流动，此时会导致转发器数据丢失（memory会把writeback转发的数据覆盖掉）
-
-解决方案：添加两个备份转发器，当`execute`阻塞而`memory`不阻塞时，阻塞两个备份转发器，五个转发器进行转发；
-
-<img src="img/forward_design.jpg" style="zoom: 33%;" />
-
-通过两个备份转发器，在对应条件下阻塞，备份execute之前的几条指令的转发数据，防止数据覆盖导致的数据源丢失；
-
-### （6）添加乘除法器后的取指问题
+### （4）添加乘除法器后的取指问题
 
 ```verilog
 else if (~fetch_delay && ~memory_delay && ~jump_delay && ~execute_data_ok) begin
@@ -520,7 +519,7 @@ else if (~fetch_delay && ~memory_delay && ~jump_delay && ~execute_data_ok) begin
 end
 ```
 
-### （7）32位运算的问题
+### （5）32位运算的问题
 
 因为`mulw``divw`等指令是对32位数据进行乘除运算并且是有符号数，所以像原来那样采用64位低位运算的方式会影响结果，需要设置32位乘除法器，因此将乘除法器的`word_t`进行参数化，例化多个乘除法器对结果进行选择：
 
@@ -540,7 +539,7 @@ module divider
 );
 ```
 
-### （8）srli的译码问题
+### （6）srli的译码问题
 
 `srl`与`srli`指令的高位`func`位数不一致，`srl`为7位信号，而`srli`为6位信号，在译码的时候对`srli`进行`F7`的比较会导致译码错误运算结果出错；
 
@@ -575,3 +574,34 @@ end
 
 ## 七、最终实现
 
+#### 目录结构
+
+<img src="img/catalogue.png" style="zoom: 67%;" />
+
+在原来的基础上添加了`DCache`与`ICache`以及乘除法器
+
+#### verilator测试
+
+<img src="img/result1.png" style="zoom:50%;" />
+
+<img src="img/result2.png" style="zoom: 59%;" />
+
+<img src="img/result3.png" style="zoom:60%;" />
+
+在verilator仿真测试的环境下，`TEST=paint`用时2294，如下图：
+
+<img src="img/paint-result.png" style="zoom:50%;" />
+
+`TEST=coremark`测试结果为：`Interations/Sec 14`；`TEST=dhrystone`测试结果为：`10 Marks`；`TEST=stream`的测试结果为`Copy Best Rate = 8.4MB/s `；`TEST=conwaygame`测试结果如上。
+
+#### 上板串口软件测试结果
+
+<img src="img/board-result1.png" style="zoom: 55%;" />
+
+<img src="img/board-result2.png" style="zoom:55%;" />
+
+在上板测试的环境下，`TEST=paint`用时1307，如下图：
+
+<img src="img/board-paint.png" style="zoom:50%;" />
+
+`TEST=coremark`测试结果为：`Interations/Sec 17`；`TEST=dhrystone`测试结果为：`18 Marks`；`TEST=stream`的测试结果为`Copy Best Rate = 15.2MB/s `；`TEST=conwaygame`测试结果如上。
