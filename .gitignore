@@ -2,5 +2,3 @@
 /NEMU
 /scripts
 **/build/
-**/.vscode/
-**/debug/

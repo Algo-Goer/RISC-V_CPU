@@ -56,7 +56,7 @@ module VCacheTop
     //         assign mem[i][j] = top.ram_inst.mem[j];
     // end
     word_t  mem [255 : 0]/* verilator public_flat_rd */;
-	for (genvar i = 0; i < 256; i++)
-    	assign mem[i] = top.ram_inst.mem[i];
+	// for (genvar i = 0; i < 256; i++)
+    	// assign mem[i] = top.ram_inst.mem[i];
 `endif
 endmodule

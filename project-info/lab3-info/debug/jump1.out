@@ -1,0 +1,240 @@
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 01, forward3.data = 00000000800134e4
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 1, memory_stall = 0
+forward1.valid = 1, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4
+pc = 0000000080016b7c, jump = 1, j_addr = 00000000800134e4
+imm = 0000000000000000, op = 2b, pcdata = 0000000080016b74
+execute_stall = 0, memory_stall = 0
+forward1.valid = 0, forward1.dst = 02, forward1.data = 000000008001bf40
+forward2.valid = 1, forward2.dst = 02, forward2.data = 000000008001bf40
+forward3.valid = 1, forward3.dst = 02, forward3.data = 000000008001bf40
+forward4.valid = 1, forward4.dst = 01, forward4.data = 00000000800134e4
+forward5.valid = 1, forward5.dst = 01, forward5.data = 00000000800134e4

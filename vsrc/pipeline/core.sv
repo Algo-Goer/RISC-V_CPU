@@ -30,7 +30,8 @@ module core
 	output ibus_req_t  ireq,
 	input  ibus_resp_t iresp,
 	output dbus_req_t  dreq,
-	input  dbus_resp_t dresp
+	input  dbus_resp_t dresp,
+	input logic trint, swint, exint
 );
 	/* TODO: Add your pipeline here. */
 	u64 pc, pcnext;
@@ -226,7 +227,7 @@ module core
 	// memory备份转发器，execute阻塞但memory不阻塞时保存数据
 	forward forward4(
 		.clk(clk),
-		.stall(memory_stall || (execute_stall && ~memory_stall) || dataM.op == UNKNOWN),
+		.stall(memory_stall || (execute_stall && ~memory_stall && dataM.dst != forward_memory_copy.dst) || dataM.op == UNKNOWN),
 		.regwrite(dataM.regwrite),
 		.dst(dataM.dst),
 		.data(dataM.regdata),
@@ -236,7 +237,7 @@ module core
 	// writeback备份转发器，execute阻塞但memory不阻塞时保存数据
 	forward forward5(
 		.clk(clk),
-		.stall( (execute_stall && ~memory_stall)  || memory_stall || dataW.op == UNKNOWN),
+		.stall( (execute_stall && ~memory_stall && dataW.dst != forward_writeback_copy.dst)  || memory_stall || dataW.op == UNKNOWN),
 		.regwrite(dataW.regwrite),
 		.dst(dataW.dst),
 		.data(dataW.regdata),
@@ -348,7 +349,7 @@ module core
 		.coreid             (0),
 		.priviledgeMode     (3),
 		.mstatus            (0),
-		.sstatus            (0),
+		.sstatus            (0 /* mstatus & 64'h800000030001e000 */),
 		.mepc               (0),
 		.sepc               (0),
 		.mtval              (0),

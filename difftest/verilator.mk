@@ -82,6 +82,8 @@ endif
 
 DELAY ?= 31
 
+BENCHMARK ?= 0
+
 # --trace
 VERILATOR_FLAGS =                   \
   --top-module $(EMU_TOP)           \
@@ -91,6 +93,7 @@ VERILATOR_FLAGS =                   \
   +define+RANDOMIZE_MEM_INIT        \
   +define+RANDOMIZE_GARBAGE_ASSIGN  \
   +define+RANDOMIZE_DELAY=$(DELAY)         \
+  +define+BENCHMARK=$(BENCHMARK)	\
   $(VEXTRA_FLAGS)                   \
   --assert                          \
   --stats-vars                      \
