@@ -33,6 +33,7 @@ module execute
     word_t result;
     logic done;
     word_t csr_result;
+    exception_data_t exception;
 
     alu alu(
         .clk(clk),
@@ -109,6 +110,37 @@ module execute
     assign dataE.csr_dst = dataD.ctl.csr_dst;
     assign dataE.csrdata = csr_result;
     assign dataE.ctl.csrwrite = dataD.ctl.csrwrite;
+
+    // 执行阶段暂无可能的异常，只需要传递前面检测到的异常即可
+    assign dataE.ex_data = dataD.ex_data.exception ? dataD.ex_data : exception;
+
+    // 检测读写内存是否对齐
+    always_comb begin
+        // 若不需要访存，则不会触发异常
+        if(~dataD.ctl.memread & ~dataD.ctl.memwrite) begin
+            exception = '0;
+        end
+        // 需要访存则判断低位是否对齐
+        // MSIZE为8，即读写8字节，则低3位不能有1
+        // MSIZE为4，即读写4字节，则低2位不能有1
+        // MSIZE为2，即读写2字节，则低1位不能位1
+        // MSIZE为1，即读写1字节，对地址低位对齐无要求
+        else if(
+            (dataD.ctl.msize == MSIZE8 & |result[2 : 0]) ||
+            (dataD.ctl.msize == MSIZE4 & |result[1 : 0]) ||
+            (dataD.ctl.msize == MSIZE2 & result[0])
+        ) begin
+            // 触发访存地址未对齐异常
+            exception.exception = 1'b1;
+            // 存取异常
+            exception.code = dataD.ctl.memread ? LOAD_ADDR_MISALIGNED : STORE_ADDR_MISALIGNED;
+            exception.value = result;
+        end
+        else begin
+            exception = '0;
+        end 
+    end
+
 endmodule
 
 `endif

@@ -33,6 +33,7 @@ module decode
     decode_control_t ctl;
     word_t srca, srcb;
     word_t csrb;
+    exception_data_t exception;
     
     decoder decoder(
         .instruction(dataF.instruction),
@@ -93,6 +94,26 @@ module decode
 
     // 确定控制信号
     assign dataD.ctl = ctl;
+
+    // 确定异常信号，若前面流水段未发生异常则设置异常
+    assign dataD.ex_data = dataF.ex_data.exception ? dataF.ex_data : exception;
+
+    // 检查是否为非法指令
+    always_comb begin
+        if(dataF.instruction == 32'h5006b) begin
+            // 跳过该异常指令
+            exception = '0;
+        end 
+        else if(ctl.op == UNKNOWN) begin
+            // 触发非法指令异常
+            exception.exception = 1'b1;
+            exception.code = ILLEGAL_INSTR;     // 非法指令
+            exception.value = dataF.pc;
+        end
+        else begin
+            exception = '0;
+        end
+    end
 
 endmodule
 

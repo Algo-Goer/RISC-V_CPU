@@ -404,7 +404,7 @@ module decoder
                 endcase
             end
             default : begin
-                ctl = '0;
+                // ctl.op = UNKNOWN;
             end
         endcase
         

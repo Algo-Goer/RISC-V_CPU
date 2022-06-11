@@ -30,6 +30,10 @@ module writeback
     assign dataW.csrwrite = dataM.csrwrite;
     assign dataW.csr_dst = dataM.csr_dst;
     assign dataW.csrdata = dataM.csrdata;
+
+    // 异常信号
+    assign dataW.ex_data = dataM.ex_data;
+    
 endmodule
 
 `endif

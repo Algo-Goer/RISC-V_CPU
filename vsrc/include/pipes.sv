@@ -57,6 +57,15 @@ parameter F3_CSRRWI = 3'b101;
 parameter F3_CSRRSI = 3'b110;
 parameter F3_CSRRCI = 3'b111;
 
+// 异常码类型
+parameter INSTR_ADDR_MISALIGNED = 63'b0;
+parameter LOAD_ADDR_MISALIGNED = 63'h4;
+parameter STORE_ADDR_MISALIGNED = 63'h6;
+parameter ILLEGAL_INSTR = 63'h2;
+parameter ECALL_FROM_M = 63'hB;
+parameter ECALL_FROM_S = 63'h9;
+parameter ECALL_FROM_U = 63'h8;
+
 /* Define pipeline structures here */
 // alu进行的操作类型
 typedef enum logic [4 : 0] {
@@ -73,7 +82,7 @@ typedef enum logic [4 : 0] {
 
 // decode判断出的指令类型
 typedef enum logic [6 : 0] { 
-	UNKNOWN, 
+	FLUSH, 
 	ADDI, ORI, ANDI, XORI, LUI, AUIPC,
     SLTI, SLTIU, SLLI, SRLI, SRAI, 
     ADDIW, SLLIW, SRLIW, SRAIW,
@@ -87,13 +96,21 @@ typedef enum logic [6 : 0] {
     MUL, MULW, DIV, DIVW, MOD, MODW,
     DIVU, DIVUW, MODU, MODUW,
     CSRRW, CSRRS, CSRRC, 
-    CSRRWI, CSRRSI, CSRRCI
+    CSRRWI, CSRRSI, CSRRCI,
+    UNKNOWN
 } decode_op_t;
 
 // divider的计算类型
 typedef enum logic {
     DIVOP, MODOP
 } divider_op_t;
+
+// exception信息
+typedef struct packed {
+    u1 exception;               // 是否触发异常
+    logic[62 : 0] code;         // 异常代码
+    word_t value;               // 异常具体信息
+} exception_data_t;
 
 // decode流水段产生的控制信号，添加对csr寄存器的控制信号
 typedef struct packed {
@@ -141,6 +158,8 @@ typedef struct packed {
 typedef struct packed {
 	u32 instruction;			//指令
 	u64 pc;						//pc
+    // 异常情况
+    exception_data_t ex_data;
 } fetch_data_t;
 
 // decode阶段产生的信号
@@ -155,6 +174,8 @@ typedef struct packed {
     word_t pcdata;              // 待计算pc的数据，x[instruction[19 : 15]]
     word_t memdata;				// 待写入内存的数据，x[instruction[24 : 20]]
     decode_control_t ctl;		// 控制信号
+    // 异常情况
+    exception_data_t ex_data;
 } decode_data_t;
 
 // execute阶段产生的信号
@@ -168,6 +189,8 @@ typedef struct packed {
     word_t result;				// 计算结果，可能作为访存地址，也可能作为regfile写回数据
     word_t csrdata;             // 写入csr的数据结果
     execute_control_t ctl;		// 控制信号
+    // 异常情况
+    exception_data_t ex_data;
 } execute_data_t;
 
 // memory阶段产生的信号
@@ -184,6 +207,8 @@ typedef struct packed {
     word_t csrdata;             // 写入csr的数据结果
     u1 skip;
     word_t address;
+    // 异常情况
+    exception_data_t ex_data;
 } memory_data_t;
 
 // writeback阶段产生的信号
@@ -200,6 +225,8 @@ typedef struct packed {
     u1 csrwrite;                // csr写使能
     u12 csr_dst;                // csr写入字段
     word_t csrdata;             // 写入csr的数据结果
+    // 异常情况
+    exception_data_t ex_data;
 } writeback_data_t;
 
 // forward寄存器模块输入

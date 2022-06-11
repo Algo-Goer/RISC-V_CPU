@@ -67,13 +67,17 @@ module core
 	forward_data_out forward_memory_copy;
 	forward_data_out forward_writeback_copy;
 	hazard_data_out hazardOut;
+
+	// 非异常中断状态
+	u1 interrupt;
+	assign interrupt = exint | swint | trint;
 	
 	// 访存状态信号
 	assign fetch_delay = ireq.valid == 1 && iresp.data_ok == 0;
 	assign memory_delay = dreq.valid == 1 && dresp.data_ok == 0;
 
 	// 指令访存设置
-	assign ireq.valid = 1;
+	assign ireq.valid = ~(|pc[1 : 0]);
 	assign ireq.addr = pc;
 	assign instruction = iresp.data;
 
@@ -82,8 +86,8 @@ module core
 	assign memory_stall = memory_delay;
 
 	// 数据访存设置
-	// 发送请求同时处理访存握手
-	assign dreq.valid = dataE_out.ctl.memread | dataE_out.ctl.memwrite;
+	// 发送请求同时处理访存握手，若出现地址不对齐的情况则不发起请求
+	assign dreq.valid = (dataE_out.ctl.memread | dataE_out.ctl.memwrite)  & ~dataE_out.ex_data.exception;
 	assign dreq.strobe = (dataE_out.ctl.memwrite) ? strobe : '0;
 	assign dreq.addr = 
 		(dataE_out.ctl.memread | dataE_out.ctl.memwrite)
@@ -204,7 +208,7 @@ module core
 	// execute转发器
 	forward forward1(
 		.clk(clk),
-		.stall(execute_stall || dataE.ctl.op == UNKNOWN),
+		.stall(execute_stall || dataE.ctl.op == FLUSH),
 		.regwrite(dataE.ctl.regwrite && ~(dataE.ctl.memread)),
 		.dst(dataE.dst),
 		.data(dataE.result),
@@ -214,7 +218,7 @@ module core
 	// memory转发器
 	forward forward2(
 		.clk(clk),
-		.stall(memory_stall || dataM.op == UNKNOWN),
+		.stall(memory_stall || dataM.op == FLUSH),
 		.regwrite(dataM.regwrite),
 		.dst(dataM.dst),
 		.data(dataM.regdata),
@@ -224,7 +228,7 @@ module core
 	// writeback转发器
 	forward forward3(
 		.clk(clk),
-		.stall(dataW.op == UNKNOWN),
+		.stall(dataW.op == FLUSH),
 		.regwrite(dataW.regwrite),
 		.dst(dataW.dst),
 		.data(dataW.regdata),
@@ -234,7 +238,7 @@ module core
 	// memory备份转发器，execute阻塞但memory不阻塞时保存数据
 	forward forward4(
 		.clk(clk),
-		.stall(memory_stall || (execute_stall && ~memory_stall && dataM.dst != forward_memory_copy.dst) || dataM.op == UNKNOWN),
+		.stall(memory_stall || (execute_stall && ~memory_stall && dataM.dst != forward_memory_copy.dst) || dataM.op == FLUSH),
 		.regwrite(dataM.regwrite),
 		.dst(dataM.dst),
 		.data(dataM.regdata),
@@ -244,7 +248,7 @@ module core
 	// writeback备份转发器，execute阻塞但memory不阻塞时保存数据
 	forward forward5(
 		.clk(clk),
-		.stall( (execute_stall && ~memory_stall && dataW.dst != forward_writeback_copy.dst)  || memory_stall || dataW.op == UNKNOWN),
+		.stall( (execute_stall && ~memory_stall && dataW.dst != forward_writeback_copy.dst)  || memory_stall || dataW.op == FLUSH),
 		.regwrite(dataW.regwrite),
 		.dst(dataW.dst),
 		.data(dataW.regdata),
@@ -298,12 +302,12 @@ module core
 		.we(dataW.csrwrite),
 		.wa(dataW.csr_dst),
 		.wd(dataW.csrdata),
-		.enter(0),
-		.pc(dataW.pc + 4),
-		.interrupt(exint | swint | trint),
-		.code('0),
-		.value('0),
-		.leave(0)
+		.enter(dataW.ex_data.exception | interrupt),		// 是否进入中断
+		.pc(dataW.pc + 4),									// 返回的pc
+		.interrupt(interrupt),								// 是否不是异常引发的中断
+		.code(dataW.ex_data.code),							// 异常编码
+		.value(dataW.ex_data.value),
+		.leave(0)						// 离开异常，dataW的操作为mret
 	);
 
 `ifdef VERILATOR
@@ -311,7 +315,7 @@ module core
 		.clock              (clk),
 		.coreid             (0),
 		.index              (0),
-		.valid              (dataW.op != UNKNOWN),
+		.valid              (dataW.op != FLUSH),
 		.pc                 (dataW.pc),
 		.instr              (dataW.instruction),
 		.skip               (dataW.skip & (dataW.address[31] == 0)),

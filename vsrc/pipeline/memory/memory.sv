@@ -18,7 +18,7 @@ module memory
 );
 
     execute_control_t ctl = dataE.ctl;
-    
+
     assign dataM.pc = dataE.pc;
     assign dataM.op = dataE.ctl.op;
     assign dataM.jump = dataE.ctl.jump;
@@ -34,6 +34,9 @@ module memory
     assign dataM.csrwrite = dataE.ctl.csrwrite;
     assign dataM.csr_dst = dataE.csr_dst;
     assign dataM.csrdata = dataE.csrdata;
+
+    // 指令是否异常信号
+    assign dataM.ex_data = dataE.ex_data;
 
 endmodule
 
