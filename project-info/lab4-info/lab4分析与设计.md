@@ -100,7 +100,7 @@ mode <- 3;
 CSRs[mepc] <- pc + 4;						// 设置返回地址
 CSRs[mcause][63] <- 1 if interrupt else 0;
 CSRs[mcause][62:0] <- code;					// 设置异常原因
-CSRs[mcause].mpie <- CSRs[mstatus].mie;		// 保存处理异常前的全局中断使能
+CSRs[mstatus].mpie <- CSRs[mstatus].mie;		// 保存处理异常前的全局中断使能
 CSRs[mstatus].mie <- 0;						// 设置全局中断使能为0
 CSRS[mstatus].mpp <- mode;					// 保存处理异常前的权限模式
 CSRs[mtval] <- value;

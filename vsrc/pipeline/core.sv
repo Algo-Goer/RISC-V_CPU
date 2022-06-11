@@ -19,6 +19,7 @@
 `include "pipeline/hazard/forward.sv"
 `include "pipeline/hazard/hazard.sv"
 `include "pipeline/hazard/controller.sv"
+`include "pipeline/csr/csr.sv"
 `else
 
 `endif
@@ -39,8 +40,8 @@ module core
 	u1 clear;
 	creg_addr_t ra1, ra2;
 	word_t rd1, rd2;
-	u12 csr_addr;
-	word_t csr;				// csr寄存器读出字段
+	u12 csr_addr;					// csr读的地址
+	word_t csr_read;				// csr寄存器读出字段
 	word_t memread_data;
 	u1 fetch_delay;
 	u1 memory_delay;
@@ -129,7 +130,7 @@ module core
 		.dataF(dataF_out),
 		.rd1(rd1),
 		.rd2(rd2),
-		.csr(csr),
+		.csr(csr_read),
 		.ra1(ra1),
 		.ra2(ra2),
 		.csr_addr(csr_addr),
@@ -286,6 +287,23 @@ module core
 		.msize(dataE_out.ctl.msize),
 		.wd(dreq.data),
 		.strobe(strobe)
+	);
+
+	// csr控制状态寄存器
+	csr csr(
+		.clk(clk),
+		.reset(reset),
+		.ra(csr_addr),
+		.rd(csr_read),
+		.we(dataW.csrwrite),
+		.wa(dataW.csr_dst),
+		.wd(dataW.csrdata),
+		.enter(0),
+		.pc(dataW.pc + 4),
+		.interrupt(exint | swint | trint),
+		.code('0),
+		.value('0),
+		.leave(0)
 	);
 
 `ifdef VERILATOR

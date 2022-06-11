@@ -52,14 +52,6 @@ package csr_pkg;
 	} mstatus_t;
 
 	typedef struct packed {
-		u4 mode;
-		u16 asid;
-		u44 ppn;
-	} satp_t;
-	
-	
-
-	typedef struct packed {
 		// 以下为u64类型数据：
 		u64
 		mhartid, 	// 只读寄存器，反映当前Hart的编号，当前恒为0
@@ -74,10 +66,10 @@ package csr_pkg;
 		mepc,	 	// 异常指令pc
 					// 出现中断时：中断返回地址mepc被指向下一条尚未执行的指令，因为中断时的指令能够被正确执行。
 					// 出现异常时：mepc则指向当前指令，因为当前指令触发了异常。
-		satp,	 	// Supervisor address translation and protection, read-only as 0 in this work
 		mcause,  	// 机器模式异常原因寄存器，用于保存进入异常之前的出错原因
 		mcycle,  	// 一个64bit 的时钟周期计数
 		mtval;		// 机器模式异常值寄存器，用于保存进入异常之前出错指令的编码值或存储器访问的地址值
+		u2 mode;	// 处理器运行权限模式
 	} csr_regs_t;
 	
 endpackage
