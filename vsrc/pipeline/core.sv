@@ -68,6 +68,8 @@ module core
 	forward_data_out forward_writeback_copy;
 	hazard_data_out hazardOut;
 
+	u64 mtvec;
+
 	// 非异常中断状态
 	u1 interrupt;
 	assign interrupt = exint | swint | trint;
@@ -87,7 +89,8 @@ module core
 
 	// 数据访存设置
 	// 发送请求同时处理访存握手，若出现地址不对齐的情况则不发起请求
-	assign dreq.valid = (dataE_out.ctl.memread | dataE_out.ctl.memwrite)  & ~dataE_out.ex_data.exception;
+	assign dreq.valid = (dataE_out.ctl.memread | dataE_out.ctl.memwrite)  
+		& ~dataE_out.ex_data.exception & ~dataW.ex_data.exception;	// 若writeback阶段发生异常则不请求
 	assign dreq.strobe = (dataE_out.ctl.memwrite) ? strobe : '0;
 	assign dreq.addr = 
 		(dataE_out.ctl.memread | dataE_out.ctl.memwrite)
@@ -113,6 +116,8 @@ module core
 		.jump(dataE.ctl.jump),
 		.pcplus4(pc + 4),
 		.j_addr(dataE.j_addr),
+		.exception(dataW.ex_data.exception),
+		.exception_pc(mtvec),
 		.pcselected(pcnext)
 	);
 
@@ -124,7 +129,7 @@ module core
 
 	fetch_decode fetch_decode(
 		.clk(clk),
-		.reset(clear || reset || fetch_delay),
+		.reset(clear || reset || fetch_delay || dataW.ex_data.exception),
 		.stall(hazardOut.stall || memory_delay || ~execute_data_ok),
 		.dataF(dataF),
 		.dataF_out(dataF_out)
@@ -143,7 +148,7 @@ module core
 
 	decode_execute decode_execute(
 		.clk(clk),
-		.reset(clear || reset),
+		.reset(clear || reset || dataW.ex_data.exception),
 		.stall(execute_stall),
 		.dataD(dataD),
 		.dataD_out(dataD_out)
@@ -165,7 +170,7 @@ module core
 
 	execute_memory execute_memory(
 		.clk(clk), 
-		.reset(hazardOut.clear || reset || jump_delay || ~execute_data_ok),
+		.reset(hazardOut.clear || reset || jump_delay || ~execute_data_ok || dataW.ex_data.exception),
 		.stall(memory_stall),
 		.dataE(dataE),
 		.dataE_out(dataE_out)
@@ -179,7 +184,7 @@ module core
 
 	memory_writeback memory_writeback(
 		.clk(clk),
-		.reset(reset || memory_delay),
+		.reset(reset || memory_delay || dataW.ex_data.exception),
 		.dataM(dataM),
 		.dataM_out(dataM_out)
 	);
@@ -307,7 +312,8 @@ module core
 		.interrupt(interrupt),								// 是否不是异常引发的中断
 		.code(dataW.ex_data.code),							// 异常编码
 		.value(dataW.ex_data.value),
-		.leave(0)						// 离开异常，dataW的操作为mret
+		.leave(0),						// 离开异常，dataW的操作为mret
+		.mtvec(mtvec)
 	);
 
 `ifdef VERILATOR

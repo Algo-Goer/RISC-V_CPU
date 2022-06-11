@@ -27,7 +27,9 @@ module csr
 	input logic[62 : 0] code,		// 异常原因
 	input word_t value,				// 异常信息值
 	// 结束中断的更新
-	input u1 leave
+	input u1 leave,
+	// 异常入口pc
+	output u64 mtvec
 );
 	csr_regs_t regs, regs_nxt;
 
@@ -122,6 +124,8 @@ module csr
 			regs_nxt.mtval = value;
 		end
 	end
+
+	assign mtvec = regs.mtvec;
 	
 endmodule
 
