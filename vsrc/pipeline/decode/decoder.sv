@@ -368,6 +368,41 @@ module decoder
                     end
                 endcase
             end
+            F7_CSR : begin
+                ctl.regwrite = 1'b1;
+                ctl.dst = instruction[11 : 7];
+                ctl.csrwrite = 1'b1;
+                ctl.csr_dst = instruction[31 : 20];
+                unique case(f3) 
+                    F3_CSRRW : begin
+                        ctl.op = CSRRW;
+                        ctl.csr_r = 1'b1;
+                    end
+                    F3_CSRRS : begin
+                        ctl.op = CSRRS;
+                        ctl.csr_func = ALU_OR;
+                        ctl.csr_r = 1'b1;
+                    end
+                    F3_CSRRC : begin
+                        ctl.op = CSRRC;
+                        ctl.csr_func = ALU_AND;
+                        ctl.csr_r = 1'b1;
+                    end
+                    F3_CSRRWI : begin
+                        ctl.op = CSRRWI;
+                    end
+                    F3_CSRRSI : begin
+                        ctl.op = CSRRSI;
+                        ctl.csr_func = ALU_OR;
+                    end
+                    F3_CSRRCI : begin
+                        ctl.op = CSRRCI;
+                        ctl.csr_func = ALU_AND;
+                    end
+                    default : begin
+                    end
+                endcase
+            end
             default : begin
                 ctl = '0;
             end

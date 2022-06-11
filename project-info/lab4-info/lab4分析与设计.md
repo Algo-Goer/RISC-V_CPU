@@ -89,19 +89,42 @@ CSRs[mstatus].mpp <- 2'b0;						// 支持用户模式设置mpp为0
 
 ![](img/ecall.png)
 
-该指令为直接引发进入异常，需要做两件事：更新`CSRs`寄存器内容；设置`pc`为异常处理程序入口。具体维护操作包括：
+该指令为直接引发进入异常，需要做三件事：更新`CSRs`寄存器内容；设置`pc`为异常处理程序入口；更新权限模式，具体维护操作包括：
 
 ```verilog
 // 设置跳转地址
 pc_nxt <- CSRs[mtvec];
+// 更新权限模式
+mode <- 3;
 // 更新CSRs寄存器
-CSRs[mepc] <- pc + 4;		// 设置返回地址
+CSRs[mepc] <- pc + 4;						// 设置返回地址
 CSRs[mcause][63] <- 1 if interrupt else 0;
-CSRs[mcause][62:0] <- code;		// 设置异常原因
-CSRs[mpie] <- CSRs[mstatus].mie;// 保存处理异常前的全局中断使能
-CSRs[mstatus].mie <- 0;			// 设置全局中断使能为0
-mstatus.mpp <- mode;			// 保存处理异常前的权限模式
+CSRs[mcause][62:0] <- code;					// 设置异常原因
+CSRs[mcause].mpie <- CSRs[mstatus].mie;		// 保存处理异常前的全局中断使能
+CSRs[mstatus].mie <- 0;						// 设置全局中断使能为0
+CSRS[mstatus].mpp <- mode;					// 保存处理异常前的权限模式
+CSRs[mtval] <- value;
 ```
 
-## 二、触发异常与中断
+## 二、异常处理
 
+此次lab中需要处理的异常类型：
+
+- 指令地址不对齐
+
+- 数据地址不对齐（读、写）
+
+- 非法指令
+
+- ecall
+
+lab4的异常在`writeback`段处理，这里的处理是指在`writeback`时，该指令异常可能在`fetch`、`decode`、与`memory`阶段发现：`fetch`阶段判断指令地址是否对齐，若不对齐则不发起访存请求；`decode`判断是否为非法指令或ecall；`memory`阶段判断访存地址是否对齐，若访存地址不对齐则不发起访存请求；当异常指令流到`writeback`时进行处理（即设置`CSRs`寄存器，进行异常处理），同时设置pc为异常处理地址（`pc_select`增加一个输入选择端口）。为了支持异常指令流入`writeback`时得到对应的异常信息，需要记录异常检测期间得到的异常信息并在流水线中传递，一直传递到`writeback`从而处理。
+
+- 当异常信号在write back阶段时，检查异常情况，若发现出现异常则将所有`flush`信号拉高，并设置`pc_nxt`为异常处理入口pc，同时将异常信息设置到`CSRs`寄存器中（`mepc`、`mcause`、`mstatus`、`mtval`与`mode`字段）；
+- 下个周期异常指令流出流水线，而`fetch`拿到新的pc开始取指（异常处理程序指令）；而`decode`及以后的流水段都已经刷新没有指令。
+
+## 三、中断实现
+
+中断有三种：外部中断（`external`）、软件中断（`software`）和计时器中断（`timer`），三种中断对应优先级为：`ex` > `sw` > `tm`。
+
+本次lab需要实现的中断类型为软件中断与计时器中断，不需要自己维护中断信号，中断控制器的信号已经维护好了，作为core核的输入端口，需要**在每次提交指令的时候检测是否有中断信号的出现**，如果有则触发中断，执行与异常处理时的同样操作。

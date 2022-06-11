@@ -26,6 +26,10 @@ module writeback
     assign dataW.skip = dataM.skip;
     assign dataW.address = dataM.address;
 
+    // csr信号
+    assign dataW.csrwrite = dataM.csrwrite;
+    assign dataW.csr_dst = dataM.csr_dst;
+    assign dataW.csrdata = dataM.csrdata;
 endmodule
 
 `endif

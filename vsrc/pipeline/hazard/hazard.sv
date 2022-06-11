@@ -16,6 +16,7 @@ module hazard
     input u1 memread,
     input creg_addr_t rs, rt,
     input creg_addr_t dst,
+    input creg_addr_t csr,
     input forward_data_out forward_execute,
     input forward_data_out forward_memory,
     input forward_data_out forward_writeback,
@@ -146,6 +147,58 @@ module hazard
         end
         else begin
             hazardOut.srcb_mux = 1'b0;
+        end
+    end
+
+    always_comb begin
+        // 产生转发csr第二个操作数的信号
+        // execute数据转发
+        if(
+            forward_execute.valid 
+            && 
+            forward_execute.dst == csr
+        ) begin
+            hazardOut.csr_mux = 1'b1;
+            hazardOut.csr_forward = forward_execute.data;
+        end
+        // memory数据转发
+        else if(
+            forward_memory.valid 
+            && 
+            forward_memory.dst == csr
+        ) begin
+            hazardOut.csr_mux = 1'b1;
+            hazardOut.csr_forward = forward_memory.data;
+        end
+        // writeback数据转发
+        else if(
+            forward_writeback.valid 
+            && 
+            forward_writeback.dst == csr
+        ) begin
+            hazardOut.csr_mux = 1'b1;
+            hazardOut.csr_forward = forward_writeback.data;
+        end 
+        // memory_copy数据转发
+        else if(
+            forward_memory_copy.valid 
+            && 
+            forward_memory_copy.dst == csr
+        ) begin
+            hazardOut.csr_mux = 1'b1;
+            hazardOut.csr_forward = forward_memory_copy.data;
+        end
+        // writeback_copy数据转发
+        else if(
+            forward_writeback_copy.valid 
+            && 
+            forward_writeback_copy.dst == csr
+        ) begin
+            hazardOut.csr_mux = 1'b1;
+            hazardOut.csr_forward = forward_writeback_copy.data;
+        end
+        else begin
+            hazardOut.csr_mux = 1'b0;
         end
     end
 

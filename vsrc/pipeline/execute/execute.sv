@@ -5,6 +5,7 @@
 `include "include/common.sv"
 `include "include/pipes.sv"
 `include "pipeline/execute/alu.sv"
+`include "pipeline/execute/csralu.sv"
 `else
 
 `endif
@@ -19,15 +20,19 @@ module execute
     input word_t rs1_forward,
     input u1 rs2_mux,
     input word_t rs2_forward,
+    input u1 csr_mux,
+    input word_t csr_forward,
     output logic data_ok,
     output execute_data_t dataE
 );
 
     word_t srca, srcb;
+    word_t csrb;
     word_t pcdata;      // 这两个数据肯定是从寄存器读出的，
     word_t memdata;     // 只管更新就行，会有信号进行过滤
     word_t result;
     logic done;
+    word_t csr_result;
 
     alu alu(
         .clk(clk),
@@ -38,6 +43,13 @@ module execute
         .word(dataD.ctl.word),
         .done(done),
         .c(result)
+    );
+
+    csralu csralu(
+        .a(dataD.csra),
+        .b(csrb),
+        .alufunc(dataD.ctl.csr_func),
+        .c(csr_result)
     );
     
     // 从转发器中更新读到的数据
@@ -69,6 +81,9 @@ module execute
             srcb = dataD.srcb;
         end
     end
+
+    // 转发要写入csr的数据
+    assign csrb = (csr_mux) ? csr_forward : dataD.csrb;
     
     // 计算跳转pc
     assign dataE.j_addr = (dataD.ctl.op == JALR) ? 
@@ -90,6 +105,10 @@ module execute
     assign dataE.ctl.msize = dataD.ctl.msize;
     assign dataE.ctl.mem_unsigned = dataD.ctl.mem_unsigned;
     assign data_ok = done;
+    // csr信号
+    assign dataE.csr_dst = dataD.ctl.csr_dst;
+    assign dataE.csrdata = csr_result;
+    assign dataE.ctl.csrwrite = dataD.ctl.csrwrite;
 endmodule
 
 `endif

@@ -39,6 +39,8 @@ module core
 	u1 clear;
 	creg_addr_t ra1, ra2;
 	word_t rd1, rd2;
+	u12 csr_addr;
+	word_t csr;				// csr寄存器读出字段
 	word_t memread_data;
 	u1 fetch_delay;
 	u1 memory_delay;
@@ -127,8 +129,10 @@ module core
 		.dataF(dataF_out),
 		.rd1(rd1),
 		.rd2(rd2),
+		.csr(csr),
 		.ra1(ra1),
 		.ra2(ra2),
+		.csr_addr(csr_addr),
 		.dataD(dataD)
 	);
 
@@ -148,6 +152,8 @@ module core
 		.rs1_forward(hazardOut.srca_forward),
 		.rs2_mux(hazardOut.srcb_mux),
 		.rs2_forward(hazardOut.srcb_forward),
+		.csr_mux(hazardOut.csr_mux),
+		.csr_forward(hazardOut.csr_forward),
 		.data_ok(execute_data_ok),
 		.dataE(dataE)
 	);
@@ -250,6 +256,7 @@ module core
 		.rs(dataD_out.ra1), 
 		.rt(dataD_out.ra2),
 		.dst(dataM.dst),
+		.csr(dataD_out.ra1),
 		.forward_execute(forward_execute),
 		.forward_memory(forward_memory),
 		.forward_writeback(forward_writeback),

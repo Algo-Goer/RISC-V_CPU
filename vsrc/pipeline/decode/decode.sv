@@ -7,6 +7,7 @@
 `include "pipeline/decode/decoder.sv"
 `include "pipeline/decode/extend.sv"
 `include "pipeline/decode/dataconfirm.sv"
+`include "pipeline/decode/csrconfirm.sv"
 `else
 
 `endif
@@ -19,8 +20,11 @@ module decode
     input fetch_data_t dataF,   
     //regfile读到的数据
     input word_t rd1, rd2,
+    // csr读到的数据
+    input word_t csr,
 
     output creg_addr_t ra1, ra2,
+    output u12 csr_addr,
     //译码得到的数据(交给excute运算)与控制信号
     output decode_data_t dataD
 );
@@ -28,6 +32,7 @@ module decode
     word_t imm;
     decode_control_t ctl;
     word_t srca, srcb;
+    word_t csrb;
     
     decoder decoder(
         .instruction(dataF.instruction),
@@ -46,12 +51,22 @@ module decode
         .rd1(rd1),
         .rd2(rd2),
         .imm(imm),
+        .csr(csr),
         .srca(srca),
         .srcb(srcb)
     );
 
+    csrconfirm csrconfirm(
+        .pc(dataF.pc),
+        .op(ctl.op),
+        .rd1(rd1),
+        .imm(imm),
+        .srcb(csrb)
+    );
+
     assign ra1 = dataF.instruction[19 : 15];
     assign ra2 = dataF.instruction[24 : 20];
+    assign csr_addr = dataF.instruction[31 : 20];
 
     // pc
     assign dataD.pc = dataF.pc;
@@ -64,6 +79,8 @@ module decode
     // 确定excute的两个操作数
     assign dataD.srca = srca;
     assign dataD.srcb = srcb;
+    assign dataD.csra = csr;
+    assign dataD.csrb = csrb;
 
     // 立即数
     assign dataD.imm = imm;

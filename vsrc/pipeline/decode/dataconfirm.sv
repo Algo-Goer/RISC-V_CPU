@@ -16,6 +16,7 @@ module dataconfirm
     input decode_op_t op,
     input word_t rd1, rd2,
     input word_t imm,
+    input word_t csr,
 
     output word_t srca, srcb 
 );
@@ -67,8 +68,11 @@ module dataconfirm
                 data1 = pc;
                 data2 = 4;
             end
+            CSRRW, CSRRS, CSRRC, CSRRWI, CSRRSI, CSRRCI : begin
+                data1 = csr;
+                data2 = '0;
+            end
             default: begin
-                
             end
         endcase
         

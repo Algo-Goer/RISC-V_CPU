@@ -69,6 +69,12 @@ module extend
                     instruction[25 : 20]
                 };
             end
+            CSRRWI, CSRRSI, CSRRCI : begin
+                imm = {
+                    59'b0,
+                    instruction[19 : 15]
+                };
+            end
             default: begin
 
             end

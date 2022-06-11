@@ -20,6 +20,7 @@ parameter F7_S_TYPE = 7'b0100011;
 parameter F7_JAL = 7'b1101111;
 parameter F7_JALR = 7'b1100111;
 parameter F7_B_TYPE = 7'b1100011;
+parameter F7_CSR = 7'b1110011;
 
 parameter F7_ADD = 7'b0000000;
 parameter F7_SUB = 7'b0100000;
@@ -49,6 +50,12 @@ parameter F3_D = 3'b011;
 parameter F3_BU = 3'b100;
 parameter F3_HU = 3'b101;
 parameter F3_WU = 3'b110;
+parameter F3_CSRRW = 3'b001;
+parameter F3_CSRRS = 3'b010;
+parameter F3_CSRRC = 3'b011;
+parameter F3_CSRRWI = 3'b101;
+parameter F3_CSRRSI = 3'b110;
+parameter F3_CSRRCI = 3'b111;
 
 /* Define pipeline structures here */
 // alu进行的操作类型
@@ -65,7 +72,7 @@ typedef enum logic [4 : 0] {
 } alufunc_t;
 
 // decode判断出的指令类型
-typedef enum logic [5 : 0] { 
+typedef enum logic [6 : 0] { 
 	UNKNOWN, 
 	ADDI, ORI, ANDI, XORI, LUI, AUIPC,
     SLTI, SLTIU, SLLI, SRLI, SRAI, 
@@ -78,7 +85,9 @@ typedef enum logic [5 : 0] {
 	JAL, JALR, 
 	BEQ, BNE, BLT, BGE, BLTU, BGEU,
     MUL, MULW, DIV, DIVW, MOD, MODW,
-    DIVU, DIVUW, MODU, MODUW
+    DIVU, DIVUW, MODU, MODUW,
+    CSRRW, CSRRS, CSRRC, 
+    CSRRWI, CSRRSI, CSRRCI
 } decode_op_t;
 
 // divider的计算类型
@@ -86,7 +95,7 @@ typedef enum logic {
     DIVOP, MODOP
 } divider_op_t;
 
-// decode流水段产生的控制信号
+// decode流水段产生的控制信号，添加对csr寄存器的控制信号
 typedef struct packed {
     // 指令信息
     decode_op_t op;
@@ -96,8 +105,10 @@ typedef struct packed {
     u1 btype;                   // 条件跳转
     // execute控制信号
     alufunc_t func;				// alu操作
+    alufunc_t csr_func;         // 得到csr数据的alu操作
     u1 srca_r; 
-    u1 srcb_r;                  //两个操作数是否可能需要更新
+    u1 srcb_r;                  // 两个操作数是否可能需要更新
+    u1 csr_r;                   // csr操作数是否需要转发
     // memory控制信号
     u1 memread;					// 内存读使能
     u1 memwrite;				// 内存写使能
@@ -106,6 +117,8 @@ typedef struct packed {
     // writeback控制信号
     u1 regwrite;				// regfile写使能
     creg_addr_t dst;			// 写回regfile编号
+    u1 csrwrite;                // csr写使能
+    u12 csr_dst;                // csr写入字段
 } decode_control_t;
 
 // execute阶段传递的控制信号
@@ -121,6 +134,7 @@ typedef struct packed {
     u1 mem_unsigned;            // 内存访存方式
     // writeback控制信号
     u1 regwrite;				// regfile写使能
+    u1 csrwrite;                // csr写使能
 } execute_control_t;
 
 // fetch阶段产生的信号
@@ -136,6 +150,7 @@ typedef struct packed {
 	creg_addr_t ra1;
     creg_addr_t ra2;
     word_t srca, srcb;			// 操作数
+    word_t csra, csrb;          // csr操作数
     word_t imm;                 //立即数扩展结果
     word_t pcdata;              // 待计算pc的数据，x[instruction[19 : 15]]
     word_t memdata;				// 待写入内存的数据，x[instruction[24 : 20]]
@@ -147,9 +162,11 @@ typedef struct packed {
     u64 pc;
     u32 instruction;
     creg_addr_t dst;			// 写回regfile编号
-    u64 j_addr;                 //跳转地址
+    u12 csr_dst;                // csr写入字段
+    u64 j_addr;                 // 跳转地址
     word_t memdata;				// 待写入内存的数据
     word_t result;				// 计算结果，可能作为访存地址，也可能作为regfile写回数据
+    word_t csrdata;             // 写入csr的数据结果
     execute_control_t ctl;		// 控制信号
 } execute_data_t;
 
@@ -162,6 +179,9 @@ typedef struct packed {
 	u1 regwrite;				// regfile写使能
 	creg_addr_t dst;			// 写回regfile编号
 	word_t regdata;				// 写回的数据
+    u1 csrwrite;                // csr写使能
+    u12 csr_dst;                // csr写入字段
+    word_t csrdata;             // 写入csr的数据结果
     u1 skip;
     word_t address;
 } memory_data_t;
@@ -177,6 +197,9 @@ typedef struct packed {
 	u1 regwrite;				// regfile写使能
 	creg_addr_t dst;			// 写回regfile编号
 	word_t regdata;				// 写回的数据
+    u1 csrwrite;                // csr写使能
+    u12 csr_dst;                // csr写入字段
+    word_t csrdata;             // 写入csr的数据结果
 } writeback_data_t;
 
 // forward寄存器模块输入
@@ -194,6 +217,8 @@ typedef struct packed {
     word_t srca_forward;
     u1 srcb_mux;
     word_t srcb_forward;
+    u1 csr_mux;
+    word_t csr_forward;
 } hazard_data_out;
 
 endpackage

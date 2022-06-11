@@ -30,6 +30,11 @@ module memory
     assign dataM.skip = dataE.ctl.memread | dataE.ctl.memwrite;
     assign dataM.address = dataE.result;
 
+    // csr信号
+    assign dataM.csrwrite = dataE.ctl.csrwrite;
+    assign dataM.csr_dst = dataE.csr_dst;
+    assign dataM.csrdata = dataE.csrdata;
+
 endmodule
 
 `endif 

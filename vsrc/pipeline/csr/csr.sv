@@ -75,6 +75,7 @@ module csr
 			regs_nxt.mstatus.mpp = 2'b0;
 			regs_nxt.mstatus.xs = 0;
 		end
+		/* 进入异常的Csr寄存器更新处理 */
 		else begin end
 	end
 	assign pcselect.mepc = regs.mepc;
