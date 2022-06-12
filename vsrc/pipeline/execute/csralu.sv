@@ -25,7 +25,7 @@ module csralu
 			ALU_OR  : result = srca | srcb;
 			ALU_AND : result = srca & srcb;
 			default: begin
-				result = srca;
+				result = srcb;
 			end
 		endcase
 	end

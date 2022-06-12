@@ -84,7 +84,7 @@ module execute
     end
 
     // 转发要写入csr的数据
-    assign csrb = (csr_mux) ? csr_forward : dataD.csrb;
+    assign csrb = (dataD.ctl.csr_r & csr_mux) ? csr_forward : dataD.csrb;
     
     // 计算跳转pc
     assign dataE.j_addr = (dataD.ctl.op == JALR) ? 

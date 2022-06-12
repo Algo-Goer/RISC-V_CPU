@@ -38,6 +38,7 @@ module csr
 			regs <= '0;
 			regs.mcause[1] <= 1'b1;
 			regs.mepc[31] <= 1'b1;
+			regs.mode <= 2'b11;
 		end else begin
 			regs <= regs_nxt;
 		end
