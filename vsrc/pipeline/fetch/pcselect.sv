@@ -12,14 +12,33 @@ module pcselect
     input u1 jump,
     input u64 pcplus4,
     input u64 j_addr,
-    input exception,
-    input u64 exception_pc,
+    input u1 interrupt,
+    input u64 interrupt_pc,
+    input u1 leave,
+    input u64 leave_pc,
+    input u1 csrwrite,
+    input u64 csrwrite_pc,
     output u64 pcselected
 );
     
     // 触发异常的话进入异常处理程序
-    assign pcselected = exception ? exception_pc : 
-        (jump ? j_addr : pcplus4);
+    always_comb begin
+        if(interrupt) begin
+            pcselected = interrupt_pc;
+        end
+        else if(leave) begin
+            pcselected = leave_pc;
+        end
+        else if(csrwrite) begin
+            pcselected = csrwrite_pc;
+        end
+        else if(jump) begin
+            pcselected = j_addr;
+        end
+        else begin
+            pcselected = pcplus4;
+        end
+    end
 
 endmodule
 

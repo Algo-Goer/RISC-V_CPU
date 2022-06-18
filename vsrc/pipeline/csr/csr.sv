@@ -4,12 +4,14 @@
 
 `ifdef VERILATOR
 `include "include/common.sv"
+`include "include/pipes.sv"
 `include "pipeline/csr/csr_pkg.sv"
 `else
 `endif
 
 module csr
 	import common::*;
+	import pipes::*;
 	/*import decode_pkg::*;*/
 	import csr_pkg::*;(
 	input logic clk, reset,
@@ -28,8 +30,18 @@ module csr
 	input word_t value,				// 异常信息值
 	// 结束中断的更新
 	input u1 leave,
+	// 中断类型
+	input u1 exint,
+	input u1 swint,
+	input u1 trint,
 	// 异常入口pc
-	output u64 mtvec
+	output u64 mtvec,
+	// 出口pc
+	output u64 mepc,
+	// 当前模式
+	output u2 mode,
+	// 全局中断使能
+	output u1 mie
 );
 	csr_regs_t regs, regs_nxt;
 
@@ -67,6 +79,9 @@ module csr
 	always_comb begin
 		regs_nxt = regs;
 		regs_nxt.mcycle = regs.mcycle + 1;
+		regs_nxt.mip[7] = trint;
+		regs_nxt.mip[3] = swint;
+		regs_nxt.mip[11] = exint;
 		// Writeback: W stage
 		if (we) begin
 			unique case(wa)
@@ -83,19 +98,9 @@ module csr
 				end
 			endcase
 			regs_nxt.mstatus.sd = regs_nxt.mstatus.fs != 0;
-			/* 离开异常的Csr寄存器更新处理 */
-		end else if (leave) begin
-			/**
-			mode <- CSRs[mstatus].mpp;					// 返回原来的处理器权限模式
-			// 对csr内部状态的修改，在writeback阶段执行
-			CSRs[mstatus].mie <- CSRs[mstatus].mpie;	// 设置回原来的全局中断状态
-			CSRs[mstatus].mpie <- 1'b1;
-			CSRs[mstatus].mpp <- 2'b0;						// 支持用户模式设置mpp为0
-			*/
-			// regs_nxt.mstatus.mie = regs_nxt.mstatus.mpie;
-			// regs_nxt.mstatus.mpie = 1'b1;
-			// regs_nxt.mstatus.mpp = 2'b0;
-			// regs_nxt.mstatus.xs = 0;
+		end
+		/* 离开异常的Csr寄存器更新处理 */
+		else if (leave) begin
 			regs_nxt.mode = regs.mstatus.mpp;
 			regs_nxt.mstatus.mie = regs.mstatus.mpie;
 			regs_nxt.mstatus.mpie = 1'b1;
@@ -103,30 +108,51 @@ module csr
 		end
 		/* 进入异常的Csr寄存器更新处理 */
 		else if (enter) begin
-			/**
-			// 更新权限模式
-			mode <- 3;
-			// 更新CSRs寄存器
-			CSRs[mepc] <- pc + 4;						// 设置返回地址
-			CSRs[mcause][63] <- 1 if interrupt else 0;
-			CSRs[mcause][62:0] <- code;					// 设置异常原因
-			CSRs[mstatus].mpie <- CSRs[mstatus].mie;		// 保存处理异常前的全局中断使能
-			CSRs[mstatus].mie <- 0;						// 设置全局中断使能为0
-			CSRS[mstatus].mpp <- mode;					// 保存处理异常前的权限模式
-			CSRs[mtval] <- value;
-			*/
 			regs_nxt.mode = 2'b11;
 			regs_nxt.mepc = pc;
-			regs_nxt.mcause[63] = interrupt ? 1'b1 : 1'b0;
+			regs_nxt.mcause[63] = 1'b0;
 			regs_nxt.mcause[62 : 0] = code;
 			regs_nxt.mstatus.mpie = regs.mstatus.mie;
 			regs_nxt.mstatus.mie = 1'b0;
 			regs_nxt.mstatus.mpp = regs.mode;
-			regs_nxt.mtval = value;
+			// regs_nxt.mtval = value;
+		end
+		/* 计时器中断 */
+		else if(regs.mstatus.mie & regs.mie[7] & trint) begin
+			regs_nxt.mepc = pc;
+			regs_nxt.mcause[63] = 1'b1;
+			regs_nxt.mcause[62 : 0] = INTERRUPT_TIMER;
+            regs_nxt.mstatus.mpie = regs.mstatus.mie;
+            regs_nxt.mstatus.mie = 1'b0;
+            regs_nxt.mstatus.mpp = mode;
+			regs_nxt.mode = 2'b11;
+		end
+		/* 软件中断 */
+		else if (regs.mstatus.mie & regs.mie[3] & swint) begin
+            regs_nxt.mepc = pc;
+			regs_nxt.mcause[63] = 1'b1;
+			regs_nxt.mcause[62 : 0] = INTERRUPT_SOFTWARE;
+            regs_nxt.mstatus.mpie = regs.mstatus.mie;
+            regs_nxt.mstatus.mie = 1'b0;
+            regs_nxt.mstatus.mpp = mode;
+			regs_nxt.mode = 2'b11;
+		end
+		/* 外部中断 */
+		else if (regs.mstatus.mie & regs.mie[11] & exint) begin
+            regs_nxt.mepc = pc;
+			regs_nxt.mcause[63] = 1'b1;
+			regs_nxt.mcause[62 : 0] = INTERRUPT_EXTERNAL;
+            regs_nxt.mstatus.mpie = regs.mstatus.mie;
+            regs_nxt.mstatus.mie = 1'b0;
+            regs_nxt.mstatus.mpp = mode;
+			regs_nxt.mode = 2'b11;
 		end
 	end
 
 	assign mtvec = regs.mtvec;
+	assign mepc = regs.mepc;
+	assign mode = regs.mode;
+	assign mie = regs.mstatus.mie;
 	
 endmodule
 

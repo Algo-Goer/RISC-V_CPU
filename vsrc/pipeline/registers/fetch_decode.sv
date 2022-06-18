@@ -22,10 +22,12 @@ module fetch_decode
             if (reset) begin
                 dataF_out.pc = 64'h8000_0000;
                 dataF_out.instruction = '0;
+                dataF_out.ex_data = '0;
             end
             else begin
                 dataF_out.pc = dataF.pc;
                 dataF_out.instruction = dataF.instruction;
+                dataF_out.ex_data = dataF.ex_data;
             end
         end
     end

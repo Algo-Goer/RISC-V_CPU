@@ -56,15 +56,23 @@ parameter F3_CSRRC = 3'b011;
 parameter F3_CSRRWI = 3'b101;
 parameter F3_CSRRSI = 3'b110;
 parameter F3_CSRRCI = 3'b111;
+parameter F3_MRET_ECALL = 3'b000;
+parameter F7_MRET = 7'b0011000;
 
 // 异常码类型
 parameter INSTR_ADDR_MISALIGNED = 63'b0;
 parameter LOAD_ADDR_MISALIGNED = 63'h4;
 parameter STORE_ADDR_MISALIGNED = 63'h6;
-parameter ILLEGAL_INSTR = 63'h2;
+parameter INVALID_INSTR = 63'h2;
 parameter ECALL_FROM_M = 63'hB;
 parameter ECALL_FROM_S = 63'h9;
 parameter ECALL_FROM_U = 63'h8;
+parameter INTERRUPT_TIMER = 63'h7;
+parameter INTERRUPT_SOFTWARE = 63'h3;
+parameter INTERRUPT_EXTERNAL = 63'hB;
+parameter M_MODE = 2'b11;
+parameter S_MODE = 2'b01;
+parameter U_MODE = 2'b00;
 
 /* Define pipeline structures here */
 // alu进行的操作类型
@@ -97,6 +105,7 @@ typedef enum logic [6 : 0] {
     DIVU, DIVUW, MODU, MODUW,
     CSRRW, CSRRS, CSRRC, 
     CSRRWI, CSRRSI, CSRRCI,
+    MRET, ECALL,
     UNKNOWN
 } decode_op_t;
 

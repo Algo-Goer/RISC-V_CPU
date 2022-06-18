@@ -399,12 +399,38 @@ module decoder
                         ctl.op = CSRRCI;
                         ctl.csr_func = ALU_AND;
                     end
+                    F3_MRET_ECALL : begin
+                        // mret指令
+                        if(func7 == F7_MRET) begin
+                            // mret指令控制信号
+                            ctl.op = MRET;
+                            ctl.regwrite = 1'b0;
+                            ctl.dst = '0;
+                            ctl.csrwrite = 1'b0;
+                            ctl.csr_dst = '0;
+                        end
+                        else if(instruction[31 : 7] == '0) begin
+                            // ecall指令控制信号
+                            ctl.op = ECALL;
+                            ctl.regwrite = 1'b0;
+                            ctl.dst = '0;
+                            ctl.csrwrite = 1'b0;
+                            ctl.csr_dst = '0;
+                        end
+                        else begin
+                        end
+                    end
                     default : begin
                     end
                 endcase
             end
             default : begin
-                // ctl.op = UNKNOWN;
+                if(instruction == '0) begin
+                    ctl.op = FLUSH;
+                end
+                else begin
+                    ctl.op = UNKNOWN;
+                end
             end
         endcase
         

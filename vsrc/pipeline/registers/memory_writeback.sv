@@ -12,17 +12,19 @@ module memory_writeback
     import common::*;
     import pipes::*;(
     
-    input u1 clk, reset,
+    input u1 clk, reset, stall,
     input memory_data_t dataM,
     output memory_data_t dataM_out
 );
 
     always_ff @( posedge clk ) begin
-        if(reset) begin
-            dataM_out <= '0;
-        end
-        else begin
-            dataM_out <= dataM;
+        if(~stall) begin
+            if(reset) begin
+                dataM_out <= '0;
+            end
+            else begin
+                dataM_out <= dataM;
+            end
         end
     end
     

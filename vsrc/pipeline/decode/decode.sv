@@ -22,6 +22,8 @@ module decode
     input word_t rd1, rd2,
     // csr读到的数据
     input word_t csr,
+    // 当前的权限模式
+    input u2 mode,
 
     output creg_addr_t ra1, ra2,
     output u12 csr_addr,
@@ -93,7 +95,7 @@ module decode
     assign dataD.memdata = (ctl.op == SD || ctl.op == SB || ctl.op == SH || ctl.op == SW) ? rd2 : '0;
 
     // 确定控制信号
-    assign dataD.ctl = ctl;
+    assign dataD.ctl = dataF.ex_data.exception ? '0 : ctl;
 
     // 确定异常信号，若前面流水段未发生异常则设置异常
     assign dataD.ex_data = dataF.ex_data.exception ? dataF.ex_data : exception;
@@ -107,8 +109,24 @@ module decode
         else if(ctl.op == UNKNOWN) begin
             // 触发非法指令异常
             exception.exception = 1'b1;
-            exception.code = ILLEGAL_INSTR;     // 非法指令
+            exception.code = INVALID_INSTR;     // 非法指令
             exception.value = dataF.pc;
+        end
+        else if(ctl.op == ECALL) begin
+            exception.exception = 1'b1;
+            case(mode)
+                M_MODE : begin
+                    exception.code = ECALL_FROM_M;
+                end
+                S_MODE : begin
+                    exception.code = ECALL_FROM_S;
+                end
+                U_MODE : begin
+                    exception.code = ECALL_FROM_U;
+                end
+                default: begin
+                end
+            endcase
         end
         else begin
             exception = '0;
