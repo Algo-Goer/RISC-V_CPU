@@ -25,7 +25,7 @@ module csr
 	// 开始中断的更新
 	input u1 enter,					// 是否为进入中断
 	input u64 pc,					// 异常pc
-	input u1 interrupt,				// 是否为中断
+	// input u1 interrupt,				// 是否为中断
 	input logic[62 : 0] code,		// 异常原因
 	input word_t value,				// 异常信息值
 	// 结束中断的更新

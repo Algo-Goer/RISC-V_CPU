@@ -74,6 +74,10 @@ parameter M_MODE = 2'b11;
 parameter S_MODE = 2'b01;
 parameter U_MODE = 2'b00;
 
+typedef enum logic [1 : 0] { 
+    EXCEPTION, EXTERNAL, SOFTWARE, TIMER
+} interrupt_type;
+
 /* Define pipeline structures here */
 // alu进行的操作类型
 typedef enum logic [4 : 0] {

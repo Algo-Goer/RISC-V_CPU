@@ -16,11 +16,11 @@
 `include "pipeline/registers/decode_execute.sv"
 `include "pipeline/registers/execute_memory.sv"
 `include "pipeline/registers/memory_writeback.sv"
-`include "pipeline/registers/lastcommit.sv"
 `include "pipeline/hazard/forward.sv"
 `include "pipeline/hazard/hazard.sv"
 `include "pipeline/hazard/controller.sv"
 `include "pipeline/csr/csr.sv"
+`include "pipeline/csr/interrupt_controller.sv"
 `else
 
 `endif
@@ -76,22 +76,22 @@ module core
 	u64 mepc;
 	u2 mode;
 	u1 mie;
-	u64 lastcommit_pc;
 
-	u1 exception;				// 是否引发异常
-	assign exception = dataW.ex_data.exception;
+	// u1 exception;				// 是否引发异常
+	// assign exception = dataW.ex_data.exception;
 
 	// 离开中断
 	u1 leave;
 	assign leave = (dataW.op == MRET);
 
-	// 非异常中断状态
+	// 进入中断状态
 	u1 interrupt;
-	assign interrupt = exint | swint | trint;
+	interrupt_type i_type;
+	u64 return_pc;
 
 	// 更新csr寄存器，异常/中断/离开/写入
 	u1 update_csr;
-	assign update_csr = exception | interrupt | leave | dataW.csrwrite;
+	assign update_csr = interrupt | leave | dataW.csrwrite;
 
 	// csr控制清除流水线遇到前面的取值/访存阻塞
 	u1 csr_stall;
@@ -113,7 +113,7 @@ module core
 	// 数据访存设置
 	// 发送请求同时处理访存握手，若出现地址不对齐的情况则不发起请求
 	assign dreq.valid = (dataE_out.ctl.memread | dataE_out.ctl.memwrite)  
-		& ~dataE_out.ex_data.exception & ~update_csr;	// 若writeback阶段发生异常则不请求
+		& ~dataE_out.ex_data.exception & ~(dataW.ex_data.exception | leave | dataW.csrwrite);	// 若writeback阶段发生异常则不请求
 	assign dreq.strobe = (dataE_out.ctl.memwrite) ? strobe : '0;
 	assign dreq.addr = 
 		(dataE_out.ctl.memread | dataE_out.ctl.memwrite)
@@ -139,7 +139,7 @@ module core
 		.jump(dataE.ctl.jump),
 		.pcplus4(pc + 4),
 		.j_addr(dataE.j_addr),
-		.interrupt(exception | (mie & interrupt)),
+		.interrupt(interrupt),
 		.interrupt_pc(mtvec),
 		.leave(leave),
 		.leave_pc(mepc),
@@ -341,9 +341,9 @@ module core
 		.we(dataW.csrwrite),
 		.wa(dataW.csr_dst),
 		.wd(dataW.csrdata),
-		.enter(exception | interrupt),		// 是否进入中断
-		.pc(/*lastcommit_pc + 4*/dataW.pc),					// 返回的pc
-		.interrupt(interrupt),				// 是否不是异常引发的中断
+		.enter(interrupt),				// 是否进入中断
+		.pc(return_pc),					// 返回的pc
+		// .interrupt(interrupt),			// 是否中断
 		.exint(exint),
 		.swint(swint),
 		.trint(trint),
@@ -356,11 +356,23 @@ module core
 		.mie(mie)
 	);
 
-	// 上条提交的有效指令
-	lastcommit lastcommit(
-		.clk(clk),
+	// 处理中断情况
+	interrupt_controller interrupt_controller(
+		.exint(exint),
+		.swint(swint),
+		.trint(trint),
+		.mie(mie),
 		.dataW(dataW),
-		.pc(lastcommit_pc)
+		.dataF(dataF),
+		.dataD(dataD),
+		.dataE(dataE),
+		.dataM(dataM),
+		.fetch_delay(fetch_delay),
+		.memory_delay(memory_delay),
+		.jump(dataE.ctl.jump | leave | dataW.csrwrite),
+		.interrupt(interrupt),
+		.return_pc(return_pc),
+		.i_type(i_type)
 	);
 
 `ifdef VERILATOR
