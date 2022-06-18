@@ -24,16 +24,13 @@ module csr
 	input word_t wd,
 	// 开始中断的更新
 	input u1 enter,					// 是否为进入中断
-	input u64 pc,					// 异常pc
-	// input u1 interrupt,				// 是否为中断
+	input u64 pc,					// 返回pc
 	input logic[62 : 0] code,		// 异常原因
 	input word_t value,				// 异常信息值
+	// 中断类型
+	interrupt_type i_type,
 	// 结束中断的更新
 	input u1 leave,
-	// 中断类型
-	input u1 exint,
-	input u1 swint,
-	input u1 trint,
 	// 异常入口pc
 	output u64 mtvec,
 	// 出口pc
@@ -79,9 +76,9 @@ module csr
 	always_comb begin
 		regs_nxt = regs;
 		regs_nxt.mcycle = regs.mcycle + 1;
-		regs_nxt.mip[7] = trint;
-		regs_nxt.mip[3] = swint;
-		regs_nxt.mip[11] = exint;
+		regs_nxt.mip[7] = i_type == TIMER;
+		regs_nxt.mip[3] = i_type == SOFTWARE;
+		regs_nxt.mip[11] = i_type == EXTERNAL;
 		// Writeback: W stage
 		if (we) begin
 			unique case(wa)
@@ -107,7 +104,7 @@ module csr
 			regs_nxt.mstatus.mpp = 2'b0;
 		end
 		/* 进入异常的Csr寄存器更新处理 */
-		else if (enter) begin
+		else if (enter && i_type == EXCEPTION) begin
 			regs_nxt.mode = 2'b11;
 			regs_nxt.mepc = pc;
 			regs_nxt.mcause[63] = 1'b0;
@@ -118,7 +115,7 @@ module csr
 			// regs_nxt.mtval = value;
 		end
 		/* 计时器中断 */
-		else if(regs.mstatus.mie & regs.mie[7] & trint) begin
+		else if(regs.mstatus.mie && i_type == TIMER) begin
 			regs_nxt.mepc = pc;
 			regs_nxt.mcause[63] = 1'b1;
 			regs_nxt.mcause[62 : 0] = INTERRUPT_TIMER;
@@ -128,7 +125,7 @@ module csr
 			regs_nxt.mode = 2'b11;
 		end
 		/* 软件中断 */
-		else if (regs.mstatus.mie & regs.mie[3] & swint) begin
+		else if (regs.mstatus.mie && i_type == SOFTWARE) begin
             regs_nxt.mepc = pc;
 			regs_nxt.mcause[63] = 1'b1;
 			regs_nxt.mcause[62 : 0] = INTERRUPT_SOFTWARE;
@@ -138,7 +135,7 @@ module csr
 			regs_nxt.mode = 2'b11;
 		end
 		/* 外部中断 */
-		else if (regs.mstatus.mie & regs.mie[11] & exint) begin
+		else if (regs.mstatus.mie && i_type == EXTERNAL) begin
             regs_nxt.mepc = pc;
 			regs_nxt.mcause[63] = 1'b1;
 			regs_nxt.mcause[62 : 0] = INTERRUPT_EXTERNAL;

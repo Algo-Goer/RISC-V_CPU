@@ -343,10 +343,7 @@ module core
 		.wd(dataW.csrdata),
 		.enter(interrupt),				// 是否进入中断
 		.pc(return_pc),					// 返回的pc
-		// .interrupt(interrupt),			// 是否中断
-		.exint(exint),
-		.swint(swint),
-		.trint(trint),
+		.i_type(i_type),
 		.code(dataW.ex_data.code),			// 异常编码
 		.value(dataW.ex_data.value),
 		.leave(leave),						// 离开异常，dataW的操作为mret
