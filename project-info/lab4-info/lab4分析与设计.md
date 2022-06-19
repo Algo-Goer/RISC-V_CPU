@@ -224,11 +224,11 @@ lab4的异常在`writeback`段处理，这里的处理是指在`writeback`时，
 
 目录：增加了csr的有关部件：
 
-<img title="" src="file:///D:/WorkSpace/Git_Project/RISC-V_CPU/project-info/lab4-info/img/catalogue.png" alt="" data-align="center">
+<img title="" src="img/catalogue.png" alt="" data-align="center">
 
 测试通过：
 
-![](/img/passed-1.png)
+![](img/passed-1.png)
 
 ![](img/passed-2.png)
 

@@ -40,7 +40,7 @@
 
 ## 二、测试通过截图
 
-![](/img/passed-1.png)
+![](img/passed-1.png)
 
 ![](img/passed-2.png)
 
