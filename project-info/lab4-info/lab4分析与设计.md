@@ -216,6 +216,22 @@ lab4的异常在`writeback`段处理，这里的处理是指在`writeback`时，
 
 602e那条指令（未对齐的pc），我检测出来异常了，但是没有把控制信号置为0。结果这条指令instruction取出来了，并且经过了完整的流水线，在write back阶段把602e这个未对齐的pc写到了寄存器a1里面；而后面的程序需要用a1来重新设置mepc，所以我的mepc就一直是602e这个未对齐的pc，就一直返回出错。
 
+### 2、异常出现时，流水线在阻塞但已经更新了Csr导致mode维护出错
 
+当在W阶段要处理异常信号时，fetch在访存且没有就绪，但由于异常信号的出现，此时`csr`寄存器已经更新（尤其是`mode`与`mpp`状态的更新），流水线始终阻塞，而`mode`更新为`11`导致下个周期`mpp`被设置为新的`mode`，丢失原来的模式，需要在进入中断的信号中添加一个阻塞信号，若在阻塞则等待就绪后再统一处理异常并更新`csr`寄存器。
 
+## 六、最终实现
 
+目录：增加了csr的有关部件：
+
+<img title="" src="file:///D:/WorkSpace/Git_Project/RISC-V_CPU/project-info/lab4-info/img/catalogue.png" alt="" data-align="center">
+
+测试通过：
+
+![](/img/passed-1.png)
+
+![](img/passed-2.png)
+
+![](img/passed-3.png)
+
+![](img/passed-4.png)
