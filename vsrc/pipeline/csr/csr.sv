@@ -48,6 +48,7 @@ module csr
 			regs.mcause[1] <= 1'b1;
 			regs.mepc[31] <= 1'b1;
 			regs.mode <= 2'b11;
+			// regs.mstatus.mpp <= 2'b11;
 		end else begin
 			regs <= regs_nxt;
 		end
@@ -101,7 +102,7 @@ module csr
 			regs_nxt.mode = regs.mstatus.mpp;
 			regs_nxt.mstatus.mie = regs.mstatus.mpie;
 			regs_nxt.mstatus.mpie = 1'b1;
-			regs_nxt.mstatus.mpp = 2'b0;
+			regs_nxt.mstatus.mpp = 2'b00;
 		end
 		/* 进入异常的Csr寄存器更新处理 */
 		else if (enter && i_type == EXCEPTION) begin
@@ -112,10 +113,10 @@ module csr
 			regs_nxt.mstatus.mpie = regs.mstatus.mie;
 			regs_nxt.mstatus.mie = 1'b0;
 			regs_nxt.mstatus.mpp = regs.mode;
-			// regs_nxt.mtval = value;
+			regs_nxt.mtval = value;
 		end
 		/* 计时器中断 */
-		else if(regs.mstatus.mie && i_type == TIMER) begin
+		else if(enter && regs.mstatus.mie && i_type == TIMER) begin
 			regs_nxt.mepc = pc;
 			regs_nxt.mcause[63] = 1'b1;
 			regs_nxt.mcause[62 : 0] = INTERRUPT_TIMER;
@@ -125,7 +126,7 @@ module csr
 			regs_nxt.mode = 2'b11;
 		end
 		/* 软件中断 */
-		else if (regs.mstatus.mie && i_type == SOFTWARE) begin
+		else if (enter && regs.mstatus.mie && i_type == SOFTWARE) begin
             regs_nxt.mepc = pc;
 			regs_nxt.mcause[63] = 1'b1;
 			regs_nxt.mcause[62 : 0] = INTERRUPT_SOFTWARE;
@@ -135,7 +136,7 @@ module csr
 			regs_nxt.mode = 2'b11;
 		end
 		/* 外部中断 */
-		else if (regs.mstatus.mie && i_type == EXTERNAL) begin
+		else if (enter && regs.mstatus.mie && i_type == EXTERNAL) begin
             regs_nxt.mepc = pc;
 			regs_nxt.mcause[63] = 1'b1;
 			regs_nxt.mcause[62 : 0] = INTERRUPT_EXTERNAL;

@@ -97,21 +97,21 @@ module execute
     assign dataE.instruction = dataD.instruction;
     assign dataE.memdata = memdata;
     assign dataE.result = result;
-    assign dataE.ctl.jump = (dataD.ctl.jump) | 
+    assign dataE.ctl.jump = dataD.ex_data.exception ? '0 : (dataD.ctl.jump) | 
         (dataD.ctl.btype == 1 && result == 1) ? 1'b1 : 1'b0;
     assign dataE.ctl.op = dataD.ctl.op;
-    assign dataE.ctl.memread = dataD.ctl.memread;
-    assign dataE.ctl.memwrite = dataD.ctl.memwrite;
-    assign dataE.ctl.regwrite = dataD.ctl.regwrite;
-    assign dataE.dst = dataD.ctl.dst;
+    assign dataE.ctl.memread = dataD.ex_data.exception ? '0 : dataD.ctl.memread;
+    assign dataE.ctl.memwrite = dataD.ex_data.exception ? '0 : dataD.ctl.memwrite;
+    assign dataE.ctl.regwrite = dataD.ex_data.exception ? '0 : dataD.ctl.regwrite;
+    assign dataE.dst = dataD.ex_data.exception ? '0 : dataD.ctl.dst;
     // 接收访存参数
     assign dataE.ctl.msize = dataD.ctl.msize;
-    assign dataE.ctl.mem_unsigned = dataD.ctl.mem_unsigned;
+    assign dataE.ctl.mem_unsigned = dataD.ex_data.exception ? '0 : dataD.ctl.mem_unsigned;
     assign data_ok = done;
     // csr信号
-    assign dataE.csr_dst = dataD.ctl.csr_dst;
+    assign dataE.csr_dst = dataD.ex_data.exception ? '0 : dataD.ctl.csr_dst;
     assign dataE.csrdata = csr_result;
-    assign dataE.ctl.csrwrite = dataD.ctl.csrwrite;
+    assign dataE.ctl.csrwrite = dataD.ex_data.exception ? '0 : dataD.ctl.csrwrite;
 
     // 执行阶段暂无可能的异常，只需要传递前面检测到的异常即可
     assign dataE.ex_data = dataD.ex_data.exception ? dataD.ex_data : exception;

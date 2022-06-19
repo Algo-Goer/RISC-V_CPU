@@ -341,7 +341,7 @@ module core
 		.we(dataW.csrwrite),
 		.wa(dataW.csr_dst),
 		.wd(dataW.csrdata),
-		.enter(interrupt),				// 是否进入中断
+		.enter(interrupt & ~fetch_delay),				// 是否进入中断
 		.pc(return_pc),					// 返回的pc
 		.i_type(i_type),
 		.code(dataW.ex_data.code),			// 异常编码
